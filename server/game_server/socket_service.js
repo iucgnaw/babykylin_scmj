@@ -33,7 +33,7 @@ exports.start = function(conf,mgr){
 		socket.on('login',function(data){
 			data = JSON.parse(data);
 			if(socket.userId != null){
-				//已经登陆过的就忽略
+				//已经登录过的就忽略
 				return;
 			}
 			var token = data.token;

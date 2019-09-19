@@ -1,17 +1,17 @@
-﻿var HALL_IP = "127.0.0.1";
+﻿var HALL_IP = "game.iucgnaw.com";
 var HALL_CLIENT_PORT = 9001;
 var HALL_ROOM_PORT = 9002;
 
 var ACCOUNT_PRI_KEY = "^&*#$%()@";
 var ROOM_PRI_KEY = "~!@#$(*&^%$&";
 
-var LOCAL_IP = 'localhost';
+var LOCAL_IP = 'game.iucgnaw.com';
 
 exports.mysql = function(){
 	return {
-		HOST:'127.0.0.1',
+		HOST:'game.iucgnaw.com',
 		USER:'root',
-		PSWD:'',
+		PSWD:'Qwer!234',
 		DB:'db_babykylin',
 		PORT:3306,
 	}

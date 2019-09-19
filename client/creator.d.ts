@@ -10677,7 +10677,7 @@ declare module anysdk {
 		to login verification
 		!#zh
 		appKey、appSecret、privateKey是通过 AnySDK 客户端工具创建游戏后生成的。
-		oauthLoginServer参数是游戏服务提供的用来做登陆验证转发的接口地址。 
+		oauthLoginServer参数是游戏服务提供的用来做登录验证转发的接口地址。 
 		*/
 		init(appKey : string, appSecret : string, privateKey : string, oauthLoginServer : string) : void;		
 		/** !#en

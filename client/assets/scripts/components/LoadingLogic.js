@@ -36,7 +36,7 @@ cc.Class({
     
     onLoadComplete:function(){
         this._isLoading = false;
-        this._stateStr = "准备登陆";
+        this._stateStr = "准备登录";
         cc.director.loadScene("login");
     },
 

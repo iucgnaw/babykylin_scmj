@@ -1,18 +1,18 @@
-﻿var HALL_IP = "127.0.0.1";//如果非本机访问，这里要变
+﻿var HALL_IP = "game.iucgnaw.com";//如果非本机访问，这里要变
 var HALL_CLIENT_PORT = 9001;
 var HALL_ROOM_PORT = 9002;
 
 var ACCOUNT_PRI_KEY = "^&*#$%()@";
 var ROOM_PRI_KEY = "~!@#$(*&^%$&";
 
-var LOCAL_IP = 'localhost';
+var LOCAL_IP = 'game.iucgnaw.com';
 
 exports.mysql = function(){
 	return {
-		HOST:'127.0.0.1',
+		HOST:'game.iucgnaw.com',
 		USER:'root',
-		PSWD:'123456',//如果连接失败，请检查这里
-		DB:'db_scmj',//如果连接失败，请检查这里
+		PSWD:'Qwer!234',//如果连接失败，请检查这里
+		DB:'db_babykylin',//如果连接失败，请检查这里
 		PORT:3306,
 	}
 }

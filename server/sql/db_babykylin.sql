@@ -94,8 +94,8 @@ CREATE TABLE `t_message` (
 -- ----------------------------
 -- Records of t_message
 -- ----------------------------
-INSERT INTO `t_message` VALUES ('notice', '幼麟游戏，卓越品质，值得信赖', '20161128');
-INSERT INTO `t_message` VALUES ('fkgm', '幼麟游戏，卓越品质，值得信赖', '20161128');
+INSERT INTO `t_message` VALUES ('notice', 'Hello, Mahjong!', '20190919');
+INSERT INTO `t_message` VALUES ('fkgm', 'Hello, Mahjong!', '20190919');
 
 -- ----------------------------
 -- Table structure for `t_rooms`
@@ -134,7 +134,7 @@ CREATE TABLE `t_rooms` (
 -- ----------------------------
 -- Records of t_rooms
 -- ----------------------------
-INSERT INTO `t_rooms` VALUES ('1490875578938526035', '526035', '{\"type\":\"xzdd\",\"baseScore\":1,\"zimo\":0,\"jiangdui\":false,\"hsz\":false,\"dianganghua\":0,\"menqing\":false,\"tiandihu\":false,\"maxFan\":4,\"maxGames\":4,\"creator\":9}', '1490875579', '0', '0', '9', '', '5aSP5L6v6LWM5L6g', '0', '10', '', '55qH55Sr56iz6LWi', '0', '11', '', '5Lic5pa56ZuA5Zyj', '0', '12', '', '5qyn6Ziz6Ieq5pG4', '0', '127.0.0.1', '10000');
+INSERT INTO `t_rooms` VALUES ('1490875578938526035', '526035', '{\"type\":\"xzdd\",\"baseScore\":1,\"zimo\":0,\"jiangdui\":false,\"hsz\":false,\"dianganghua\":0,\"menqing\":false,\"tiandihu\":false,\"maxFan\":4,\"maxGames\":4,\"creator\":9}', '1490875579', '0', '0', '9', '', '5aSP5L6v6LWM5L6g', '0', '10', '', '55qH55Sr56iz6LWi', '0', '11', '', '5Lic5pa56ZuA5Zyj', '0', '12', '', '5qyn6Ziz6Ieq5pG4', '0', 'game.iucgnaw.com', '10000');
 
 -- ----------------------------
 -- Table structure for `t_users`
