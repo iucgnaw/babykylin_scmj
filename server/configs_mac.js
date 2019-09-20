@@ -5,11 +5,11 @@ var HALL_ROOM_PORT = 9002;
 var ACCOUNT_PRI_KEY = "^&*#$%()@";
 var ROOM_PRI_KEY = "~!@#$(*&^%$&";
 
-var LOCAL_IP = 'game.iucgnaw.com';
+var LOCAL_IP = 'localhost';
 
 exports.mysql = function(){
 	return {
-		HOST:'game.iucgnaw.com',
+		HOST:'127.0.0.1',
 		USER:'root',
 		PSWD:'Qwer!234',//如果连接失败，请检查这里
 		DB:'db_babykylin',//如果连接失败，请检查这里
