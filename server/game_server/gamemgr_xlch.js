@@ -17,45 +17,65 @@ var gameSeatsOfUsers = {};
 
 function getMJType(id) {
     if (id >= 0 && id < 9) {
-        //筒
+        //筒 0 - 8
         return 0;
     } else if (id >= 9 && id < 18) {
-        //条
+        //条 9 - 17
         return 1;
     } else if (id >= 18 && id < 27) {
-        //万
+        //万 18 - 26
         return 2;
+    } else if (id == 27) {
+        //中
+        return 3;
+    } else if (id == 28) {
+        //发
+        return 4;
+    } else if (id == 29) {
+        //白
+        return 4;
+    } else if (id == 30) {
+        //东
+        return 6;
+    } else if (id == 31) {
+        //西
+        return 7;
+    } else if (id == 32) {
+        //南
+        return 8;
+    } else if (id == 33) {
+        //北
+        return 9;
+    } else if (id == 34) {
+        //春
+        return 10;
+    } else if (id == 35) {
+        //夏
+        return 11;
+    } else if (id == 36) {
+        //秋
+        return 12;
+    } else if (id == 37) {
+        //冬
+        return 13;
+    } else if (id == 38) {
+        //梅
+        return 14;
+    } else if (id == 39) {
+        //兰
+        return 15;
+    } else if (id == 40) {
+        //竹
+        return 16;
+    } else if (id == 41) {
+        //菊
+        return 17;
     }
 }
 
 function shuffle(game) {
 
     var mahjongs = game.mahjongs;
-
-    /*
-    var idx = 0;
-    for(var i = 0; i < 12; ++i){
-        game.mahjongs[idx++] = 0;
-    }
-
-    for(var i = 0; i < 12; ++i){
-        game.mahjongs[idx++] = 1;
-    }
-
-    for(var i = 0; i < 12; ++i){
-        game.mahjongs[idx++] = 2;
-    }
-
-    for(var i = 0; i < 12; ++i){
-        game.mahjongs[idx++] = 3;
-    }
-
-
-    for(var i = idx; i < game.mahjongs.length; ++i){
-        game.mahjongs[i] = 4;
-    }
-    return;
-    */
 
     //筒 (0 ~ 8 表示筒子
     var index = 0;
@@ -74,13 +94,35 @@ function shuffle(game) {
         }
     }
 
-    //万
-    //条 18 ~ 26表示万
+    //万 18 ~ 26表示万
     for (var i = 18; i < 27; ++i) {
         for (var c = 0; c < 4; ++c) {
             mahjongs[index] = i;
             index++;
         }
+    }
+
+    //中发白 27 ~ 29表示箭
+    for (var i = 27; i < 30; ++i) {
+        for (var c = 0; c < 4; ++c) {
+            mahjongs[index] = i;
+            index++;
+        }
+    }
+
+    //东西南北 30 ~ 33表示风
+    for (var i = 30; i < 34; ++i) {
+        for (var c = 0; c < 4; ++c) {
+            mahjongs[index] = i;
+            index++;
+        }
+    }
+
+    //春夏秋冬梅兰竹菊 34 ~ 41表示花
+    for (var c = 0; c < 8; ++c) {
+        mahjongs[index] = i;
+        index++;
+        i++;
     }
 
     for (var i = 0; i < mahjongs.length; ++i) {
@@ -136,9 +178,9 @@ function deal(game) {
 
 //检查是否可以碰
 function checkCanPeng(game, seatData, targetPai) {
-    if (getMJType(targetPai) == seatData.que) {
-        return;
-    }
+    //    if(getMJType(targetPai) == seatData.que){
+    //       return;
+    //    }
     var count = seatData.countMap[targetPai];
     if (count != null && count >= 2) {
         seatData.canPeng = true;
@@ -152,9 +194,9 @@ function checkCanDianGang(game, seatData, targetPai) {
     if (game.mahjongs.length <= game.currentIndex) {
         return;
     }
-    if (getMJType(targetPai) == seatData.que) {
-        return;
-    }
+    //    if(getMJType(targetPai) == seatData.que){
+    //        return;
+    //    }
     var count = seatData.countMap[targetPai];
     if (count != null && count >= 3) {
         seatData.canGang = true;
@@ -172,13 +214,13 @@ function checkCanAnGang(game, seatData) {
 
     for (var key in seatData.countMap) {
         var pai = parseInt(key);
-        if (getMJType(pai) != seatData.que) {
+        //if (getMJType(pai) != seatData.que) {
             var c = seatData.countMap[key];
             if (c != null && c == 4) {
                 seatData.canGang = true;
                 seatData.gangPai.push(pai);
             }
-        }
+        //}
     }
 }
 
@@ -201,9 +243,9 @@ function checkCanWanGang(game, seatData) {
 
 function checkCanHu(game, seatData, targetPai) {
     game.lastHuPaiSeat = -1;
-    if (getMJType(targetPai) == seatData.que) {
-        return;
-    }
+    //    if(getMJType(targetPai) == seatData.que){
+    //        return;
+    //    }
     seatData.canHu = false;
     for (var k in seatData.tingMap) {
         if (targetPai == k) {
@@ -235,12 +277,12 @@ function checkCanTingPai(game, seatData) {
     seatData.tingMap = {};
 
     //检查手上的牌是不是已打缺，如果未打缺，则不进行判定
-    for (var i = 0; i < seatData.holds.length; ++i) {
-        var pai = seatData.holds[i];
-        if (getMJType(pai) == seatData.que) {
-            return;
-        }
-    }
+    //    for(var i = 0; i < seatData.holds.length; ++i){
+    //        var pai = seatData.holds[i];
+    //        if(getMJType(pai) == seatData.que){
+    //            return;
+    //        }   
+    //    }
 
     //检查是否是七对 前提是没有碰，也没有杠 ，即手上拥有13张牌
     if (seatData.holds.length == 13) {
@@ -297,7 +339,7 @@ function checkCanTingPai(game, seatData) {
             colCount++;
         } else if (c == 4) {
             //手上有4个一样的牌，在四川麻将中是和不了对对胡的 随便加点东西
-            singleCount++;
+//            singleCount++;
             pairCount += 2;
         }
     }
@@ -319,17 +361,17 @@ function checkCanTingPai(game, seatData) {
     //console.log(seatData.countMap);
     //console.log("singleCount:" + singleCount + ",colCount:" + colCount + ",pairCount:" + pairCount);
     //检查是不是平胡
-    if (seatData.que != 0) {
+//    if (seatData.que != 0) {
         mjutils.checkTingPai(seatData, 0, 9);
-    }
+//    }
 
-    if (seatData.que != 1) {
+//    if (seatData.que != 1) {
         mjutils.checkTingPai(seatData, 9, 18);
-    }
+//    }
 
-    if (seatData.que != 2) {
+//    if (seatData.que != 2) {
         mjutils.checkTingPai(seatData, 18, 27);
-    }
+//    }
 }
 
 function getSeatIndex(userId) {
@@ -1188,7 +1230,7 @@ exports.begin = function (roomId) {
         gameIndex: roomInfo.numOfGames,
 
         button: roomInfo.nextButton,
-        mahjongs: new Array(108),
+        mahjongs: new Array(144),
         currentIndex: 0,
         gameSeats: new Array(4),
 
