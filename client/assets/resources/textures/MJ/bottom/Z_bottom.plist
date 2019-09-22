@@ -422,6 +422,61 @@
 				<key>sourceSize</key>
 				<string>{55,84}</string>
 			</dict>
+			<key>B_spring.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{330,168},{55,84}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{55,84}</string>
+			</dict>
+			<key>B_summer.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{330,252},{55,84}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{55,84}</string>
+			</dict>
+			<key>B_orchid.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{330,336},{55,84}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{55,84}</string>
+			</dict>
+			<key>B_bamboo.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{330,420},{55,84}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{55,84}</string>
+			</dict>
+			<key>B_chrysanthemum.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{385,0},{55,84}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{55,84}</string>
+			</dict>
 		</dict>
 		<key>metadata</key>
 		<dict>
