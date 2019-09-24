@@ -3,9 +3,9 @@ var crypto = require("../utils/crypto");
 var tokens = {};
 var users = {};
 
-exports.createToken = function(userId,lifeTime){
+exports.createToken = function (userId, lifeTime) {
 	var token = users[userId];
-	if(token != null){
+	if (token != null) {
 		this.delToken(token);
 	}
 
@@ -20,28 +20,28 @@ exports.createToken = function(userId,lifeTime){
 	return token;
 };
 
-exports.getToken = function(userId){
+exports.getToken = function (userId) {
 	return users[userId];
 };
 
-exports.getUserID = function(token){
+exports.getUserID = function (token) {
 	return tokens[token].userId;
 };
 
-exports.isTokenValid = function(token){
+exports.isTokenValid = function (token) {
 	var info = tokens[token];
-	if(info == null){
+	if (info == null) {
 		return false;
 	}
-	if(info.time + info.lifetime < Date.now()){
+	if (info.time + info.lifetime < Date.now()) {
 		return false;
 	}
 	return true;
 };
 
-exports.delToken = function(token){
+exports.delToken = function (token) {
 	var info = tokens[token];
-	if(info != null){
+	if (info != null) {
 		tokens[token] = null;
 		users[info.userId] = null;
 	}
