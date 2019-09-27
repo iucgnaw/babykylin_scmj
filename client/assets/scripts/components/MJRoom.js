@@ -69,7 +69,7 @@ cc.Class({
         if(cc.vv.gameNetMgr.conf){
             var type = cc.vv.gameNetMgr.conf.type;
             if(type == null || type == ""){
-                type = "xzdd";
+                type = "xlch";
             }
             
             titles.getChildByName(type).active = true;   
@@ -203,11 +203,8 @@ cc.Class({
     },
     
     onBtnWeichatClicked:function(){
-        var title = "<血战到底>";
-        if(cc.vv.gameNetMgr.conf.type == "xlch"){
-            var title = "<血流成河>";
-        }
-        cc.vv.anysdkMgr.share("天天麻将" + title,"房号:" + cc.vv.gameNetMgr.roomId + " 玩法:" + cc.vv.gameNetMgr.getWanfa());
+        var title = "<昌花麻将>";
+        cc.vv.anysdkMgr.share("昌花麻将" + title,"房号:" + cc.vv.gameNetMgr.roomId + " 玩法:" + cc.vv.gameNetMgr.getWanfa());
     },
     
     onBtnDissolveClicked:function(){

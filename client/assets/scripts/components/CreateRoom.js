@@ -11,24 +11,14 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        _leixingxuanze: null,
+
         _gamelist: null,
         _currentGame: null,
     },
 
     // use this for initialization
     onLoad: function () {
-
         this._gamelist = this.node.getChildByName('game_list');
-
-        this._leixingxuanze = [];
-        var t = this.node.getChildByName("leixingxuanze");
-        for (var i = 0; i < t.childrenCount; ++i) {
-            var n = t.children[i].getComponent("RadioButton");
-            if (n != null) {
-                this._leixingxuanze.push(n);
-            }
-        }
     },
 
     onBtnBack: function () {
@@ -36,31 +26,8 @@ cc.Class({
     },
 
     onBtnOK: function () {
-        var usedTypes = ['xzdd', 'xlch'];
-        var type = this.getType();
-        if (usedTypes.indexOf(type) == -1) {
-            return;
-        }
-
         this.node.active = false;
         this.createRoom();
-    },
-
-    getType: function () {
-        var type = 0;
-        for (var i = 0; i < this._leixingxuanze.length; ++i) {
-            if (this._leixingxuanze[i].checked) {
-                type = i;
-                break;
-            }
-        }
-        if (type == 0) {
-            return 'xzdd';
-        }
-        else if (type == 1) {
-            return 'xlch';
-        }
-        return 'xzdd';
     },
 
     getSelectedOfRadioGroup(groupRoot) {
@@ -102,15 +69,9 @@ cc.Class({
             }
         };
 
-        var type = this.getType();
         var conf = null;
-        if (type == 'xzdd') {
-            conf = this.constructSCMJConf();
-        }
-        else if (type == 'xlch') {
-            conf = this.constructSCMJConf();
-        }
-        conf.type = type;
+        conf = this.constructSCMJConf();
+        conf.type = "xlch";
 
         var data = {
             account: cc.vv.userMgr.account,
@@ -124,17 +85,17 @@ cc.Class({
 
     constructSCMJConf: function () {
 
-        var wanfaxuanze = this._currentGame.getChildByName('wanfaxuanze');
-        var huansanzhang = wanfaxuanze.children[0].getComponent('CheckBox').checked;
-        var jiangdui = wanfaxuanze.children[1].getComponent('CheckBox').checked;
-        var menqing = wanfaxuanze.children[2].getComponent('CheckBox').checked;
-        var tiandihu = wanfaxuanze.children[3].getComponent('CheckBox').checked;
+        var wanfaxuanze = this._currentGame.getChildByName('wanfaxuanze'); //玩法
+        var huansanzhang = wanfaxuanze.children[0].getComponent('CheckBox').checked; //玩法：换三张
+        var jiangdui = wanfaxuanze.children[1].getComponent('CheckBox').checked; //玩法：将对
+        var menqing = wanfaxuanze.children[2].getComponent('CheckBox').checked; //玩法：门清
+        var tiandihu = wanfaxuanze.children[3].getComponent('CheckBox').checked; //玩法：天地胡
 
-        var difen = this.getSelectedOfRadioGroup('difenxuanze');
-        var zimo = this.getSelectedOfRadioGroup('zimojiacheng');
-        var zuidafanshu = this.getSelectedOfRadioGroup('zuidafanshu');
-        var jushuxuanze = this.getSelectedOfRadioGroup('xuanzejushu');
-        var dianganghua = this.getSelectedOfRadioGroup('dianganghua');
+        var difen = this.getSelectedOfRadioGroup('difenxuanze'); //？
+        var zimo = this.getSelectedOfRadioGroup('zimojiacheng'); //自摸
+        var zuidafanshu = this.getSelectedOfRadioGroup('zuidafanshu');//封顶
+        var jushuxuanze = this.getSelectedOfRadioGroup('xuanzejushu');//局数
+        var dianganghua = this.getSelectedOfRadioGroup('dianganghua');//点杠花
         
         var conf = {
             difen:difen,
@@ -153,8 +114,7 @@ cc.Class({
 
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
-
-        var type = this.getType();
+        var type = "xlch";
         if (this.lastType != type) {
             this.lastType = type;
             for (var i = 0; i < this._gamelist.childrenCount; ++i) {
