@@ -31,11 +31,8 @@ function constructRoomFromDb(dbdata) {
 	};
 
 
-	if (roomInfo.conf.type == "xlch") {
-		roomInfo.gameMgr = require("./gamemgr_xlch");
-	} else {
-		roomInfo.gameMgr = require("./gamemgr_xzdd");
-	}
+	roomInfo.gameMgr = require("./gamemgr_xlch");
+
 	var roomId = roomInfo.id;
 
 	for (var i = 0; i < 4; ++i) {
@@ -141,11 +138,7 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 						}
 					};
 
-					if (roomConf.type == "xlch") {
-						roomInfo.gameMgr = require("./gamemgr_xlch");
-					} else {
-						roomInfo.gameMgr = require("./gamemgr_xzdd");
-					}
+					roomInfo.gameMgr = require("./gamemgr_xlch");
 					console.log(roomInfo.conf);
 
 					for (var i = 0; i < 4; ++i) {

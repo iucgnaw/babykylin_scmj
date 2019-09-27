@@ -1,35 +1,35 @@
-var crypto = require('../utils/crypto');
-var db = require('../utils/db');
-var express = require('express');
+var g_crypto = require('../utils/crypto');
+var g_db = require('../utils/db');
+var g_express = require('express');
 
-var tokenMgr = require('./tokenmgr');
-var roomMgr = require('./roommgr');
-var userMgr = require('./usermgr');
-var http = require('../utils/http');
-var io = null;
+var g_tokenMgr = require('./tokenmgr');
+var g_roomMgr = require('./roommgr');
+var g_userMgr = require('./usermgr');
+var g_http = require('../utils/http');
+var g_io = null;
 
-var app = express();
+var g_app = g_express();
 
 //设置跨域访问
-app.all('*', function (req, res, next) {
+g_app.all('*', function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
 	res.header("X-Powered-By", ' 3.2.1')
 	res.header("Content-Type", "application/json;charset=utf-8");
-	http.send(res, 0, "ok", {});
+	g_http.send(res, 0, "ok", {});
 });
 
-var config = null;
+var g_config = null;
 
-exports.start = function (conf, mgr) {
-	config = conf;
+exports.start = function (a_config, a_mgr) {
+	g_config = a_config;
 
-	var httpServer = require('http').createServer(app);
-	io = require('socket.io')(httpServer);
-	httpServer.listen(config.CLIENT_PORT);
+	var httpServer = require('http').createServer(g_app);
+	g_io = require('socket.io')(httpServer);
+	httpServer.listen(g_config.CLIENT_PORT);
 
-	io.sockets.on('connection', function (socket) {
+	g_io.sockets.on('connection', function (socket) {
 		socket.on('login', function (data) {
 			data = JSON.parse(data);
 			if (socket.userId != null) {
@@ -58,7 +58,7 @@ exports.start = function (conf, mgr) {
 			}
 
 			//检查参数是否被篡改
-			var md5 = crypto.md5(roomId + token + time + config.ROOM_PRI_KEY);
+			var md5 = g_crypto.md5(roomId + token + time + g_config.ROOM_PRI_KEY);
 			if (md5 != sign) {
 				console.log(2);
 				socket.emit('login_result', {
@@ -69,54 +69,54 @@ exports.start = function (conf, mgr) {
 			}
 
 			//检查token是否有效
-			if (tokenMgr.isTokenValid(token) == false) {
+			if (g_tokenMgr.isTokenValid(token) == false) {
 				console.log(3);
 				socket.emit('login_result', {
 					errcode: 3,
-					errmsg: "token out of time."
+					errmsg: "token expired."
 				});
 				return;
 			}
 
 			//检查房间合法性
-			var userId = tokenMgr.getUserID(token);
-			var roomId = roomMgr.getUserRoom(userId);
+			var userId = g_tokenMgr.getUserID(token);
+			var roomId = g_roomMgr.getUserRoom(userId);
 
-			userMgr.bind(userId, socket);
+			g_userMgr.bind(userId, socket);
 			socket.userId = userId;
 
 			//返回房间信息
-			var roomInfo = roomMgr.getRoom(roomId);
+			var roomInfo = g_roomMgr.getRoom(roomId);
 
-			var seatIndex = roomMgr.getUserSeat(userId);
+			var seatIndex = g_roomMgr.getUserSeat(userId);
 			roomInfo.seats[seatIndex].ip = socket.handshake.address;
 
 			var userData = null;
 			var seats = [];
 			for (var i = 0; i < roomInfo.seats.length; ++i) {
-				var rs = roomInfo.seats[i];
+				var seat = roomInfo.seats[i];
 				var online = false;
-				if (rs.userId > 0) {
-					online = userMgr.isOnline(rs.userId);
+				if (seat.userId > 0) {
+					online = g_userMgr.isOnline(seat.userId);
 				}
 
 				seats.push({
-					userid: rs.userId,
-					ip: rs.ip,
-					score: rs.score,
-					name: rs.name,
+					userid: seat.userId,
+					ip: seat.ip,
+					score: seat.score,
+					name: seat.name,
 					online: online,
-					ready: rs.ready,
+					ready: seat.ready,
 					seatindex: i
 				});
 
-				if (userId == rs.userId) {
+				if (userId == seat.userId) {
 					userData = seats[i];
 				}
 			}
 
 			//通知前端
-			var ret = {
+			var result = {
 				errcode: 0,
 				errmsg: "ok",
 				data: {
@@ -126,10 +126,10 @@ exports.start = function (conf, mgr) {
 					seats: seats
 				}
 			};
-			socket.emit('login_result', ret);
+			socket.emit('login_result', result);
 
 			//通知其它客户端
-			userMgr.broacastInRoom('new_user_comes_push', userData, userId);
+			g_userMgr.broacastInRoom('new_user_comes_push', userData, userId);
 
 			socket.gameMgr = roomInfo.gameMgr;
 
@@ -145,7 +145,7 @@ exports.start = function (conf, mgr) {
 					time: ramaingTime,
 					states: dr.states
 				}
-				userMgr.sendMsg(userId, 'dissolve_notice_push', data);
+				g_userMgr.sendMsg(userId, 'dissolve_notice_push', data);
 			}
 		});
 
@@ -155,7 +155,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 			socket.gameMgr.setReady(userId);
-			userMgr.broacastInRoom('user_ready_push', {
+			g_userMgr.broacastInRoom('user_ready_push', {
 				userid: userId,
 				ready: true
 			}, userId, true);
@@ -249,7 +249,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 			var chatContent = data;
-			userMgr.broacastInRoom('chat_push', {
+			g_userMgr.broacastInRoom('chat_push', {
 				sender: socket.userId,
 				content: chatContent
 			}, socket.userId, true);
@@ -261,7 +261,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 			var chatId = data;
-			userMgr.broacastInRoom('quick_chat_push', {
+			g_userMgr.broacastInRoom('quick_chat_push', {
 				sender: socket.userId,
 				content: chatId
 			}, socket.userId, true);
@@ -273,7 +273,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 			console.log(data.length);
-			userMgr.broacastInRoom('voice_msg_push', {
+			g_userMgr.broacastInRoom('voice_msg_push', {
 				sender: socket.userId,
 				content: data
 			}, socket.userId, true);
@@ -285,7 +285,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 			var phizId = data;
-			userMgr.broacastInRoom('emoji_push', {
+			g_userMgr.broacastInRoom('emoji_push', {
 				sender: socket.userId,
 				content: phizId
 			}, socket.userId, true);
@@ -300,7 +300,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 
-			var roomId = roomMgr.getUserRoom(userId);
+			var roomId = g_roomMgr.getUserRoom(userId);
 			if (roomId == null) {
 				return;
 			}
@@ -311,15 +311,15 @@ exports.start = function (conf, mgr) {
 			}
 
 			//如果是房主，则只能走解散房间
-			if (roomMgr.isCreator(userId)) {
+			if (g_roomMgr.isCreator(userId)) {
 				return;
 			}
 
 			//通知其它玩家，有人退出了房间
-			userMgr.broacastInRoom('exit_notify_push', userId, userId, false);
+			g_userMgr.broacastInRoom('exit_notify_push', userId, userId, false);
 
-			roomMgr.exitRoom(userId);
-			userMgr.del(userId);
+			g_roomMgr.exitRoom(userId);
+			g_userMgr.del(userId);
 
 			socket.emit('exit_result');
 			socket.disconnect();
@@ -332,7 +332,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 
-			var roomId = roomMgr.getUserRoom(userId);
+			var roomId = g_roomMgr.getUserRoom(userId);
 			if (roomId == null) {
 				return;
 			}
@@ -343,13 +343,13 @@ exports.start = function (conf, mgr) {
 			}
 
 			//如果不是房主，则不能解散房间
-			if (roomMgr.isCreator(roomId, userId) == false) {
+			if (g_roomMgr.isCreator(roomId, userId) == false) {
 				return;
 			}
 
-			userMgr.broacastInRoom('dispress_push', {}, userId, true);
-			userMgr.kickAllInRoom(roomId);
-			roomMgr.destroy(roomId);
+			g_userMgr.broacastInRoom('dispress_push', {}, userId, true);
+			g_userMgr.kickAllInRoom(roomId);
+			g_roomMgr.destroy(roomId);
 			socket.disconnect();
 		});
 
@@ -362,7 +362,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 
-			var roomId = roomMgr.getUserRoom(userId);
+			var roomId = g_roomMgr.getUserRoom(userId);
 			if (roomId == null) {
 				console.log(3);
 				return;
@@ -383,7 +383,7 @@ exports.start = function (conf, mgr) {
 					states: dr.states
 				}
 				console.log(5);
-				userMgr.broacastInRoom('dissolve_notice_push', data, userId, true);
+				g_userMgr.broacastInRoom('dissolve_notice_push', data, userId, true);
 			}
 			console.log(6);
 		});
@@ -395,7 +395,7 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 
-			var roomId = roomMgr.getUserRoom(userId);
+			var roomId = g_roomMgr.getUserRoom(userId);
 			if (roomId == null) {
 				return;
 			}
@@ -408,7 +408,7 @@ exports.start = function (conf, mgr) {
 					time: ramaingTime,
 					states: dr.states
 				}
-				userMgr.broacastInRoom('dissolve_notice_push', data, userId, true);
+				g_userMgr.broacastInRoom('dissolve_notice_push', data, userId, true);
 
 				var doAllAgree = true;
 				for (var i = 0; i < dr.states.length; ++i) {
@@ -431,14 +431,14 @@ exports.start = function (conf, mgr) {
 				return;
 			}
 
-			var roomId = roomMgr.getUserRoom(userId);
+			var roomId = g_roomMgr.getUserRoom(userId);
 			if (roomId == null) {
 				return;
 			}
 
 			var ret = socket.gameMgr.dissolveAgree(roomId, userId, false);
 			if (ret != null) {
-				userMgr.broacastInRoom('dissolve_cancel_push', {}, userId, true);
+				g_userMgr.broacastInRoom('dissolve_cancel_push', {}, userId, true);
 			}
 		});
 
@@ -450,7 +450,7 @@ exports.start = function (conf, mgr) {
 			}
 
 			//如果是旧链接断开，则不需要处理。
-			if (userMgr.get(userId) != socket) {
+			if (g_userMgr.get(userId) != socket) {
 				return;
 			}
 
@@ -460,10 +460,10 @@ exports.start = function (conf, mgr) {
 			};
 
 			//通知房间内其它玩家
-			userMgr.broacastInRoom('user_state_push', data, userId);
+			g_userMgr.broacastInRoom('user_state_push', data, userId);
 
 			//清除玩家的在线信息
-			userMgr.del(userId);
+			g_userMgr.del(userId);
 			socket.userId = null;
 		});
 
@@ -477,5 +477,5 @@ exports.start = function (conf, mgr) {
 		});
 	});
 
-	console.log("game server is listening on " + config.CLIENT_PORT);
+	console.log("game server is listening on " + g_config.CLIENT_PORT);
 };
