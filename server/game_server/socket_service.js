@@ -11,13 +11,13 @@ var g_io = null;
 var g_app = g_express();
 
 //设置跨域访问
-g_app.all('*', function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "X-Requested-With");
-	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-	res.header("X-Powered-By", ' 3.2.1')
-	res.header("Content-Type", "application/json;charset=utf-8");
-	g_http.send(res, 0, "ok", {});
+g_app.all('*', function (a_req, a_res, a_next) {
+	a_res.header("Access-Control-Allow-Origin", "*");
+	a_res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	a_res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+	a_res.header("X-Powered-By", ' 3.2.1')
+	a_res.header("Content-Type", "application/json;charset=utf-8");
+	g_http.send(a_res, 0, "ok", {});
 });
 
 var g_config = null;
@@ -29,17 +29,17 @@ exports.start = function (a_config, a_mgr) {
 	g_io = require('socket.io')(httpServer);
 	httpServer.listen(g_config.CLIENT_PORT);
 
-	g_io.sockets.on('connection', function (socket) {
-		socket.on('login', function (data) {
-			data = JSON.parse(data);
-			if (socket.userId != null) {
+	g_io.sockets.on('connection', function (a_socket) {
+		a_socket.on('login', function (a_data) {
+			a_data = JSON.parse(a_data);
+			if (a_socket.userId != null) {
 				//已经登录过的就忽略
 				return;
 			}
-			var token = data.token;
-			var roomId = data.roomid;
-			var time = data.time;
-			var sign = data.sign;
+			var token = a_data.token;
+			var roomId = a_data.roomid;
+			var time = a_data.time;
+			var sign = a_data.sign;
 
 			console.log(roomId);
 			console.log(token);
@@ -50,7 +50,7 @@ exports.start = function (a_config, a_mgr) {
 			//检查参数合法性
 			if (token == null || roomId == null || sign == null || time == null) {
 				console.log(1);
-				socket.emit('login_result', {
+				a_socket.emit('login_result', {
 					errcode: 1,
 					errmsg: "invalid parameters"
 				});
@@ -61,7 +61,7 @@ exports.start = function (a_config, a_mgr) {
 			var md5 = g_crypto.md5(roomId + token + time + g_config.ROOM_PRI_KEY);
 			if (md5 != sign) {
 				console.log(2);
-				socket.emit('login_result', {
+				a_socket.emit('login_result', {
 					errcode: 2,
 					errmsg: "login failed. invalid sign!"
 				});
@@ -71,7 +71,7 @@ exports.start = function (a_config, a_mgr) {
 			//检查token是否有效
 			if (g_tokenMgr.isTokenValid(token) == false) {
 				console.log(3);
-				socket.emit('login_result', {
+				a_socket.emit('login_result', {
 					errcode: 3,
 					errmsg: "token expired."
 				});
@@ -82,14 +82,14 @@ exports.start = function (a_config, a_mgr) {
 			var userId = g_tokenMgr.getUserID(token);
 			var roomId = g_roomMgr.getUserRoom(userId);
 
-			g_userMgr.bind(userId, socket);
-			socket.userId = userId;
+			g_userMgr.bind(userId, a_socket);
+			a_socket.userId = userId;
 
 			//返回房间信息
 			var roomInfo = g_roomMgr.getRoom(roomId);
 
 			var seatIndex = g_roomMgr.getUserSeat(userId);
-			roomInfo.seats[seatIndex].ip = socket.handshake.address;
+			roomInfo.seats[seatIndex].ip = a_socket.handshake.address;
 
 			var userData = null;
 			var seats = [];
@@ -126,35 +126,35 @@ exports.start = function (a_config, a_mgr) {
 					seats: seats
 				}
 			};
-			socket.emit('login_result', result);
+			a_socket.emit('login_result', result);
 
 			//通知其它客户端
 			g_userMgr.broacastInRoom('new_user_comes_push', userData, userId);
 
-			socket.gameMgr = roomInfo.gameMgr;
+			a_socket.gameMgr = roomInfo.gameMgr;
 
 			//玩家上线，强制设置为TRUE
-			socket.gameMgr.setReady(userId);
+			a_socket.gameMgr.setReady(userId);
 
-			socket.emit('login_finished');
+			a_socket.emit('login_finished');
 
 			if (roomInfo.dr != null) {
 				var dr = roomInfo.dr;
 				var ramaingTime = (dr.endTime - Date.now()) / 1000;
-				var data = {
+				var a_data = {
 					time: ramaingTime,
 					states: dr.states
 				}
-				g_userMgr.sendMsg(userId, 'dissolve_notice_push', data);
+				g_userMgr.sendMsg(userId, 'dissolve_notice_push', a_data);
 			}
 		});
 
-		socket.on('ready', function (data) {
-			var userId = socket.userId;
+		a_socket.on('ready', function (a_data) {
+			var userId = a_socket.userId;
 			if (userId == null) {
 				return;
 			}
-			socket.gameMgr.setReady(userId);
+			a_socket.gameMgr.setReady(userId);
 			g_userMgr.broacastInRoom('user_ready_push', {
 				userid: userId,
 				ready: true
@@ -162,140 +162,140 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//换牌
-		socket.on('huanpai', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('huanpai', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			if (data == null) {
+			if (a_data == null) {
 				return;
 			}
 
-			if (typeof (data) == "string") {
-				data = JSON.parse(data);
+			if (typeof (a_data) == "string") {
+				a_data = JSON.parse(a_data);
 			}
 
-			var p1 = data.p1;
-			var p2 = data.p2;
-			var p3 = data.p3;
+			var p1 = a_data.p1;
+			var p2 = a_data.p2;
+			var p3 = a_data.p3;
 			if (p1 == null || p2 == null || p3 == null) {
 				console.log("invalid data");
 				return;
 			}
-			socket.gameMgr.huanSanZhang(socket.userId, p1, p2, p3);
+			a_socket.gameMgr.huanSanZhang(a_socket.userId, p1, p2, p3);
 		});
 
 		//定缺
-		socket.on('dingque', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('dingque', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			var que = data;
-			socket.gameMgr.dingQue(socket.userId, que);
+			var que = a_data;
+			a_socket.gameMgr.dingQue(a_socket.userId, que);
 		});
 
 		//出牌
-		socket.on('chupai', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('chupai', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			var pai = data;
-			socket.gameMgr.chuPai(socket.userId, pai);
+			var pai = a_data;
+			a_socket.gameMgr.chuPai(a_socket.userId, pai);
 		});
 
 		//碰
-		socket.on('peng', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('peng', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			socket.gameMgr.peng(socket.userId);
+			a_socket.gameMgr.peng(a_socket.userId);
 		});
 
 		//杠
-		socket.on('gang', function (data) {
-			if (socket.userId == null || data == null) {
+		a_socket.on('gang', function (a_data) {
+			if (a_socket.userId == null || a_data == null) {
 				return;
 			}
 			var pai = -1;
-			if (typeof (data) == "number") {
-				pai = data;
-			} else if (typeof (data) == "string") {
-				pai = parseInt(data);
+			if (typeof (a_data) == "number") {
+				pai = a_data;
+			} else if (typeof (a_data) == "string") {
+				pai = parseInt(a_data);
 			} else {
 				console.log("gang:invalid param");
 				return;
 			}
-			socket.gameMgr.gang(socket.userId, pai);
+			a_socket.gameMgr.gang(a_socket.userId, pai);
 		});
 
 		//胡
-		socket.on('hu', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('hu', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			socket.gameMgr.hu(socket.userId);
+			a_socket.gameMgr.hu(a_socket.userId);
 		});
 
 		//过  遇上胡，碰，杠的时候，可以选择过
-		socket.on('guo', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('guo', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			socket.gameMgr.guo(socket.userId);
+			a_socket.gameMgr.guo(a_socket.userId);
 		});
 
 		//聊天
-		socket.on('chat', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('chat', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			var chatContent = data;
+			var chatContent = a_data;
 			g_userMgr.broacastInRoom('chat_push', {
-				sender: socket.userId,
+				sender: a_socket.userId,
 				content: chatContent
-			}, socket.userId, true);
+			}, a_socket.userId, true);
 		});
 
 		//快速聊天
-		socket.on('quick_chat', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('quick_chat', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			var chatId = data;
+			var chatId = a_data;
 			g_userMgr.broacastInRoom('quick_chat_push', {
-				sender: socket.userId,
+				sender: a_socket.userId,
 				content: chatId
-			}, socket.userId, true);
+			}, a_socket.userId, true);
 		});
 
 		//语音聊天
-		socket.on('voice_msg', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('voice_msg', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			console.log(data.length);
+			console.log(a_data.length);
 			g_userMgr.broacastInRoom('voice_msg_push', {
-				sender: socket.userId,
-				content: data
-			}, socket.userId, true);
+				sender: a_socket.userId,
+				content: a_data
+			}, a_socket.userId, true);
 		});
 
 		//表情
-		socket.on('emoji', function (data) {
-			if (socket.userId == null) {
+		a_socket.on('emoji', function (a_data) {
+			if (a_socket.userId == null) {
 				return;
 			}
-			var phizId = data;
+			var phizId = a_data;
 			g_userMgr.broacastInRoom('emoji_push', {
-				sender: socket.userId,
+				sender: a_socket.userId,
 				content: phizId
-			}, socket.userId, true);
+			}, a_socket.userId, true);
 		});
 
 		//语音使用SDK不出现在这里
 
 		//退出房间
-		socket.on('exit', function (data) {
-			var userId = socket.userId;
+		a_socket.on('exit', function (a_data) {
+			var userId = a_socket.userId;
 			if (userId == null) {
 				return;
 			}
@@ -306,7 +306,7 @@ exports.start = function (a_config, a_mgr) {
 			}
 
 			//如果游戏已经开始，则不可以
-			if (socket.gameMgr.hasBegan(roomId)) {
+			if (a_socket.gameMgr.hasBegan(roomId)) {
 				return;
 			}
 
@@ -321,13 +321,13 @@ exports.start = function (a_config, a_mgr) {
 			g_roomMgr.exitRoom(userId);
 			g_userMgr.del(userId);
 
-			socket.emit('exit_result');
-			socket.disconnect();
+			a_socket.emit('exit_result');
+			a_socket.disconnect();
 		});
 
 		//解散房间
-		socket.on('dispress', function (data) {
-			var userId = socket.userId;
+		a_socket.on('dispress', function (a_data) {
+			var userId = a_socket.userId;
 			if (userId == null) {
 				return;
 			}
@@ -338,7 +338,7 @@ exports.start = function (a_config, a_mgr) {
 			}
 
 			//如果游戏已经开始，则不可以
-			if (socket.gameMgr.hasBegan(roomId)) {
+			if (a_socket.gameMgr.hasBegan(roomId)) {
 				return;
 			}
 
@@ -350,12 +350,12 @@ exports.start = function (a_config, a_mgr) {
 			g_userMgr.broacastInRoom('dispress_push', {}, userId, true);
 			g_userMgr.kickAllInRoom(roomId);
 			g_roomMgr.destroy(roomId);
-			socket.disconnect();
+			a_socket.disconnect();
 		});
 
 		//解散房间
-		socket.on('dissolve_request', function (data) {
-			var userId = socket.userId;
+		a_socket.on('dissolve_request', function (a_data) {
+			var userId = a_socket.userId;
 			console.log(1);
 			if (userId == null) {
 				console.log(2);
@@ -369,27 +369,27 @@ exports.start = function (a_config, a_mgr) {
 			}
 
 			//如果游戏未开始，则不可以
-			if (socket.gameMgr.hasBegan(roomId) == false) {
+			if (a_socket.gameMgr.hasBegan(roomId) == false) {
 				console.log(4);
 				return;
 			}
 
-			var ret = socket.gameMgr.dissolveRequest(roomId, userId);
+			var ret = a_socket.gameMgr.dissolveRequest(roomId, userId);
 			if (ret != null) {
 				var dr = ret.dr;
 				var ramaingTime = (dr.endTime - Date.now()) / 1000;
-				var data = {
+				var a_data = {
 					time: ramaingTime,
 					states: dr.states
 				}
 				console.log(5);
-				g_userMgr.broacastInRoom('dissolve_notice_push', data, userId, true);
+				g_userMgr.broacastInRoom('dissolve_notice_push', a_data, userId, true);
 			}
 			console.log(6);
 		});
 
-		socket.on('dissolve_agree', function (data) {
-			var userId = socket.userId;
+		a_socket.on('dissolve_agree', function (a_data) {
+			var userId = a_socket.userId;
 
 			if (userId == null) {
 				return;
@@ -400,15 +400,15 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 
-			var ret = socket.gameMgr.dissolveAgree(roomId, userId, true);
+			var ret = a_socket.gameMgr.dissolveAgree(roomId, userId, true);
 			if (ret != null) {
 				var dr = ret.dr;
 				var ramaingTime = (dr.endTime - Date.now()) / 1000;
-				var data = {
+				var a_data = {
 					time: ramaingTime,
 					states: dr.states
 				}
-				g_userMgr.broacastInRoom('dissolve_notice_push', data, userId, true);
+				g_userMgr.broacastInRoom('dissolve_notice_push', a_data, userId, true);
 
 				var doAllAgree = true;
 				for (var i = 0; i < dr.states.length; ++i) {
@@ -419,13 +419,13 @@ exports.start = function (a_config, a_mgr) {
 				}
 
 				if (doAllAgree) {
-					socket.gameMgr.doDissolve(roomId);
+					a_socket.gameMgr.doDissolve(roomId);
 				}
 			}
 		});
 
-		socket.on('dissolve_reject', function (data) {
-			var userId = socket.userId;
+		a_socket.on('dissolve_reject', function (a_data) {
+			var userId = a_socket.userId;
 
 			if (userId == null) {
 				return;
@@ -436,44 +436,44 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 
-			var ret = socket.gameMgr.dissolveAgree(roomId, userId, false);
+			var ret = a_socket.gameMgr.dissolveAgree(roomId, userId, false);
 			if (ret != null) {
 				g_userMgr.broacastInRoom('dissolve_cancel_push', {}, userId, true);
 			}
 		});
 
 		//断开链接
-		socket.on('disconnect', function (data) {
-			var userId = socket.userId;
+		a_socket.on('disconnect', function (a_data) {
+			var userId = a_socket.userId;
 			if (!userId) {
 				return;
 			}
 
 			//如果是旧链接断开，则不需要处理。
-			if (g_userMgr.get(userId) != socket) {
+			if (g_userMgr.get(userId) != a_socket) {
 				return;
 			}
 
-			var data = {
+			var a_data = {
 				userid: userId,
 				online: false
 			};
 
 			//通知房间内其它玩家
-			g_userMgr.broacastInRoom('user_state_push', data, userId);
+			g_userMgr.broacastInRoom('user_state_push', a_data, userId);
 
 			//清除玩家的在线信息
 			g_userMgr.del(userId);
-			socket.userId = null;
+			a_socket.userId = null;
 		});
 
-		socket.on('game_ping', function (data) {
-			var userId = socket.userId;
+		a_socket.on('game_ping', function (a_data) {
+			var userId = a_socket.userId;
 			if (!userId) {
 				return;
 			}
 			//console.log('game_ping');
-			socket.emit('game_pong');
+			a_socket.emit('game_pong');
 		});
 	});
 
