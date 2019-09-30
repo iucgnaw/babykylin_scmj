@@ -1,4 +1,4 @@
-var mahjongSprites = [];
+var g_mahjongSprites = [];
 
 cc.Class({
     extends: cc.Component,
@@ -59,228 +59,228 @@ cc.Class({
         cc.vv.mahjongmgr = this;
         //筒 0 - 8
         for (var i = 1; i < 10; ++i) {
-            mahjongSprites.push("dot_" + i);
+            g_mahjongSprites.push("dot_" + i);
         }
 
         //条 9 - 17
         for (var i = 1; i < 10; ++i) {
-            mahjongSprites.push("bamboo_" + i);
+            g_mahjongSprites.push("bamboo_" + i);
         }
 
         //万 18 - 26
         for (var i = 1; i < 10; ++i) {
-            mahjongSprites.push("character_" + i);
+            g_mahjongSprites.push("character_" + i);
         }
 
         //中、发、白 27 - 29
-        mahjongSprites.push("red");
-        mahjongSprites.push("green");
-        mahjongSprites.push("white");
+        g_mahjongSprites.push("red");
+        g_mahjongSprites.push("green");
+        g_mahjongSprites.push("white");
 
         //东西南北风 30 - 33
-        mahjongSprites.push("wind_east");
-        mahjongSprites.push("wind_west");
-        mahjongSprites.push("wind_south");
-        mahjongSprites.push("wind_north");
+        g_mahjongSprites.push("wind_east");
+        g_mahjongSprites.push("wind_west");
+        g_mahjongSprites.push("wind_south");
+        g_mahjongSprites.push("wind_north");
 
         //春夏秋冬梅兰竹菊 34 -41
-        mahjongSprites.push("spring");
-        mahjongSprites.push("summer");
-        mahjongSprites.push("autumn");
-        mahjongSprites.push("winter");
-        mahjongSprites.push("plum");
-        mahjongSprites.push("orchid");
-        mahjongSprites.push("bamboo");
-        mahjongSprites.push("chrysanthemum");
+        g_mahjongSprites.push("spring");
+        g_mahjongSprites.push("summer");
+        g_mahjongSprites.push("autumn");
+        g_mahjongSprites.push("winter");
+        g_mahjongSprites.push("plum");
+        g_mahjongSprites.push("orchid");
+        g_mahjongSprites.push("bamboo");
+        g_mahjongSprites.push("chrysanthemum");
     },
 
-    getMahjongSpriteByID: function (id) {
-        return mahjongSprites[id];
+    getMahjongSpriteByID: function (a_tile) {
+        return g_mahjongSprites[a_tile];
     },
 
-    getMahjongType: function (id) {
-        if (id >= 0 && id < 9) {
+    getMahjongType: function (a_tile) {
+        if (a_tile >= 0 && a_tile < 9) {
             //筒 0 - 8
             return 0;
-        } else if (id >= 9 && id < 18) {
+        } else if (a_tile >= 9 && a_tile < 18) {
             //条 9 - 17
             return 1;
-        } else if (id >= 18 && id < 27) {
+        } else if (a_tile >= 18 && a_tile < 27) {
             //万 18 - 26
             return 2;
-        } else if (id == 27) {
+        } else if (a_tile == 27) {
             //中
             return 3;
-        } else if (id == 28) {
+        } else if (a_tile == 28) {
             //发
             return 4;
-        } else if (id == 29) {
+        } else if (a_tile == 29) {
             //白
             return 4;
-        } else if (id == 30) {
+        } else if (a_tile == 30) {
             //东
             return 6;
-        } else if (id == 31) {
+        } else if (a_tile == 31) {
             //西
             return 7;
-        } else if (id == 32) {
+        } else if (a_tile == 32) {
             //南
             return 8;
-        } else if (id == 33) {
+        } else if (a_tile == 33) {
             //北
             return 9;
-        } else if (id == 34) {
+        } else if (a_tile == 34) {
             //春
             return 10;
-        } else if (id == 35) {
+        } else if (a_tile == 35) {
             //夏
             return 11;
-        } else if (id == 36) {
+        } else if (a_tile == 36) {
             //秋
             return 12;
-        } else if (id == 37) {
+        } else if (a_tile == 37) {
             //冬
             return 13;
-        } else if (id == 38) {
+        } else if (a_tile == 38) {
             //梅
             return 14;
-        } else if (id == 39) {
+        } else if (a_tile == 39) {
             //兰
             return 15;
-        } else if (id == 40) {
+        } else if (a_tile == 40) {
             //竹
             return 16;
-        } else if (id == 41) {
+        } else if (a_tile == 41) {
             //菊
             return 17;
         }
     },
 
-    getSpriteFrameByMJID: function (pre, mjid) {
-        var spriteFrameName = this.getMahjongSpriteByID(mjid);
-        spriteFrameName = pre + spriteFrameName;
-        if (pre == "M_") {
+    getSpriteFrameByMJID: function (a_pre, a_tile) {
+        var spriteFrameName = this.getMahjongSpriteByID(a_tile);
+        spriteFrameName = a_pre + spriteFrameName;
+        if (a_pre == "M_") {
             return this.bottomAtlas.getSpriteFrame(spriteFrameName);
-        } else if (pre == "B_") {
+        } else if (a_pre == "B_") {
             return this.bottomFoldAtlas.getSpriteFrame(spriteFrameName);
-        } else if (pre == "L_") {
+        } else if (a_pre == "L_") {
             return this.leftAtlas.getSpriteFrame(spriteFrameName);
-        } else if (pre == "R_") {
+        } else if (a_pre == "R_") {
             return this.rightAtlas.getSpriteFrame(spriteFrameName);
         }
     },
 
-    getAudioURLByMJID: function (id) {
-        var realId = 0;
-        if (id >= 0 && id < 9) {
+    getAudioURLByMJID: function (a_tile) {
+        var audioName = 0;
+        if (a_tile >= 0 && a_tile < 9) {
             //筒 0 - 8
-            realId = id + 21;
-        } else if (id >= 9 && id < 18) {
+            audioName = a_tile + 21;
+        } else if (a_tile >= 9 && a_tile < 18) {
             //条 9 - 17
-            realId = id - 8;
-        } else if (id >= 18 && id < 27) {
+            audioName = a_tile - 8;
+        } else if (a_tile >= 18 && a_tile < 27) {
             //万 18 - 26
-            realId = id - 7;
-        } else if (id == 27) {
+            audioName = a_tile - 7;
+        } else if (a_tile == 27) {
             //中
-            realId = 71;
-        } else if (id == 28) {
+            audioName = 71;
+        } else if (a_tile == 28) {
             //发
-            realId = 81;
-        } else if (id == 29) {
+            audioName = 81;
+        } else if (a_tile == 29) {
             //白
-            realId = 91;
-        } else if (id == 30) {
+            audioName = 91;
+        } else if (a_tile == 30) {
             //东
-            realId = 31;
-        } else if (id == 31) {
+            audioName = 31;
+        } else if (a_tile == 31) {
             //西
-            realId = 41;
-        } else if (id == 32) {
+            audioName = 41;
+        } else if (a_tile == 32) {
             //南
-            realId = 51;
-        } else if (id == 33) {
+            audioName = 51;
+        } else if (a_tile == 33) {
             //北
-            realId = 61;
-        } else if (id == 34) {
+            audioName = 61;
+        } else if (a_tile == 34) {
             //春
-            realId = 101;
-        } else if (id == 35) {
+            audioName = 101;
+        } else if (a_tile == 35) {
             //夏
-            realId = 111;
-        } else if (id == 36) {
+            audioName = 111;
+        } else if (a_tile == 36) {
             //秋
-            realId = 121;
-        } else if (id == 37) {
+            audioName = 121;
+        } else if (a_tile == 37) {
             //冬
-            realId = 131;
-        } else if (id == 38) {
+            audioName = 131;
+        } else if (a_tile == 38) {
             //梅
-            realId = 141;
-        } else if (id == 39) {
+            audioName = 141;
+        } else if (a_tile == 39) {
             //兰
-            realId = 151;
-        } else if (id == 40) {
+            audioName = 151;
+        } else if (a_tile == 40) {
             //竹
-            realId = 161;
-        } else if (id == 41) {
+            audioName = 161;
+        } else if (a_tile == 41) {
             //菊
-            realId = 171;
+            audioName = 171;
         }
-        return "nv/" + realId + ".mp3";
+        return "nv/" + audioName + ".mp3";
     },
 
-    getEmptySpriteFrame: function (side) {
-        if (side == "up") {
+    getEmptySpriteFrame: function (a_side) {
+        if (a_side == "up") {
             return this.emptyAtlas.getSpriteFrame("e_mj_b_up");
-        } else if (side == "myself") {
+        } else if (a_side == "myself") {
             return this.emptyAtlas.getSpriteFrame("e_mj_b_bottom");
-        } else if (side == "left") {
+        } else if (a_side == "left") {
             return this.emptyAtlas.getSpriteFrame("e_mj_b_left");
-        } else if (side == "right") {
+        } else if (a_side == "right") {
             return this.emptyAtlas.getSpriteFrame("e_mj_b_right");
         }
     },
 
-    getHoldsEmptySpriteFrame: function (side) {
-        if (side == "up") {
+    getHoldsEmptySpriteFrame: function (a_side) {
+        if (a_side == "up") {
             return this.emptyAtlas.getSpriteFrame("e_mj_up");
-        } else if (side == "myself") {
+        } else if (a_side == "myself") {
             return null;
-        } else if (side == "left") {
+        } else if (a_side == "left") {
             return this.emptyAtlas.getSpriteFrame("e_mj_left");
-        } else if (side == "right") {
+        } else if (a_side == "right") {
             return this.emptyAtlas.getSpriteFrame("e_mj_right");
         }
     },
 
-    sortMJ: function (mahjongs, dingque) {
+    sortMJ: function (a_tiles, a_dingqueType) {
         var self = this;
-        mahjongs.sort(function (a, b) {
-            if (dingque >= 0) {
-                var t1 = self.getMahjongType(a);
-                var t2 = self.getMahjongType(b);
-                if (t1 != t2) {
-                    if (dingque == t1) {
+        a_tiles.sort(function (a_tile1, a_tile2) {
+            if (a_dingqueType >= 0) {
+                var type1 = self.getMahjongType(a_tile1);
+                var type2 = self.getMahjongType(a_tile2);
+                if (type1 != type2) {
+                    if (a_dingqueType == type1) {
                         return 1;
-                    } else if (dingque == t2) {
+                    } else if (a_dingqueType == type2) {
                         return -1;
                     }
                 }
             }
-            return a - b;
+            return a_tile1 - a_tile2;
         });
     },
 
-    getSide: function (localIndex) {
-        return this._sides[localIndex];
+    getSide: function (a_localIndex) {
+        return this._sides[a_localIndex];
     },
 
-    getPre: function (localIndex) {
-        return this._pres[localIndex];
+    getPre: function (a_localIndex) {
+        return this._pres[a_localIndex];
     },
 
-    getFoldPre: function (localIndex) {
-        return this._foldPres[localIndex];
+    getFoldPre: function (a_localIndex) {
+        return this._foldPres[a_localIndex];
     }
 });
