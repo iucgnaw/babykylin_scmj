@@ -156,25 +156,36 @@ cc.Class({
         var sprites = prefab.getComponentsInChildren(cc.Sprite);
         for (var s = 0; s < sprites.length; ++s) {
             var sprite = sprites[s];
-            if (sprite.node.name == "gang") {
+            if (sprite.node.name == "gang") { // The top 4th tile
                 var isGang = a_pengGangType != "peng";
-                sprite.node.active = isGang; // Show or hide the 4th tile depending on Gang or Peng
+                sprite.node.active = isGang; // Show or hide the 4th tile if not Pong
                 sprite.node.scaleX = 1.0;
                 sprite.node.scaleY = 1.0;
-                if (a_pengGangType == "angang") {
-                    // Draw visible Gang
+                if (a_pengGangType == "angang") { // Concealed Kong
+                    // Fold the tile
                     sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(a_side);
                     if (a_side == "myself" || a_side == "up") {
                         sprite.node.scaleX = 1.4;
                         sprite.node.scaleY = 1.4;
                     }
-                } else { // (a_pengGangType != "angang")
-                    // Draw visible Gang
+                } else { // Exposed Kong
+                    // Show the tile
                     sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(a_pre, a_tile);
                 }
-            } else { // (sprite.node.name != "gang")
-                // Draw Peng
-                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(a_pre, a_tile);
+            } else { // the bottom 3 tiles
+                if (a_pengGangType == "angang") { // Also fold the bottom tiles
+                    if (a_side == "myself") { // Show tiles
+                        sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(a_pre, a_tile);
+                    } else { // Fold tiles
+                        sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(a_side);
+                        if (a_side == "up") { // Enlarge sprite
+                            sprite.node.scaleX = 1.4;
+                            sprite.node.scaleY = 1.4;
+                        }
+                    }
+                } else { // Show tiles
+                    sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(a_pre, a_tile);
+                }
             }
         }
     },
