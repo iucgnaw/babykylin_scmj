@@ -7,5 +7,9 @@
 			"path": "server"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.exclude": {
+			"**/*.meta": true
+		}
+	}
 }
