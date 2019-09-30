@@ -76,7 +76,7 @@ cc.Class({
         var side = cc.vv.mahjongmgr.getSide(localIndex);
         var foldPre = cc.vv.mahjongmgr.getFoldPre(localIndex);
 
-        console.log("onPengGangChanged" + localIndex);
+        console.log("onPengGangChanged, localIndex: " + localIndex);
 
         var gameChild = this.node.getChildByName("game");
         var mySide = gameChild.getChildByName(side);
@@ -88,23 +88,29 @@ cc.Class({
         //初始化杠牌
         var meldNum = 0;
 
-        var gangs = a_seatData.angangs
-        for (var i = 0; i < gangs.length; ++i) {
-            var tile = gangs[i];
-            this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "angang");
-            meldNum++;
+        var concealedKongs = a_seatData.angangs
+        if (concealedKongs) {
+            for (var i = 0; i < concealedKongs.length; ++i) {
+                var tile = concealedKongs[i];
+                this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "angang");
+                meldNum++;
+            }
         }
-        var gangs = a_seatData.diangangs
-        for (var i = 0; i < gangs.length; ++i) {
-            var tile = gangs[i];
-            this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "diangang");
-            meldNum++;
+        var exposedKongs = a_seatData.diangangs
+        if (exposedKongs) {
+            for (var i = 0; i < exposedKongs.length; ++i) {
+                var tile = exposedKongs[i];
+                this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "diangang");
+                meldNum++;
+            }
         }
-        var gangs = a_seatData.wangangs
-        for (var i = 0; i < gangs.length; ++i) {
-            var tile = gangs[i];
-            this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "wangang");
-            meldNum++;
+        var drewKongs = a_seatData.wangangs
+        if (drewKongs) {
+            for (var i = 0; i < drewKongs.length; ++i) {
+                var tile = drewKongs[i];
+                this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "wangang");
+                meldNum++;
+            }
         }
 
         //初始化碰牌
@@ -138,7 +144,9 @@ cc.Class({
             prefab.y = -(a_meldNum * 25 * 3);
         } else if (a_side == "right") {
             prefab.y = (a_meldNum * 25 * 3);
-            prefab.setLocalZOrder(-a_meldNum);
+
+            // Show lower meld at higher Z Order.
+            prefab.zIndex = -a_meldNum;
         } else if (a_side == "myself") {
             prefab.x = a_meldNum * 55 * 3 + a_meldNum * 10;
         } else { // "up"
