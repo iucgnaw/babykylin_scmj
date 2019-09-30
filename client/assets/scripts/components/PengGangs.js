@@ -15,162 +15,158 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-        if(!cc.vv){
+        if (!cc.vv) {
             return;
         }
-        
+
         var gameChild = this.node.getChildByName("game");
         var myself = gameChild.getChildByName("myself");
-        var pengangroot = myself.getChildByName("penggangs");
-        var cvs = cc.find('Canvas');
-        var realwidth = cvs.width;
-        var scale = realwidth / 1280;
-        pengangroot.scaleX *= scale;
-        pengangroot.scaleY *= scale;
-        
+        var pengGangRoot = myself.getChildByName("penggangs");
+        var canvas = cc.find('Canvas');
+        var canvasWidth = canvas.width;
+        var scale = canvasWidth / 1280;
+        pengGangRoot.scaleX *= scale;
+        pengGangRoot.scaleY *= scale;
+
         var self = this;
-        this.node.on('peng_notify',function(data){
+        this.node.on('peng_notify', function (a_data) {
             //刷新所有的牌
-            self.onPengGangChanged(data);
+            self.onPengGangChanged(a_data);
         });
-        
-        this.node.on('gang_notify',function(data){
+
+        this.node.on('gang_notify', function (a_data) {
             //刷新所有的牌
-            self.onPengGangChanged(data.seatData);
+            self.onPengGangChanged(a_data.seatData);
         });
-        
-        this.node.on('game_begin',function(data){
-            self.onGameBein();
+
+        this.node.on('game_begin', function (a_data) {
+            self.onGameBegin();
         });
-        
+
         var seats = cc.vv.gameNetMgr.seats;
-        for(var i in seats){
+        for (var i in seats) {
             this.onPengGangChanged(seats[i]);
         }
     },
-    
-    onGameBein:function(){
+
+    onGameBegin: function () {
         this.hideSide("myself");
         this.hideSide("right");
         this.hideSide("up");
         this.hideSide("left");
     },
-    
-    hideSide:function(side){
+
+    hideSide: function (a_side) {
         var gameChild = this.node.getChildByName("game");
-        var myself = gameChild.getChildByName(side);
-        var pengangroot = myself.getChildByName("penggangs");
-        if(pengangroot){
-            for(var i = 0; i < pengangroot.childrenCount; ++i){
-                pengangroot.children[i].active = false;
-            }            
+        var myself = gameChild.getChildByName(a_side);
+        var pengGangRoot = myself.getChildByName("penggangs");
+        if (pengGangRoot) {
+            for (var i = 0; i < pengGangRoot.childrenCount; ++i) {
+                pengGangRoot.children[i].active = false;
+            }
         }
     },
-    
-    onPengGangChanged:function(seatData){
-        
-        if(seatData.angangs == null && seatData.diangangs == null && seatData.wangangs == null && seatData.pengs == null){
+
+    onPengGangChanged: function (a_seatData) {
+
+        if (a_seatData.angangs == null && a_seatData.diangangs == null && a_seatData.wangangs == null && a_seatData.pengs == null) {
             return;
         }
-        var localIndex = cc.vv.gameNetMgr.getLocalIndex(seatData.seatindex);
+        var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatindex);
         var side = cc.vv.mahjongmgr.getSide(localIndex);
-        var pre = cc.vv.mahjongmgr.getFoldPre(localIndex);
-       
+        var foldPre = cc.vv.mahjongmgr.getFoldPre(localIndex);
+
         console.log("onPengGangChanged" + localIndex);
-            
+
         var gameChild = this.node.getChildByName("game");
-        var myself = gameChild.getChildByName(side);
-        var pengangroot = myself.getChildByName("penggangs");
-        
-        for(var i = 0; i < pengangroot.childrenCount; ++i){
-            pengangroot.children[i].active = false;
+        var mySide = gameChild.getChildByName(side);
+        var pengGangRoot = mySide.getChildByName("penggangs");
+
+        for (var i = 0; i < pengGangRoot.childrenCount; ++i) {
+            pengGangRoot.children[i].active = false;
         }
         //初始化杠牌
-        var index = 0;
-        
-        var gangs = seatData.angangs
-        for(var i = 0; i < gangs.length; ++i){
-            var mjid = gangs[i];
-            this.initPengAndGangs(pengangroot,side,pre,index,mjid,"angang");
-            index++;    
-        } 
-        var gangs = seatData.diangangs
-        for(var i = 0; i < gangs.length; ++i){
-            var mjid = gangs[i];
-            this.initPengAndGangs(pengangroot,side,pre,index,mjid,"diangang");
-            index++;    
+        var meldNum = 0;
+
+        var gangs = a_seatData.angangs
+        for (var i = 0; i < gangs.length; ++i) {
+            var tile = gangs[i];
+            this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "angang");
+            meldNum++;
         }
-        
-        var gangs = seatData.wangangs
-        for(var i = 0; i < gangs.length; ++i){
-            var mjid = gangs[i];
-            this.initPengAndGangs(pengangroot,side,pre,index,mjid,"wangang");
-            index++;    
+        var gangs = a_seatData.diangangs
+        for (var i = 0; i < gangs.length; ++i) {
+            var tile = gangs[i];
+            this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "diangang");
+            meldNum++;
         }
-        
-        //初始化碰牌
-        var pengs = seatData.pengs
-        if(pengs){
-            for(var i = 0; i < pengs.length; ++i){
-                var mjid = pengs[i];
-                this.initPengAndGangs(pengangroot,side,pre,index,mjid,"peng");
-                index++;    
-            }    
-        }        
-    },
-    
-    initPengAndGangs:function(pengangroot,side,pre,index,mjid,flag){
-        var pgroot = null;
-        if(pengangroot.childrenCount <= index){
-            if(side == "left" || side == "right"){
-                pgroot = cc.instantiate(cc.vv.mahjongmgr.pengPrefabLeft);
-            }
-            else{
-                pgroot = cc.instantiate(cc.vv.mahjongmgr.pengPrefabSelf);
-            }
-            
-            pengangroot.addChild(pgroot);    
-        }
-        else{
-            pgroot = pengangroot.children[index];
-            pgroot.active = true;
-        }
-        
-        if(side == "left"){
-            pgroot.y = -(index * 25 * 3);                    
-        }
-        else if(side == "right"){
-            pgroot.y = (index * 25 * 3);
-            pgroot.setLocalZOrder(-index);
-        }
-        else if(side == "myself"){
-            pgroot.x = index * 55 * 3 + index * 10;                    
-        }
-        else{
-            pgroot.x = -(index * 55*3);
+        var gangs = a_seatData.wangangs
+        for (var i = 0; i < gangs.length; ++i) {
+            var tile = gangs[i];
+            this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "wangang");
+            meldNum++;
         }
 
-        var sprites = pgroot.getComponentsInChildren(cc.Sprite);
-        for(var s = 0; s < sprites.length; ++s){
+        //初始化碰牌
+        var pengs = a_seatData.pengs
+        if (pengs) {
+            for (var i = 0; i < pengs.length; ++i) {
+                var tile = pengs[i];
+                this.drawPengGangs(pengGangRoot, side, foldPre, meldNum, tile, "peng");
+                meldNum++;
+            }
+        }
+    },
+
+    drawPengGangs: function (a_pengGangRoot, a_side, a_pre, a_meldNum, a_tile, a_pengGangType) {
+        var prefab = null;
+        if (a_pengGangRoot.childrenCount <= a_meldNum) {
+            if (a_side == "left" || a_side == "right") {
+                prefab = cc.instantiate(cc.vv.mahjongmgr.pengPrefabLeft);
+            } else {
+                prefab = cc.instantiate(cc.vv.mahjongmgr.pengPrefabSelf);
+            }
+
+            a_pengGangRoot.addChild(prefab);
+        } else {
+            prefab = a_pengGangRoot.children[a_meldNum];
+            prefab.active = true; // Show this meld
+        }
+
+        // Position the meld
+        if (a_side == "left") {
+            prefab.y = -(a_meldNum * 25 * 3);
+        } else if (a_side == "right") {
+            prefab.y = (a_meldNum * 25 * 3);
+            prefab.setLocalZOrder(-a_meldNum);
+        } else if (a_side == "myself") {
+            prefab.x = a_meldNum * 55 * 3 + a_meldNum * 10;
+        } else { // "up"
+            prefab.x = -(a_meldNum * 55 * 3);
+        }
+
+        var sprites = prefab.getComponentsInChildren(cc.Sprite);
+        for (var s = 0; s < sprites.length; ++s) {
             var sprite = sprites[s];
-            if(sprite.node.name == "gang"){
-                var isGang = flag != "peng";
-                sprite.node.active = isGang;
+            if (sprite.node.name == "gang") {
+                var isGang = a_pengGangType != "peng";
+                sprite.node.active = isGang; // Show or hide the 4th tile depending on Gang or Peng
                 sprite.node.scaleX = 1.0;
                 sprite.node.scaleY = 1.0;
-                if(flag == "angang"){
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(side);
-                    if(side == "myself" || side == "up"){
+                if (a_pengGangType == "angang") {
+                    // Draw visible Gang
+                    sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(a_side);
+                    if (a_side == "myself" || a_side == "up") {
                         sprite.node.scaleX = 1.4;
-                        sprite.node.scaleY = 1.4;                        
+                        sprite.node.scaleY = 1.4;
                     }
-                }   
-                else{
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(pre,mjid);    
+                } else { // (a_pengGangType != "angang")
+                    // Draw visible Gang
+                    sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(a_pre, a_tile);
                 }
-            }
-            else{ 
-                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(pre,mjid);
+            } else { // (sprite.node.name != "gang")
+                // Draw Peng
+                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(a_pre, a_tile);
             }
         }
     },
