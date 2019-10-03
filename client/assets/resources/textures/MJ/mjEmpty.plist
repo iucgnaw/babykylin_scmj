@@ -46,7 +46,7 @@
             <key>e_mj_b_up.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{87,2},{38,59}}</string>
+                <string>{{87,2},{37,59}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>

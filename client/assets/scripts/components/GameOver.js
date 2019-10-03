@@ -284,21 +284,21 @@ cc.Class({
             var gangs = userData.angangs;
             for (var k = 0; k < gangs.length; ++k) {
                 var mjid = gangs[k];
-                this.initPengAndGangs(seatView, index, mjid, "angang");
+                this.drawMeld(seatView, index, mjid, "angang");
                 index++;
             }
 
             var gangs = userData.diangangs;
             for (var k = 0; k < gangs.length; ++k) {
                 var mjid = gangs[k];
-                this.initPengAndGangs(seatView, index, mjid, "diangang");
+                this.drawMeld(seatView, index, mjid, "diangang");
                 index++;
             }
 
             var gangs = userData.wangangs;
             for (var k = 0; k < gangs.length; ++k) {
                 var mjid = gangs[k];
-                this.initPengAndGangs(seatView, index, mjid, "wangang");
+                this.drawMeld(seatView, index, mjid, "wangang");
                 index++;
             }
 
@@ -307,44 +307,46 @@ cc.Class({
             if (pengs) {
                 for (var k = 0; k < pengs.length; ++k) {
                     var mjid = pengs[k];
-                    this.initPengAndGangs(seatView, index, mjid, "peng");
+                    this.drawMeld(seatView, index, mjid, "peng");
                     index++;
                 }
             }
         }
     },
 
-    initPengAndGangs: function (seatView, index, mjid, flag) {
-        var pgroot = null;
-        if (seatView._pengandgang.length <= index) {
-            pgroot = cc.instantiate(cc.vv.mahjongmgr.pengPrefabSelf);
-            seatView._pengandgang.push(pgroot);
-            seatView.mahjongs.addChild(pgroot);
+    drawMeld: function (a_seatView, a_index, a_tile, a_flag) {
+        var nodeMeld = null;
+        if (a_seatView._pengandgang.length <= a_index) {
+            nodeMeld = cc.instantiate(cc.vv.mahjongmgr.pengPrefabSelf);
+            a_seatView._pengandgang.push(nodeMeld);
+            a_seatView.mahjongs.addChild(nodeMeld);
         } else {
-            pgroot = seatView._pengandgang[index];
-            pgroot.active = true;
+            nodeMeld = a_seatView._pengandgang[a_index];
+            nodeMeld.active = true;
         }
 
-        var sprites = pgroot.getComponentsInChildren(cc.Sprite);
-        for (var s = 0; s < sprites.length; ++s) {
-            var sprite = sprites[s];
-            if (sprite.node.name == "gang") {
-                var isGang = flag != "peng";
-                sprite.node.active = isGang;
-                sprite.node.scaleX = 1.0;
-                sprite.node.scaleY = 1.0;
-                if (flag == "angang") {
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame("myself");
-                    sprite.node.scaleX = 1.4;
-                    sprite.node.scaleY = 1.4;
+        var spritesMeld = nodeMeld.getComponentsInChildren(cc.Sprite);
+        for (var i = 0; i < spritesMeld.length; ++i) {
+            var spriteTile = spritesMeld[i];
+            if (spriteTile.node.name == "gang") {
+                var isGang = a_flag != "peng";
+                spriteTile.node.active = isGang;
+                spriteTile.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", a_tile);
+                if (a_flag == "angang") {
+                    spriteTile.node.opacity = 128;
                 } else {
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", mjid);
+                    spriteTile.node.opacity = 255;
                 }
             } else {
-                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", mjid);
+                spriteTile.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", a_tile);
+                if (a_flag == "angang") {
+                    spriteTile.node.opacity = 128;
+                } else {
+                    spriteTile.node.opacity = 255;
+                }
             }
         }
-        pgroot.x = index * 55 * 3 + index * 10;
+        nodeMeld.x = a_index * 55 * 3 + a_index * 10;
     },
 
     onBtnReadyClicked: function () {

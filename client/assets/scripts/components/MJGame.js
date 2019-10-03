@@ -652,10 +652,10 @@ cc.Class({
             nodeTile.active = false;
         } else if (a_tile >= 0) { // Valid tile. TODO: add upper value check
             nodeTile.active = true;
-            if (side == "up") {
-                nodeTile.scaleX = 0.73;
-                nodeTile.scaleY = 0.73;
-            }
+            // if (side == "up") {
+            //     nodeTile.scaleX = 0.73;
+            //     nodeTile.scaleY = 0.73;
+            // }
             var sprite = nodeTile.getComponent(cc.Sprite);
             sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(prefab, a_tile);
         } else if (a_tile != null) { // < 0 Invalid tile
@@ -677,7 +677,7 @@ cc.Class({
         var gameChild = this.node.getChildByName("game");
         var sideChild = gameChild.getChildByName(side);
         var holds = sideChild.getChildByName("holds");
-        var spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(side);
+        var spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(side);
         for (var i = 0; i < holds.childrenCount; ++i) {
             var nc = holds.children[i];
             nc.scaleX = 1.0;
@@ -711,10 +711,10 @@ cc.Class({
             for (var i = 0; i < holds.length; ++i) {
                 var idx = this.getLastTilePositionBySide(side, i + meldTilesNum);
                 var sprite = sideHolds.children[idx].getComponent(cc.Sprite);
-                if (side == "up") {
-                    sprite.node.scaleX = 0.73;
-                    sprite.node.scaleY = 0.73;
-                }
+                // if (side == "up") {
+                //     sprite.node.scaleX = 0.73;
+                //     sprite.node.scaleY = 0.73;
+                // }
                 sprite.node.active = true; // Show this tile
                 sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(pre, holds[i]);
             }

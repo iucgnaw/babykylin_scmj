@@ -25,8 +25,8 @@ cc.Class({
         var canvas = cc.find("Canvas");
         var canvasWidth = canvas.width;
         var scale = canvasWidth / 1280;
-        nodePongKong.scaleX *= scale;
-        nodePongKong.scaleY *= scale;
+        // nodePongKong.scaleX *= scale;
+        // nodePongKong.scaleY *= scale;
 
         var self = this;
         this.node.on("event_pong", function (a_data) {
@@ -92,7 +92,7 @@ cc.Class({
         if (concealedKongs) {
             for (var i = 0; i < concealedKongs.length; ++i) {
                 var tile = concealedKongs[i];
-                this.drawPengGangs(nodePongKong, side, prefabFold, meldNum, tile, "angang");
+                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "angang");
                 meldNum++;
             }
         }
@@ -100,7 +100,7 @@ cc.Class({
         if (exposedKongs) {
             for (var i = 0; i < exposedKongs.length; ++i) {
                 var tile = exposedKongs[i];
-                this.drawPengGangs(nodePongKong, side, prefabFold, meldNum, tile, "diangang");
+                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "diangang");
                 meldNum++;
             }
         }
@@ -108,7 +108,7 @@ cc.Class({
         if (drewKongs) {
             for (var i = 0; i < drewKongs.length; ++i) {
                 var tile = drewKongs[i];
-                this.drawPengGangs(nodePongKong, side, prefabFold, meldNum, tile, "wangang");
+                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "wangang");
                 meldNum++;
             }
         }
@@ -118,13 +118,13 @@ cc.Class({
         if (pongs) {
             for (var i = 0; i < pongs.length; ++i) {
                 var tile = pongs[i];
-                this.drawPengGangs(nodePongKong, side, prefabFold, meldNum, tile, "peng");
+                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "peng");
                 meldNum++;
             }
         }
     },
 
-    drawPengGangs: function (a_nodePongKong, a_side, a_prefab, a_meldNum, a_tile, a_pongKongType) {
+    drawMeld: function (a_nodePongKong, a_side, a_prefab, a_meldNum, a_tile, a_pongKongType) {
         var prefab = null;
         if (a_nodePongKong.childrenCount <= a_meldNum) {
             if (a_side == "left" || a_side == "right") {
@@ -156,35 +156,40 @@ cc.Class({
         var sprites = prefab.getComponentsInChildren(cc.Sprite);
         for (var s = 0; s < sprites.length; ++s) {
             var sprite = sprites[s];
-            if (sprite.node.name == "gang") { // The top 4th tile
+            if (sprite.node.name == "gang") { // Kong, handle the top 4th tile
                 var isGang = a_pongKongType != "peng";
                 sprite.node.active = isGang; // Show or hide the 4th tile if not Pong
-                sprite.node.scaleX = 1.0;
-                sprite.node.scaleY = 1.0;
+                // sprite.node.scaleX = 1.0;
+                // sprite.node.scaleY = 1.0;
                 if (a_pongKongType == "angang") { // Concealed Kong
-                    // Fold the tile
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(a_side);
-                    if (a_side == "myself" || a_side == "up") {
-                        sprite.node.scaleX = 1.4;
-                        sprite.node.scaleY = 1.4;
+                    if (a_side == "myself") { // Show 4th tile
+                        sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
+                        sprite.node.opacity = 128;
+                    } else { // Other sides, then fold tile
+                        sprite.spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(a_side);
+                        sprite.node.opacity = 255;
                     }
                 } else { // Exposed Kong
                     // Show the tile
                     sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
+                    sprite.node.opacity = 255;
                 }
-            } else { // the bottom 3 tiles
-                if (a_pongKongType == "angang") { // Also fold the bottom tiles
-                    if (a_side == "myself") { // Show tiles
+            } else { // Not Kong, handle the bottom 3 tiles
+                if (a_pongKongType == "angang") { // Concealed Kong
+                    if (a_side == "myself") { // Show bottm 3 tiles
                         sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
-                    } else { // Fold tiles
-                        sprite.spriteFrame = cc.vv.mahjongmgr.getEmptySpriteFrame(a_side);
-                        if (a_side == "up") { // Enlarge sprite
-                            sprite.node.scaleX = 1.4;
-                            sprite.node.scaleY = 1.4;
-                        }
+                        sprite.node.opacity = 128;
+                    } else { // Other sides, then fold bottom 3 tiles
+                        sprite.spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(a_side);
+                        sprite.node.opacity = 255;
+                        // if (a_side == "up") { // Enlarge sprite
+                        //     sprite.node.scaleX = 1.4;
+                        //     sprite.node.scaleY = 1.4;
+                        // }
                     }
-                } else { // Show tiles
+                } else { // Exposed Kong
                     sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
+                    sprite.node.opacity = 255;
                 }
             }
         }

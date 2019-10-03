@@ -230,11 +230,11 @@ cc.Class({
         return "nv/" + audioName + ".mp3";
     },
 
-    getEmptySpriteFrame: function (a_side) {
+    getFoldSpriteFrame: function (a_side) {
         if (a_side == "up") {
             return this.emptyAtlas.getSpriteFrame("e_mj_b_up");
         } else if (a_side == "myself") {
-            return this.emptyAtlas.getSpriteFrame("e_mj_b_bottom");
+            return this.emptyAtlas.getSpriteFrame("e_mj_b_up");
         } else if (a_side == "left") {
             return this.emptyAtlas.getSpriteFrame("e_mj_b_left");
         } else if (a_side == "right") {

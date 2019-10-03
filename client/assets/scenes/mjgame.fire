@@ -44,8 +44,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5703125,
-      "y": 0.5703125,
+      "x": 0.41875,
+      "y": 0.41875,
       "z": 1
     },
     "_quat": {
@@ -142,7 +142,7 @@
       }
     ],
     "_active": true,
-    "_level": 0,
+    "_level": 1,
     "_components": [
       {
         "__id__": 2190
@@ -13782,7 +13782,7 @@
         "__id__": 301
       }
     ],
-    "_active": true,
+    "_active": false,
     "_level": 0,
     "_components": [
       {
@@ -21681,7 +21681,7 @@
         "__id__": 470
       }
     ],
-    "_active": true,
+    "_active": false,
     "_level": 0,
     "_components": [
       {
@@ -30769,7 +30769,7 @@
         "__id__": 664
       }
     ],
-    "_active": true,
+    "_active": false,
     "_level": 0,
     "_components": [
       {
@@ -73124,7 +73124,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 90,
       "height": 40
     },
     "_anchorPoint": {
@@ -73134,7 +73134,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 40,
+      "x": -60,
       "y": -18,
       "z": 0
     },
@@ -73170,8 +73170,8 @@
     "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "幼麟游戏",
-    "_N$string": "幼麟游戏",
+    "_string": "东风位",
+    "_N$string": "东风位",
     "_fontSize": 30,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -76145,7 +76145,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 90,
       "height": 40
     },
     "_anchorPoint": {
@@ -76155,7 +76155,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 40,
+      "x": -60,
       "y": -18,
       "z": 0
     },
@@ -76191,8 +76191,8 @@
     "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "幼麟游戏",
-    "_N$string": "幼麟游戏",
+    "_string": "南风位",
+    "_N$string": "南风位",
     "_fontSize": 30,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -79166,7 +79166,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 90,
       "height": 40
     },
     "_anchorPoint": {
@@ -79176,7 +79176,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 40,
+      "x": -60,
       "y": -18,
       "z": 0
     },
@@ -79212,8 +79212,8 @@
     "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "幼麟游戏",
-    "_N$string": "幼麟游戏",
+    "_string": "西风位",
+    "_N$string": "西风位",
     "_fontSize": 30,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -82187,7 +82187,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 90,
       "height": 40
     },
     "_anchorPoint": {
@@ -82197,7 +82197,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 40,
+      "x": -60,
       "y": -18,
       "z": 0
     },
@@ -82233,8 +82233,8 @@
     "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "幼麟游戏",
-    "_N$string": "幼麟游戏",
+    "_string": "北风位",
+    "_N$string": "北风位",
     "_fontSize": 30,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -97227,7 +97227,7 @@
     },
     "_children": [],
     "_active": true,
-    "_level": 0,
+    "_level": 1,
     "_components": [
       {
         "__id__": 2195
