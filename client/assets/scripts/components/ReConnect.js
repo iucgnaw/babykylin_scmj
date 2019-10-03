@@ -24,14 +24,14 @@ cc.Class({
             cc.vv.net.test(function (ret) {
                 if (ret) {
                     cc.vv.gameNetMgr.reset();
-                    //cc.director.loadScene('hall');
+                    //cc.director.loadScene("hall");
                     var roomId = cc.vv.userMgr.oldRoomId;
                     if (roomId != null) {
                         cc.vv.userMgr.oldRoomId = null;
                         cc.vv.userMgr.enterRoom(roomId, function (ret) {
                             if (ret.errcode != 0) {
                                 cc.vv.gameNetMgr.roomId = null;
-                                cc.director.loadScene('hall');
+                                cc.director.loadScene("hall");
                             }
                         });
                     }
@@ -43,17 +43,16 @@ cc.Class({
         }
 
         var fn = function (data) {
-            self.node.off('disconnect', fn);
+            self.node.off("disconnect", fn);
             cc.vv.wc.show("正在重连...");
             fnTestServerOn();
         };
-        console.log("adasfdasdfsdf");
 
-        this.node.on('login_finished', function () {
+        this.node.on("event_login_finished", function () {
             cc.vv.wc.hide();
-            self.node.on('disconnect', fn);
+            self.node.on("disconnect", fn);
         });
-        this.node.on('disconnect', fn);
+        this.node.on("disconnect", fn);
     },
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {

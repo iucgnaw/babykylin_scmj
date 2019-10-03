@@ -1,8 +1,8 @@
-var crypto = require('../utils/crypto');
-var express = require('express');
-var db = require('../utils/db');
+var crypto = require("../utils/crypto");
+var express = require("express");
+var db = require("../utils/db");
 var http = require("../utils/http");
-var fibers = require('fibers');
+var fibers = require("fibers");
 
 var app = express();
 var hallAddr = "";
@@ -26,18 +26,18 @@ exports.start = function (cfg) {
 
 
 //设置跨域访问
-app.all('*', function (req, res, next) {
+app.all("*", function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-	res.header("X-Powered-By", ' 3.2.1')
+	res.header("X-Powered-By", " 3.2.1")
 	res.header("Content-Type", "application/json;charset=utf-8");
 	fibers(function () {
 		next();
 	}).run();
 });
 
-app.get('/register', function (req, res) {
+app.get("/register", function (req, res) {
 	var account = req.query.account;
 	var password = req.query.password;
 
@@ -71,14 +71,14 @@ app.get('/register', function (req, res) {
 	});
 });
 
-app.get('/get_version', function (req, res) {
+app.get("/get_version", function (req, res) {
 	var ret = {
 		version: config.VERSION,
 	}
 	send(res, ret);
 });
 
-app.get('/get_serverinfo', function (req, res) {
+app.get("/get_serverinfo", function (req, res) {
 	var ret = {
 		version: config.VERSION,
 		hall: hallAddr,
@@ -87,7 +87,7 @@ app.get('/get_serverinfo', function (req, res) {
 	send(res, ret);
 });
 
-app.get('/guest', function (req, res) {
+app.get("/guest", function (req, res) {
 	var account = "guest_" + req.query.account;
 	var sign = crypto.md5(account + req.ip + config.ACCOUNT_PRI_KEY);
 	var ret = {
@@ -100,7 +100,7 @@ app.get('/guest', function (req, res) {
 	send(res, ret);
 });
 
-app.get('/auth', function (req, res) {
+app.get("/auth", function (req, res) {
 	var account = req.query.account;
 	var password = req.query.password;
 
@@ -175,7 +175,7 @@ function create_user(account, name, sex, headimgurl, callback) {
 		}
 	});
 };
-app.get('/wechat_auth', function (req, res) {
+app.get("/wechat_auth", function (req, res) {
 	var code = req.query.code;
 	var os = req.query.os;
 	if (code == null || code == "" || os == null || os == "") {
@@ -215,7 +215,7 @@ app.get('/wechat_auth', function (req, res) {
 	});
 });
 
-app.get('/base_info', function (req, res) {
+app.get("/base_info", function (req, res) {
 	var userid = req.query.userid;
 	db.get_user_base_info(userid, function (data) {
 		var ret = {
@@ -229,30 +229,30 @@ app.get('/base_info', function (req, res) {
 	});
 });
 
-app.get('/image', function (req, res) {
+app.get("/image", function (req, res) {
 	var url = req.query.url;
 	if (!url) {
-		http.send(res, 1, 'invalid url', {});
+		http.send(res, 1, "invalid url", {});
 		return;
 	}
-	if (url.search('http://') != 0 && url.search('https://') != 0) {
-		http.send(res, 1, 'invalid url', {});
+	if (url.search("http://") != 0 && url.search("https://") != 0) {
+		http.send(res, 1, "invalid url", {});
 		return;
 	}
 
-	url = url.split('.jpg')[0];
+	url = url.split(".jpg")[0];
 
 
-	var safe = url.search('https://') == 0;
+	var safe = url.search("https://") == 0;
 	console.log(url);
-	var ret = http.getSync(url, null, safe, 'binary');
+	var ret = http.getSync(url, null, safe, "binary");
 	if (!ret.type || !ret.data) {
-		http.send(res, 1, 'invalid url', true);
+		http.send(res, 1, "invalid url", true);
 		return;
 	}
 	res.writeHead(200, {
 		"Content-Type": ret.type
 	});
-	res.write(ret.data, 'binary');
+	res.write(ret.data, "binary");
 	res.end();
 });

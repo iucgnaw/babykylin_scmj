@@ -1,21 +1,21 @@
-var g_crypto = require('../utils/crypto');
-var g_db = require('../utils/db');
-var g_express = require('express');
+var g_crypto = require("../utils/crypto");
+var g_db = require("../utils/db");
+var g_express = require("express");
 
-var g_tokenMgr = require('./tokenmgr');
-var g_roomMgr = require('./roommgr');
-var g_userMgr = require('./usermgr');
-var g_http = require('../utils/http');
+var g_tokenMgr = require("./tokenmgr");
+var g_roomMgr = require("./roommgr");
+var g_userMgr = require("./usermgr");
+var g_http = require("../utils/http");
 var g_io = null;
 
 var g_app = g_express();
 
 //设置跨域访问
-g_app.all('*', function (a_req, a_res, a_next) {
+g_app.all("*", function (a_req, a_res, a_next) {
 	a_res.header("Access-Control-Allow-Origin", "*");
 	a_res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	a_res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-	a_res.header("X-Powered-By", ' 3.2.1')
+	a_res.header("X-Powered-By", " 3.2.1")
 	a_res.header("Content-Type", "application/json;charset=utf-8");
 	g_http.send(a_res, 0, "ok", {});
 });
@@ -25,12 +25,12 @@ var g_config = null;
 exports.start = function (a_config, a_mgr) {
 	g_config = a_config;
 
-	var httpServer = require('http').createServer(g_app);
-	g_io = require('socket.io')(httpServer);
+	var httpServer = require("http").createServer(g_app);
+	g_io = require("socket.io")(httpServer);
 	httpServer.listen(g_config.CLIENT_PORT);
 
-	g_io.sockets.on('connection', function (a_socket) {
-		a_socket.on('login', function (a_data) {
+	g_io.sockets.on("connection", function (a_socket) {
+		a_socket.on("login", function (a_data) {
 			a_data = JSON.parse(a_data);
 			if (a_socket.userId != null) {
 				//已经登录过的就忽略
@@ -50,7 +50,7 @@ exports.start = function (a_config, a_mgr) {
 			//检查参数合法性
 			if (token == null || roomId == null || sign == null || time == null) {
 				console.log(1);
-				a_socket.emit('login_result', {
+				a_socket.emit("res_login_result", {
 					errcode: 1,
 					errmsg: "invalid parameters"
 				});
@@ -61,7 +61,7 @@ exports.start = function (a_config, a_mgr) {
 			var md5 = g_crypto.md5(roomId + token + time + g_config.ROOM_PRI_KEY);
 			if (md5 != sign) {
 				console.log(2);
-				a_socket.emit('login_result', {
+				a_socket.emit("res_login_result", {
 					errcode: 2,
 					errmsg: "login failed. invalid sign!"
 				});
@@ -71,7 +71,7 @@ exports.start = function (a_config, a_mgr) {
 			//检查token是否有效
 			if (g_tokenMgr.isTokenValid(token) == false) {
 				console.log(3);
-				a_socket.emit('login_result', {
+				a_socket.emit("res_login_result", {
 					errcode: 3,
 					errmsg: "token expired."
 				});
@@ -122,21 +122,21 @@ exports.start = function (a_config, a_mgr) {
 				data: {
 					roomid: roomInfo.id,
 					conf: roomInfo.conf,
-					numofgames: roomInfo.numOfGames,
+					numOfGames: roomInfo.numOfGames,
 					seats: seats
 				}
 			};
-			a_socket.emit('login_result', result);
+			a_socket.emit("res_login_result", result);
 
 			//通知其它客户端
-			g_userMgr.broacastInRoom('new_user_comes_push', userData, userId);
+			g_userMgr.broacastInRoom("push_player_join", userData, userId);
 
 			a_socket.gameMgr = roomInfo.gameMgr;
 
 			//玩家上线，强制设置为TRUE
 			a_socket.gameMgr.setReady(userId);
 
-			a_socket.emit('login_finished');
+			a_socket.emit("push_login_finished");
 
 			if (roomInfo.dr != null) {
 				var dr = roomInfo.dr;
@@ -145,24 +145,24 @@ exports.start = function (a_config, a_mgr) {
 					time: ramaingTime,
 					states: dr.states
 				}
-				g_userMgr.sendMsg(userId, 'dissolve_notice_push', a_data);
+				g_userMgr.sendMsg(userId, "push_propose_dismiss_room", a_data);
 			}
 		});
 
-		a_socket.on('ready', function (a_data) {
+		a_socket.on("req_seat_ready", function (a_data) {
 			var userId = a_socket.userId;
 			if (userId == null) {
 				return;
 			}
 			a_socket.gameMgr.setReady(userId);
-			g_userMgr.broacastInRoom('user_ready_push', {
+			g_userMgr.broacastInRoom("push_player_ready", {
 				userid: userId,
 				ready: true
 			}, userId, true);
 		});
 
 		//换牌
-		a_socket.on('huanpai', function (a_data) {
+		a_socket.on("req_huanpai", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
@@ -185,7 +185,7 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//定缺
-		a_socket.on('dingque', function (a_data) {
+		a_socket.on("req_dingque", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
@@ -194,7 +194,7 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//出牌
-		a_socket.on('chupai', function (a_data) {
+		a_socket.on("req_discard", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
@@ -203,7 +203,7 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//碰
-		a_socket.on('peng', function (a_data) {
+		a_socket.on("req_pong", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
@@ -211,7 +211,7 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//杠
-		a_socket.on('gang', function (a_data) {
+		a_socket.on("req_kong", function (a_data) {
 			if (a_socket.userId == null || a_data == null) {
 				return;
 			}
@@ -228,7 +228,7 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//胡
-		a_socket.on('hu', function (a_data) {
+		a_socket.on("req_win", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
@@ -236,7 +236,7 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//过  遇上胡，碰，杠的时候，可以选择过
-		a_socket.on('guo', function (a_data) {
+		a_socket.on("req_pass", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
@@ -244,48 +244,48 @@ exports.start = function (a_config, a_mgr) {
 		});
 
 		//聊天
-		a_socket.on('chat', function (a_data) {
+		a_socket.on("req_chat", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
 			var chatContent = a_data;
-			g_userMgr.broacastInRoom('chat_push', {
+			g_userMgr.broacastInRoom("push_chat", {
 				sender: a_socket.userId,
 				content: chatContent
 			}, a_socket.userId, true);
 		});
 
 		//快速聊天
-		a_socket.on('quick_chat', function (a_data) {
+		a_socket.on("req_quick_chat", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
 			var chatId = a_data;
-			g_userMgr.broacastInRoom('quick_chat_push', {
+			g_userMgr.broacastInRoom("push_quick_chat", {
 				sender: a_socket.userId,
 				content: chatId
 			}, a_socket.userId, true);
 		});
 
 		//语音聊天
-		a_socket.on('voice_msg', function (a_data) {
+		a_socket.on("req_voice_msg", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
 			console.log(a_data.length);
-			g_userMgr.broacastInRoom('voice_msg_push', {
+			g_userMgr.broacastInRoom("push_voice_message", {
 				sender: a_socket.userId,
 				content: a_data
 			}, a_socket.userId, true);
 		});
 
 		//表情
-		a_socket.on('emoji', function (a_data) {
+		a_socket.on("req_emoji", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
 			var phizId = a_data;
-			g_userMgr.broacastInRoom('emoji_push', {
+			g_userMgr.broacastInRoom("push_emoji", {
 				sender: a_socket.userId,
 				content: phizId
 			}, a_socket.userId, true);
@@ -294,7 +294,7 @@ exports.start = function (a_config, a_mgr) {
 		//语音使用SDK不出现在这里
 
 		//退出房间
-		a_socket.on('exit', function (a_data) {
+		a_socket.on("req_exit", function (a_data) {
 			var userId = a_socket.userId;
 			if (userId == null) {
 				return;
@@ -316,17 +316,17 @@ exports.start = function (a_config, a_mgr) {
 			}
 
 			//通知其它玩家，有人退出了房间
-			g_userMgr.broacastInRoom('exit_notify_push', userId, userId, false);
+			g_userMgr.broacastInRoom("push_player_exit", userId, userId, false);
 
 			g_roomMgr.exitRoom(userId);
 			g_userMgr.del(userId);
 
-			a_socket.emit('exit_result');
+			a_socket.emit("push_exit_result");
 			a_socket.disconnect();
 		});
 
 		//解散房间
-		a_socket.on('dispress', function (a_data) {
+		a_socket.on("req_dismiss_room", function (a_data) {
 			var userId = a_socket.userId;
 			if (userId == null) {
 				return;
@@ -347,14 +347,14 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 
-			g_userMgr.broacastInRoom('dispress_push', {}, userId, true);
+			g_userMgr.broacastInRoom("push_dismiss_room", {}, userId, true);
 			g_userMgr.kickAllInRoom(roomId);
 			g_roomMgr.destroy(roomId);
 			a_socket.disconnect();
 		});
 
 		//解散房间
-		a_socket.on('dissolve_request', function (a_data) {
+		a_socket.on("req_propose_dismiss_room", function (a_data) {
 			var userId = a_socket.userId;
 			console.log(1);
 			if (userId == null) {
@@ -383,12 +383,12 @@ exports.start = function (a_config, a_mgr) {
 					states: dr.states
 				}
 				console.log(5);
-				g_userMgr.broacastInRoom('dissolve_notice_push', a_data, userId, true);
+				g_userMgr.broacastInRoom("push_propose_dismiss_room", a_data, userId, true);
 			}
 			console.log(6);
 		});
 
-		a_socket.on('dissolve_agree', function (a_data) {
+		a_socket.on("req_accept_dismiss_room", function (a_data) {
 			var userId = a_socket.userId;
 
 			if (userId == null) {
@@ -408,7 +408,7 @@ exports.start = function (a_config, a_mgr) {
 					time: ramaingTime,
 					states: dr.states
 				}
-				g_userMgr.broacastInRoom('dissolve_notice_push', a_data, userId, true);
+				g_userMgr.broacastInRoom("push_propose_dismiss_room", a_data, userId, true);
 
 				var doAllAgree = true;
 				for (var i = 0; i < dr.states.length; ++i) {
@@ -424,7 +424,7 @@ exports.start = function (a_config, a_mgr) {
 			}
 		});
 
-		a_socket.on('dissolve_reject', function (a_data) {
+		a_socket.on("req_reject_dismiss_room", function (a_data) {
 			var userId = a_socket.userId;
 
 			if (userId == null) {
@@ -438,12 +438,12 @@ exports.start = function (a_config, a_mgr) {
 
 			var ret = a_socket.gameMgr.dissolveAgree(roomId, userId, false);
 			if (ret != null) {
-				g_userMgr.broacastInRoom('dissolve_cancel_push', {}, userId, true);
+				g_userMgr.broacastInRoom("push_reject_dismiss_room", {}, userId, true);
 			}
 		});
 
 		//断开链接
-		a_socket.on('disconnect', function (a_data) {
+		a_socket.on("disconnect", function (a_data) {
 			var userId = a_socket.userId;
 			if (!userId) {
 				return;
@@ -460,20 +460,20 @@ exports.start = function (a_config, a_mgr) {
 			};
 
 			//通知房间内其它玩家
-			g_userMgr.broacastInRoom('user_state_push', a_data, userId);
+			g_userMgr.broacastInRoom("push_player_status_change", a_data, userId);
 
 			//清除玩家的在线信息
 			g_userMgr.del(userId);
 			a_socket.userId = null;
 		});
 
-		a_socket.on('game_ping', function (a_data) {
+		a_socket.on("heartbeat_ping", function (a_data) {
 			var userId = a_socket.userId;
 			if (!userId) {
 				return;
 			}
-			//console.log('game_ping');
-			a_socket.emit('game_pong');
+			//console.log("heartbeat_ping");
+			a_socket.emit("heartbeat_pong");
 		});
 	});
 

@@ -38,7 +38,7 @@ cc.Class({
         cc.vv.replayMgr.clear();
         cc.vv.gameNetMgr.reset();
         cc.vv.gameNetMgr.roomId = null;
-        cc.vv.wc.show('正在返回游戏大厅');
+        cc.vv.wc.show("正在返回游戏大厅");
         cc.director.loadScene("hall");
     },
 

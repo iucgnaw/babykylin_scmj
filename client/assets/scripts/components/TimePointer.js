@@ -30,11 +30,11 @@ cc.Class({
         
         var self = this;
         
-        this.node.on('game_begin',function(data){
+        this.node.on("event_game_begin",function(data){
             self.initPointer();
         });
         
-        this.node.on('game_chupai',function(data){
+        this.node.on("event_turn",function(data){
             self.initPointer();
             self._time = 10;
             self._alertTime = 3;

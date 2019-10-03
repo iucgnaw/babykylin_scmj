@@ -84,7 +84,7 @@ cc.Class({
             cc.vv.voiceMgr.release();
             var time = Date.now() - this._lastTouchTime;
             var msg = cc.vv.voiceMgr.getVoiceData("record.amr");
-            cc.vv.net.send("voice_msg",{msg:msg,time:time});
+            cc.vv.net.send("req_voice_msg",{msg:msg,time:time});
         }
         this._voice.active = false;
     },

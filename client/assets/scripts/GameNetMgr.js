@@ -162,33 +162,33 @@ cc.Class({
 
     initHandlers: function () {
         var self = this;
-        cc.vv.net.addHandler("login_result", function (data) {
+        cc.vv.net.addHandler("res_login_result", function (data) {
             console.log(data);
             if (data.errcode === 0) {
                 var data = data.data;
                 self.roomId = data.roomid;
                 self.conf = data.conf;
                 self.maxNumOfGames = data.conf.maxGames;
-                self.numOfGames = data.numofgames;
+                self.numOfGames = data.numOfGames;
                 self.seats = data.seats;
                 self.seatIndex = self.getSeatIndexByID(cc.vv.userMgr.userId);
                 self.isOver = false;
             } else {
                 console.log(data.errmsg);
             }
-            self.dispatchEvent('login_result');
+            self.dispatchEvent("event_login_result");
         });
 
-        cc.vv.net.addHandler("login_finished", function (data) {
-            console.log("login_finished");
+        cc.vv.net.addHandler("push_login_finished", function (data) {
+            console.log("push_login_finished");
             cc.director.loadScene("mjgame", function () {
                 cc.vv.net.ping();
                 cc.vv.wc.hide();
             });
-            self.dispatchEvent("login_finished");
+            self.dispatchEvent("event_login_finished");
         });
 
-        cc.vv.net.addHandler("exit_result", function (data) {
+        cc.vv.net.addHandler("push_exit_result", function (data) {
             self.roomId = null;
             self.turn = -1;
             self.dingque = -1;
@@ -196,17 +196,17 @@ cc.Class({
             self.seats = null;
         });
 
-        cc.vv.net.addHandler("exit_notify_push", function (data) {
+        cc.vv.net.addHandler("push_player_exit", function (data) {
             var userId = data;
-            var s = self.getSeatByID(userId);
-            if (s != null) {
-                s.userid = 0;
-                s.name = "";
-                self.dispatchEvent("user_state_changed", s);
+            var seat = self.getSeatByID(userId);
+            if (seat != null) {
+                seat.userid = 0;
+                seat.name = "";
+                self.dispatchEvent("event_seat_update", seat);
             }
         });
 
-        cc.vv.net.addHandler("dispress_push", function (data) {
+        cc.vv.net.addHandler("push_dismiss_room", function (data) {
             self.roomId = null;
             self.turn = -1;
             self.dingque = -1;
@@ -216,7 +216,7 @@ cc.Class({
 
         cc.vv.net.addHandler("disconnect", function (data) {
             if (self.roomId == null) {
-                cc.vv.wc.show('正在返回游戏大厅');
+                cc.vv.wc.show("正在返回游戏大厅");
                 cc.director.loadScene("hall");
             } else {
                 if (self.isOver == false) {
@@ -228,7 +228,7 @@ cc.Class({
             }
         });
 
-        cc.vv.net.addHandler("new_user_comes_push", function (data) {
+        cc.vv.net.addHandler("push_player_join", function (data) {
             //console.log(data);
             var seatIndex = data.seatindex;
             var needCheckIp = false;
@@ -243,30 +243,30 @@ cc.Class({
                 self.seats[seatIndex] = data;
                 needCheckIp = true;
             }
-            self.dispatchEvent('new_user', self.seats[seatIndex]);
+            self.dispatchEvent("event_player_join", self.seats[seatIndex]);
 
             if (needCheckIp) {
-                self.dispatchEvent('check_ip', self.seats[seatIndex]);
+                self.dispatchEvent("event_check_ip", self.seats[seatIndex]);
             }
         });
 
-        cc.vv.net.addHandler("user_state_push", function (data) {
+        cc.vv.net.addHandler("push_player_status_change", function (data) {
             //console.log(data);
             var userId = data.userid;
             var seat = self.getSeatByID(userId);
             seat.online = data.online;
-            self.dispatchEvent('user_state_changed', seat);
+            self.dispatchEvent("event_seat_update", seat);
         });
 
-        cc.vv.net.addHandler("user_ready_push", function (data) {
+        cc.vv.net.addHandler("push_player_ready", function (data) {
             //console.log(data);
             var userId = data.userid;
             var seat = self.getSeatByID(userId);
             seat.ready = data.ready;
-            self.dispatchEvent('user_state_changed', seat);
+            self.dispatchEvent("event_seat_update", seat);
         });
 
-        cc.vv.net.addHandler("game_holds_push", function (data) {
+        cc.vv.net.addHandler("push_hands", function (data) {
             var seat = self.seats[self.seatIndex];
             console.log(data);
             seat.holds = data;
@@ -290,26 +290,26 @@ cc.Class({
                 }
                 s.ready = false;
             }
-            self.dispatchEvent('game_holds');
+            self.dispatchEvent("event_hands");
         });
 
-        cc.vv.net.addHandler("game_begin_push", function (data) {
-            console.log('game_action_push');
+        cc.vv.net.addHandler("push_game_begin", function (data) {
+            console.log("push_game_begin");
             console.log(data);
             self.button = data;
             self.turn = self.button;
             self.gamestate = "begin";
-            self.dispatchEvent('game_begin');
+            self.dispatchEvent("event_game_begin");
         });
 
-        cc.vv.net.addHandler("game_playing_push", function (data) {
-            console.log('game_playing_push');
+        cc.vv.net.addHandler("push_game_playing", function (data) {
+            console.log("push_game_playing");
             self.gamestate = "playing";
-            self.dispatchEvent('game_playing');
+            self.dispatchEvent("event_game_playing");
         });
 
-        cc.vv.net.addHandler("game_sync_push", function (data) {
-            console.log("game_sync_push");
+        cc.vv.net.addHandler("push_game_sync", function (data) {
+            console.log("push_game_sync");
             console.log(data);
             self.numOfMJ = data.numofmj;
             self.gamestate = data.state;
@@ -340,115 +340,115 @@ cc.Class({
                     self.dingque = sd.que;
                 }
             }
-            self.dispatchEvent('game_sync');
+            self.dispatchEvent("event_game_sync");
         });
 
-        cc.vv.net.addHandler("game_dingque_push", function (data) {
+        cc.vv.net.addHandler("push_game_dingque", function (data) {
             self.isDingQueing = true;
             self.isHuanSanZhang = false;
-            self.gamestate = 'dingque';
-            self.dispatchEvent('game_dingque');
+            self.gamestate = "dingque";
+            self.dispatchEvent("event_game_dingque");
         });
 
-        cc.vv.net.addHandler("game_huanpai_push", function (data) {
+        cc.vv.net.addHandler("push_game_huanpai", function (data) {
             self.isHuanSanZhang = true;
-            self.dispatchEvent('game_huanpai');
+            self.dispatchEvent("event_game_huanpai");
         });
 
-        cc.vv.net.addHandler("hangang_notify_push", function (data) {
-            self.dispatchEvent('hangang_notify', data);
+        cc.vv.net.addHandler("push_call_kong", function (data) {
+            self.dispatchEvent("event_call_kong", data);
         });
 
-        cc.vv.net.addHandler("game_action_push", function (data) {
+        cc.vv.net.addHandler("push_game_actions", function (data) {
             self.curaction = data;
             console.log(data);
-            self.dispatchEvent('game_action', data);
+            self.dispatchEvent("event_game_actions", data);
         });
 
-        cc.vv.net.addHandler("game_chupai_push", function (data) {
-            console.log('game_chupai_push');
+        cc.vv.net.addHandler("push_game_turn", function (data) {
+            console.log("push_game_turn");
             //console.log(data);
             var turnUserID = data;
             var si = self.getSeatIndexByID(turnUserID);
             self.doTurnChange(si);
         });
 
-        cc.vv.net.addHandler("game_num_push", function (data) {
+        cc.vv.net.addHandler("push_remaining_hands", function (data) {
             self.numOfGames = data;
-            self.dispatchEvent('game_num', data);
+            self.dispatchEvent("event_remaining_hands", data);
         });
 
-        cc.vv.net.addHandler("game_over_push", function (data) {
-            console.log('game_over_push');
+        cc.vv.net.addHandler("push_hand_finish", function (data) {
+            console.log("push_hand_finish");
             var results = data.results;
             for (var i = 0; i < self.seats.length; ++i) {
                 self.seats[i].score = results.length == 0 ? 0 : results[i].totalscore;
             }
-            self.dispatchEvent('game_over', results);
+            self.dispatchEvent("event_hand_finish", results);
             if (data.endinfo) {
                 self.isOver = true;
-                self.dispatchEvent('game_end', data.endinfo);
+                self.dispatchEvent("event_match_finish", data.endinfo);
             }
             self.reset();
             for (var i = 0; i < self.seats.length; ++i) {
-                self.dispatchEvent('user_state_changed', self.seats[i]);
+                self.dispatchEvent("event_seat_update", self.seats[i]);
             }
         });
 
-        cc.vv.net.addHandler("mj_count_push", function (data) {
-            console.log('mj_count_push');
+        cc.vv.net.addHandler("push_remaining_tiles", function (data) {
+            console.log("push_remaining_tiles");
             self.numOfMJ = data;
             //console.log(data);
-            self.dispatchEvent('mj_count', data);
+            self.dispatchEvent("event_remaining_tiles", data);
         });
 
-        cc.vv.net.addHandler("hu_push", function (data) {
-            console.log('hu_push');
+        cc.vv.net.addHandler("push_player_win", function (data) {
+            console.log("push_player_win");
             console.log(data);
             self.doHu(data);
         });
 
-        cc.vv.net.addHandler("game_chupai_notify_push", function (data) {
+        cc.vv.net.addHandler("push_game_discard_tile", function (data) {
             var userId = data.userId;
             var pai = data.pai;
             var si = self.getSeatIndexByID(userId);
             self.doChupai(si, pai);
         });
 
-        cc.vv.net.addHandler("game_mopai_push", function (data) {
-            console.log('game_mopai_push');
+        cc.vv.net.addHandler("push_game_draw_tile", function (data) {
+            console.log("push_game_draw_tile");
             self.doMopai(self.seatIndex, data);
         });
 
-        cc.vv.net.addHandler("guo_notify_push", function (data) {
-            console.log('guo_notify_push');
+        cc.vv.net.addHandler("push_player_pass", function (data) {
+            console.log("push_player_pass");
             var userId = data.userId;
             var pai = data.pai;
             var si = self.getSeatIndexByID(userId);
             self.doGuo(si, pai);
         });
 
-        cc.vv.net.addHandler("guo_result", function (data) {
-            console.log('guo_result');
-            self.dispatchEvent('guo_result');
+        cc.vv.net.addHandler("push_pass_result", function (data) {
+            console.log("push_pass_result");
+            self.dispatchEvent("event_pass_result");
         });
 
-        cc.vv.net.addHandler("guohu_push", function (data) {
-            console.log('guohu_push');
-            self.dispatchEvent("push_notice", {
+        cc.vv.net.addHandler("push_player_pass_win", function (data) {
+            console.log("push_player_pass_win");
+            self.dispatchEvent("event_faan", {
                 info: "过胡",
                 time: 1.5
             });
         });
 
-        cc.vv.net.addHandler("huanpai_notify", function (data) {
+        cc.vv.net.addHandler("push_huanpai", function (data) {
             var seat = self.getSeatByID(data.si);
             seat.huanpais = data.huanpais;
-            self.dispatchEvent('huanpai_notify', seat);
+            self.dispatchEvent("event_huanpai", seat);
         });
 
-        cc.vv.net.addHandler("game_huanpai_over_push", function (data) {
-            console.log('game_huanpai_over_push');
+        cc.vv.net.addHandler("push_huanpai_finish", function (data) {
+            console.log("push_huanpai_finish");
             var info = "";
             var method = data.method;
             if (method == 0) {
@@ -460,15 +460,15 @@ cc.Class({
             }
             self.huanpaimethod = method;
             cc.vv.gameNetMgr.isHuanSanZhang = false;
-            self.dispatchEvent("game_huanpai_over");
-            self.dispatchEvent("push_notice", {
+            self.dispatchEvent("event_huanpai_finish");
+            self.dispatchEvent("event_faan", {
                 info: info,
                 time: 2
             });
         });
 
-        cc.vv.net.addHandler("peng_notify_push", function (data) {
-            console.log('peng_notify_push');
+        cc.vv.net.addHandler("push_pong", function (data) {
+            console.log("push_pong");
             console.log(data);
             var userId = data.userid;
             var pai = data.pai;
@@ -476,8 +476,8 @@ cc.Class({
             self.doPeng(si, data.pai);
         });
 
-        cc.vv.net.addHandler("gang_notify_push", function (data) {
-            console.log('gang_notify_push');
+        cc.vv.net.addHandler("push_kong", function (data) {
+            console.log("push_kong");
             console.log(data);
             var userId = data.userid;
             var pai = data.pai;
@@ -485,47 +485,47 @@ cc.Class({
             self.doGang(si, pai, data.gangtype);
         });
 
-        cc.vv.net.addHandler("game_dingque_notify_push", function (data) {
-            self.dispatchEvent('game_dingque_notify', data);
+        cc.vv.net.addHandler("push_game_dingque", function (data) {
+            self.dispatchEvent("event_game_dingque", data);
         });
 
-        cc.vv.net.addHandler("game_dingque_finish_push", function (data) {
+        cc.vv.net.addHandler("push_game_dingque_finish", function (data) {
             for (var i = 0; i < data.length; ++i) {
                 self.seats[i].dingque = data[i];
                 if (i == self.seatIndex) {
                     self.dingque = data[i];
                 }
             }
-            self.dispatchEvent('game_dingque_finish', data);
+            self.dispatchEvent("event_game_dingque_finish", data);
         });
 
 
-        cc.vv.net.addHandler("chat_push", function (data) {
-            self.dispatchEvent("chat_push", data);
+        cc.vv.net.addHandler("push_chat", function (data) {
+            self.dispatchEvent("event_chat", data);
         });
 
-        cc.vv.net.addHandler("quick_chat_push", function (data) {
-            self.dispatchEvent("quick_chat_push", data);
+        cc.vv.net.addHandler("push_quick_chat", function (data) {
+            self.dispatchEvent("event_quick_chat", data);
         });
 
-        cc.vv.net.addHandler("emoji_push", function (data) {
-            self.dispatchEvent("emoji_push", data);
+        cc.vv.net.addHandler("push_emoji", function (data) {
+            self.dispatchEvent("event_emoji", data);
         });
 
-        cc.vv.net.addHandler("dissolve_notice_push", function (data) {
-            console.log("dissolve_notice_push");
+        cc.vv.net.addHandler("push_propose_dismiss_room", function (data) {
+            console.log("push_propose_dismiss_room");
             console.log(data);
             self.dissoveData = data;
-            self.dispatchEvent("dissolve_notice", data);
+            self.dispatchEvent("event_propose_dismiss_room", data);
         });
 
-        cc.vv.net.addHandler("dissolve_cancel_push", function (data) {
+        cc.vv.net.addHandler("push_reject_dismiss_room", function (data) {
             self.dissoveData = null;
-            self.dispatchEvent("dissolve_cancel", data);
+            self.dispatchEvent("event_reject_dismiss_room", data);
         });
 
-        cc.vv.net.addHandler("voice_msg_push", function (data) {
-            self.dispatchEvent("voice_msg", data);
+        cc.vv.net.addHandler("push_voice_message", function (data) {
+            self.dispatchEvent("event_voice_message", data);
         });
     },
 
@@ -533,14 +533,14 @@ cc.Class({
         var seatData = this.seats[seatIndex];
         var folds = seatData.folds;
         folds.push(pai);
-        this.dispatchEvent('guo_notify', seatData);
+        this.dispatchEvent("event_player_pass", seatData);
     },
 
     doMopai: function (seatIndex, pai) {
         var seatData = this.seats[seatIndex];
         if (seatData.holds) {
             seatData.holds.push(pai);
-            this.dispatchEvent('game_mopai', {
+            this.dispatchEvent("event_game_draw_tile", {
                 seatIndex: seatIndex,
                 pai: pai
             });
@@ -554,7 +554,7 @@ cc.Class({
             var idx = seatData.holds.indexOf(pai);
             seatData.holds.splice(idx, 1);
         }
-        this.dispatchEvent('game_chupai_notify', {
+        this.dispatchEvent("event_game_discard_tile", {
             seatData: seatData,
             pai: pai
         });
@@ -574,7 +574,7 @@ cc.Class({
         var pengs = seatData.pengs;
         pengs.push(pai);
 
-        this.dispatchEvent('peng_notify', seatData);
+        this.dispatchEvent("event_pong", seatData);
     },
 
     getGangType: function (seatData, pai) {
@@ -626,14 +626,14 @@ cc.Class({
         } else if (gangtype == "diangang") {
             seatData.diangangs.push(pai);
         }
-        this.dispatchEvent('gang_notify', {
+        this.dispatchEvent("event_kong", {
             seatData: seatData,
             gangtype: gangtype
         });
     },
 
     doHu: function (data) {
-        this.dispatchEvent('hupai', data);
+        this.dispatchEvent("event_win", data);
     },
 
     doTurnChange: function (si) {
@@ -642,7 +642,7 @@ cc.Class({
             turn: si,
         }
         this.turn = si;
-        this.dispatchEvent('game_chupai', data);
+        this.dispatchEvent("event_turn", data);
     },
 
     connectGameServer: function (data) {

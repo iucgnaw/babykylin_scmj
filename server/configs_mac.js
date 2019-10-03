@@ -5,14 +5,14 @@ var HALL_ROOM_PORT = 9002;
 var ACCOUNT_PRI_KEY = "^&*#$%()@";
 var ROOM_PRI_KEY = "~!@#$(*&^%$&";
 
-var LOCAL_IP = 'localhost';
+var LOCAL_IP = "localhost";
 
 exports.mysql = function () {
 	return {
-		HOST: '127.0.0.1',
-		USER: 'root',
-		PSWD: 'Qwer!234', //如果连接失败，请检查这里
-		DB: 'db_babykylin', //如果连接失败，请检查这里
+		HOST: "127.0.0.1",
+		USER: "root",
+		PSWD: "Qwer!234", //如果连接失败，请检查这里
+		DB: "db_babykylin", //如果连接失败，请检查这里
 		PORT: 3306,
 	}
 }
@@ -28,8 +28,8 @@ exports.account_server = function () {
 		//
 		DEALDER_API_IP: LOCAL_IP,
 		DEALDER_API_PORT: 12581,
-		VERSION: '20161227',
-		APP_WEB: 'http://fir.im/2f17',
+		VERSION: "20161227",
+		APP_WEB: "http://fir.im/2f17",
 	};
 };
 

@@ -1,6 +1,6 @@
 var g_roomMgr = require("./roommgr");
 var g_userMgr = require("./usermgr");
-var g_mjutils = require('./mjutils');
+var g_mjutils = require("./mjutils");
 var g_db = require("../utils/db");
 var g_crypto = require("../utils/crypto");
 var g_games = {};
@@ -94,11 +94,6 @@ function shuffle(a_game) {
         }
     }
 
-    // var swap;
-    // swap = pool[51];
-    // pool[51] = pool[52];
-    // pool[52] = swap;
-
     //万 18 ~ 26表示万
     for (var tile = 18; tile < 27; ++tile) {
         for (var i = 0; i < 4; ++i) {
@@ -130,7 +125,36 @@ function shuffle(a_game) {
         tile++;
     }
 
-/* 调试期间不洗牌
+    // var swap;
+    // swap = pool[51];
+    // pool[51] = pool[52];
+    // pool[52] = swap;
+    pool[36] = 9;
+    pool[40] = 9;
+    pool[44] = 9;
+    pool[48] = 13;
+
+    pool[37] = 10;
+    pool[41] = 10;
+    pool[45] = 10;
+    pool[49] = 13;
+
+    pool[38] = 11;
+    pool[42] = 11;
+    pool[46] = 11;
+    pool[50] = 13;
+
+    pool[39] = 12;
+    pool[43] = 12;
+    pool[47] = 12;
+    pool[51] = 13;
+
+    pool[52] = 9;
+    pool[53] = 10;
+    pool[54] = 11;
+    pool[55] = 12;
+
+    /* 调试期间不洗牌
     for (var i = 0; i < pool.length; ++i) {
         var lastIndex = pool.length - 1 - i;
         var index = Math.floor(Math.random() * lastIndex);
@@ -421,11 +445,11 @@ function sendOperations(a_game, a_seat, a_tile) {
         };
 
         //如果可以有操作，则进行操作
-        g_userMgr.sendMsg(a_seat.userId, 'game_action_push', msgData);
+        g_userMgr.sendMsg(a_seat.userId, "push_game_actions", msgData);
 
         msgData.si = a_seat.seatIndex;
     } else {
-        g_userMgr.sendMsg(a_seat.userId, 'game_action_push');
+        g_userMgr.sendMsg(a_seat.userId, "push_game_actions");
     }
 }
 
@@ -453,13 +477,13 @@ function doUserMoPai(a_game) {
         return;
     } else {
         var poolRemaining = a_game.mahjongs.length - a_game.currentIndex;
-        g_userMgr.broacastInRoom('mj_count_push', poolRemaining, turnSeat.userId, true);
+        g_userMgr.broacastInRoom("push_remaining_tiles", poolRemaining, turnSeat.userId, true);
     }
 
     recordGameAction(a_game, a_game.turn, ACTION_MOPAI, tile);
 
     //通知前端新摸的牌
-    g_userMgr.sendMsg(turnSeat.userId, 'game_mopai_push', tile);
+    g_userMgr.sendMsg(turnSeat.userId, "push_game_draw_tile", tile);
     //检查是否可以暗杠或者胡
     //检查胡，直杠，弯杠
     if (!turnSeat.hued) {
@@ -476,9 +500,9 @@ function doUserMoPai(a_game) {
     checkCanHu(a_game, turnSeat, tile);
 
     //广播通知玩家出牌方
-    //console.log('--doUserMoPai');
+    //console.log("--doUserMoPai");
     turnSeat.canChuPai = true;
-    g_userMgr.broacastInRoom('game_chupai_push', turnSeat.userId, turnSeat.userId, true);
+    g_userMgr.broacastInRoom("push_game_turn", turnSeat.userId, turnSeat.userId, true);
 
     //通知玩家做对应操作
     sendOperations(a_game, turnSeat, a_game.chuPai);
@@ -965,7 +989,7 @@ function doGameOver(a_game, a_userId, a_forceEnd) {
             }
         }
 
-        g_userMgr.broacastInRoom('game_over_push', {
+        g_userMgr.broacastInRoom("push_hand_finish", {
             results: results,
             endinfo: endInfo
         }, a_userId, true);
@@ -1078,7 +1102,7 @@ function recordUserAction(a_game, a_seat, a_type, a_target) {
         targets: []
     };
     if (a_target != null) {
-        if (typeof (a_target) == 'number') {
+        if (typeof (a_target) == "number") {
             action.targets.push(a_target);
         } else {
             action.targets = a_target;
@@ -1169,7 +1193,7 @@ exports.setReady = function (a_userId, a_callback) {
         }
 
         //同步整个信息给客户端
-        g_userMgr.sendMsg(a_userId, 'game_sync_push', msgData);
+        g_userMgr.sendMsg(a_userId, "push_game_sync", msgData);
         sendOperations(game, seat, game.chuPai);
     }
 }
@@ -1257,8 +1281,8 @@ function doDingque(a_userId, a_type) {
         for (var i = 0; i < game.gameSeats.length; ++i) {
             queArr[i] = game.gameSeats[i].que;
         }
-        //userMgr.broacastInRoom('game_dingque_finish_push', arr, seatData.userId, true);
-        g_userMgr.broacastInRoom('game_playing_push', null, seatData.userId, true);
+        //userMgr.broacastInRoom("push_game_dingque_finish", arr, seatData.userId, true);
+        g_userMgr.broacastInRoom("push_game_playing", null, seatData.userId, true);
 
         //进行听牌检查
         for (var i = 0; i < game.gameSeats.length; ++i) {
@@ -1278,9 +1302,9 @@ function doDingque(a_userId, a_type) {
         var turnSeat = game.gameSeats[game.turn];
         game.state = "playing";
         //通知玩家出牌方
-        //console.log('--dingQue');
+        //console.log("--dingQue");
         turnSeat.canChuPai = true;
-        g_userMgr.broacastInRoom('game_chupai_push', turnSeat.userId, turnSeat.userId, true);
+        g_userMgr.broacastInRoom("push_game_turn", turnSeat.userId, turnSeat.userId, true);
         //检查是否可以暗杠或者胡
         //直杠
         checkCanAnGang(game, turnSeat);
@@ -1289,7 +1313,7 @@ function doDingque(a_userId, a_type) {
         //通知前端
         sendOperations(game, turnSeat, game.chuPai);
     //} else {
-    //    userMgr.broacastInRoom('game_dingque_notify_push', seatData.userId, seatData.userId, true);
+    //    userMgr.broacastInRoom("push_game_dingque", seatData.userId, seatData.userId, true);
     //}
 }
 
@@ -1366,7 +1390,7 @@ exports.begin = function (a_roomId) {
         //是否可以胡
         seat.canHu = false;
         //是否可以出牌
-        //console.log('--begin');
+        //console.log("--begin");
         seat.canChuPai = true;
 
         //如果guoHuFan >=0 表示处于过胡状态，
@@ -1414,22 +1438,22 @@ exports.begin = function (a_roomId) {
         var seat = seats[i];
 
         //通知玩家手牌
-        g_userMgr.sendMsg(seat.userId, 'game_holds_push', game.gameSeats[i].holds);
+        g_userMgr.sendMsg(seat.userId, "push_hands", game.gameSeats[i].holds);
         //通知还剩多少张牌
-        g_userMgr.sendMsg(seat.userId, 'mj_count_push', poolRemaining);
+        g_userMgr.sendMsg(seat.userId, "push_remaining_tiles", poolRemaining);
         //通知还剩多少局
-        g_userMgr.sendMsg(seat.userId, 'game_num_push', roomInfo.numOfGames);
+        g_userMgr.sendMsg(seat.userId, "push_remaining_hands", roomInfo.numOfGames);
         //通知游戏开始
-        g_userMgr.sendMsg(seat.userId, 'game_begin_push', game.button);
+        g_userMgr.sendMsg(seat.userId, "push_game_begin", game.button);
 
         if (isHuanSanZhang == true) {
             game.state = "huanpai";
             //通知准备换牌
-            g_userMgr.sendMsg(seat.userId, 'game_huanpai_push');
+            g_userMgr.sendMsg(seat.userId, "push_game_huanpai");
         }// else {
         //    game.state = "dingque";
         //    //通知准备定缺
-        //    userMgr.sendMsg(s.userId, 'game_dingque_push');
+        //    userMgr.sendMsg(s.userId, "push_game_dingque");
         //}
 
         doDingque(seat.userId, 0);
@@ -1482,7 +1506,7 @@ exports.huanSanZhang = function (a_fn_userId, a_tile1, a_tile2, a_tile3) {
         seatData.holds.splice(index, 1);
         seatData.countMap[tile]--;
     }
-    g_userMgr.sendMsg(seatData.userId, 'game_holds_push', seatData.holds);
+    g_userMgr.sendMsg(seatData.userId, "push_hands", seatData.holds);
 
     for (var i = 0; i < game.gameSeats.length; ++i) {
         var seat = game.gameSeats[i];
@@ -1491,13 +1515,13 @@ exports.huanSanZhang = function (a_fn_userId, a_tile1, a_tile2, a_tile3) {
                 si: seatData.userId,
                 huanpais: seatData.huanpais
             };
-            g_userMgr.sendMsg(seat.userId, 'huanpai_notify', msgData);
+            g_userMgr.sendMsg(seat.userId, "push_huanpai", msgData);
         } else {
             var msgData = {
                 si: seatData.userId,
                 huanpais: []
             };
-            g_userMgr.sendMsg(seat.userId, 'huanpai_notify', msgData);
+            g_userMgr.sendMsg(seat.userId, "push_huanpai", msgData);
         }
     }
 
@@ -1557,11 +1581,11 @@ exports.huanSanZhang = function (a_fn_userId, a_tile1, a_tile2, a_tile3) {
     //game.state = "dingque";
     for (var i = 0; i < seat.length; ++i) {
         var a_fn_userId = seat[i].userId;
-        g_userMgr.sendMsg(a_fn_userId, 'game_huanpai_over_push', msgData);
+        g_userMgr.sendMsg(a_fn_userId, "push_huanpai_finish", msgData);
 
-        g_userMgr.sendMsg(a_fn_userId, 'game_holds_push', seat[i].holds);
+        g_userMgr.sendMsg(a_fn_userId, "push_hands", seat[i].holds);
         //通知准备定缺
-    //    userMgr.sendMsg(userId, 'game_dingque_push');
+    //    userMgr.sendMsg(userId, "push_game_dingque");
     }
 };
 
@@ -1585,21 +1609,21 @@ exports.chuPai = function (a_userId, a_tile) {
         return;
     }
 
-    //console.log('--chuPai 1');
+    //console.log("--chuPai 1");
     if (seatData.canChuPai == false) {
-        console.log('no need chupai.');
+        console.log("Cannot discard.");
         return;
     }
 
     if (hasOperations(seatData)) {
-        console.log('plz guo before you chupai.');
+        console.log("Please pass before you discard.");
         return;
     }
 
     //如果是胡了的人，则只能打最后一张牌
     if (seatData.hued) {
         if (seatData.holds[seatData.holds.length - 1] != a_tile) {
-            console.log('only deal last one when hued.');
+            console.log("only deal last one when hued.");
             return;
         }
     }
@@ -1612,7 +1636,7 @@ exports.chuPai = function (a_userId, a_tile) {
         return;
     }
 
-    //console.log('--chuPai 2');
+    //console.log("--chuPai 2");
     seatData.canChuPai = false;
     game.chupaiCnt++;
     seatData.guoHuFan = -1;
@@ -1622,7 +1646,7 @@ exports.chuPai = function (a_userId, a_tile) {
     game.chuPai = a_tile;
     recordGameAction(game, seatData.seatIndex, ACTION_CHUPAI, a_tile);
     checkCanTingPai(game, seatData);
-    g_userMgr.broacastInRoom('game_chupai_notify_push', {
+    g_userMgr.broacastInRoom("push_game_discard_tile", {
         userId: seatData.userId,
         pai: a_tile
     }, seatData.userId, true);
@@ -1651,7 +1675,7 @@ exports.chuPai = function (a_userId, a_tile) {
             if (seat.canHu && seat.guoHuFan >= 0 && seat.tingMap[a_tile].fan <= seat.guoHuFan) {
                 console.log("ddd.guoHuFan:" + seat.guoHuFan);
                 seat.canHu = false;
-                g_userMgr.sendMsg(seat.userId, 'guohu_push');
+                g_userMgr.sendMsg(seat.userId, "push_player_pass_win");
             }
         }
 
@@ -1664,7 +1688,7 @@ exports.chuPai = function (a_userId, a_tile) {
     //如果没有人有操作，则向下一家发牌，并通知他出牌
     if (!hasActions) {
         setTimeout(function () {
-            g_userMgr.broacastInRoom('guo_notify_push', {
+            g_userMgr.broacastInRoom("push_player_pass", {
                 userId: seatData.userId,
                 pai: game.chuPai
             }, seatData.userId, true);
@@ -1687,7 +1711,7 @@ exports.peng = function (a_userId) {
 
     //如果是他出的牌，则忽略
     if (game.turn == seatData.seatIndex) {
-        console.log("it's your turn.");
+        console.log("it is your turn.");
         return;
     }
 
@@ -1699,7 +1723,7 @@ exports.peng = function (a_userId) {
 
     //和的了，就不要再来了
     if (seatData.hued) {
-        console.log('you have already hued. no kidding plz.');
+        console.log("you have already hued. no kidding plz.");
         return;
     }
 
@@ -1747,7 +1771,7 @@ exports.peng = function (a_userId) {
     recordGameAction(game, seatData.seatIndex, ACTION_PENG, tile);
 
     //广播通知其它玩家
-    g_userMgr.broacastInRoom('peng_notify_push', {
+    g_userMgr.broacastInRoom("push_pong", {
         userid: seatData.userId,
         pai: tile
     }, seatData.userId, true);
@@ -1756,9 +1780,9 @@ exports.peng = function (a_userId) {
     moveToNextUser(game, seatData.seatIndex);
 
     //广播通知玩家出牌方
-    //console.log('--peng');
+    //console.log("--peng");
     seatData.canChuPai = true;
-    g_userMgr.broacastInRoom('game_chupai_push', seatData.userId, seatData.userId, true);
+    g_userMgr.broacastInRoom("push_game_turn", seatData.userId, seatData.userId, true);
 };
 
 exports.isPlaying = function (a_userId) {
@@ -1861,7 +1885,7 @@ function doGang(a_game, a_turnSeat, a_seat, a_gangType, a_tileCount, a_tile) {
 
     checkCanTingPai(a_game, a_seat);
     //通知其他玩家，有人杠了牌
-    g_userMgr.broacastInRoom('gang_notify_push', {
+    g_userMgr.broacastInRoom("push_kong", {
         userid: a_seat.userId,
         pai: a_tile,
         gangtype: a_gangType
@@ -1877,6 +1901,8 @@ function doGang(a_game, a_turnSeat, a_seat, a_gangType, a_tileCount, a_tile) {
 }
 
 exports.gang = function (a_userId, a_tile) {
+    console.log("enter exports.gang(), a_userId: " + a_userId +", a_tile: " + a_tile);
+
     var seatData = g_gameSeatsOfUsers[a_userId];
     if (seatData == null) {
         console.log("cannot find user game data.");
@@ -1888,7 +1914,7 @@ exports.gang = function (a_userId, a_tile) {
 
     //如果没有杠的机会，则不能再杠
     if (seatData.canGang == false) {
-        console.log("seatData.gang == false");
+        console.log("seatData.canGang == false");
         return;
     }
 
@@ -1896,7 +1922,7 @@ exports.gang = function (a_userId, a_tile) {
 
     //胡了的，只能直杠
     if (count != 1 && seatData.hued) {
-        console.log('you have already hued. no kidding plz.');
+        console.log("you have already hued. no kidding plz.");
         return;
     }
 
@@ -1934,10 +1960,10 @@ exports.gang = function (a_userId, a_tile) {
 
     game.chuPai = -1;
     clearAllOptions(game);
-    //console.log('--gang');
+    //console.log("--gang");
     seatData.canChuPai = false;
 
-    g_userMgr.broacastInRoom('hangang_notify_push', seatIndex, seatData.userId, true);
+    g_userMgr.broacastInRoom("push_call_kong", seatIndex, seatData.userId, true);
 
     //如果是弯杠，则需要检查是否可以抢杠
     var turnSeat = game.gameSeats[game.turn];
@@ -2013,7 +2039,7 @@ exports.hu = function (a_userId) {
         if (index != -1) {
             gangSeat.holds.splice(index, 1);
             gangSeat.countMap[winTile]--;
-            g_userMgr.sendMsg(gangSeat.userId, 'game_holds_push', gangSeat.holds);
+            g_userMgr.sendMsg(gangSeat.userId, "push_hands", gangSeat.holds);
         }
 
         gangSeat.huInfo.push({
@@ -2121,7 +2147,7 @@ exports.hu = function (a_userId) {
     clearAllOptions(game, seatData);
 
     //通知前端，有人和牌了
-    g_userMgr.broacastInRoom('hu_push', {
+    g_userMgr.broacastInRoom("push_player_win", {
         seatindex: seatIndex,
         iszimo: isSelfDraw,
         hupai: tile
@@ -2143,7 +2169,7 @@ exports.hu = function (a_userId) {
         var seat = game.gameSeats[i];
         seat.canPeng = false;
         seat.canGang = false;
-        //console.log('--hu');
+        //console.log("--hu");
         seat.canChuPai = false;
         sendOperations(game, seat, winTile);
     }
@@ -2184,7 +2210,7 @@ exports.guo = function (a_userId) {
     //如果是玩家自己的轮子，不是接牌，则不需要额外操作
     var doNothing = game.chuPai == -1 && game.turn == seatIndex;
 
-    g_userMgr.sendMsg(seatData.userId, "guo_result");
+    g_userMgr.sendMsg(seatData.userId, "push_pass_result");
     clearAllOptions(game, seatData);
 
     //这里还要处理过胡的情况
@@ -2207,7 +2233,7 @@ exports.guo = function (a_userId) {
     //如果是已打出的牌，则需要通知。
     if (game.chuPai >= 0) {
         var userId = game.gameSeats[game.turn].userId;
-        g_userMgr.broacastInRoom('guo_notify_push', {
+        g_userMgr.broacastInRoom("push_player_pass", {
             userId: userId,
             pai: game.chuPai
         }, seatData.userId, true);

@@ -46,7 +46,7 @@ cc.Class({
     onLoad: function () {
         cc.vv.utils.setFitSreenMode();
         cc.vv.http.url = cc.vv.http.master_url;
-        cc.vv.net.addHandler('push_need_create_role',function(){
+        cc.vv.net.addHandler("push_need_create_role",function(){
             console.log("onLoad:push_need_create_role");
             cc.director.loadScene("createrole");
         });
@@ -68,7 +68,7 @@ cc.Class({
     start:function(){
         var account =  cc.sys.localStorage.getItem("wx_account");
         var sign = cc.sys.localStorage.getItem("wx_sign");
-        if(account != null && sign != null && account != '' && sign != ''){
+        if(account != null && sign != null && account != "" && sign != ""){
             var ret = {
                 errcode:0,
                 account:account,

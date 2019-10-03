@@ -192,7 +192,7 @@ cc.Class({
     },
     
     onReturnGameClicked:function(){
-        cc.vv.wc.show('正在返回游戏房间');
+        cc.vv.wc.show("正在返回游戏房间");
         cc.director.loadScene("mjgame");  
     },
     
@@ -213,7 +213,7 @@ cc.Class({
     },
     
     onBtnTaobaoClicked:function(){
-        cc.sys.openURL('http://10z.nceduc.cn/');
+        cc.sys.openURL("http://10z.nceduc.cn/");
     },
 
     // called every frame, uncomment this function to activate update callback

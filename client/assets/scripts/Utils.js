@@ -42,7 +42,7 @@ cc.Class({
             },
             onKeyReleased: function(keyCode, event){
                 if(keyCode == cc.KEY.back){
-                    cc.vv.alert.show('提示','确定要退出游戏吗？',function(){
+                    cc.vv.alert.show("提示","确定要退出游戏吗？",function(){
                         cc.game.end();
                     },true);
                 }
@@ -51,7 +51,7 @@ cc.Class({
     },
 
     setFitSreenMode:function(){
-        var node = cc.find('Canvas');
+        var node = cc.find("Canvas");
         var size = cc.view.getFrameSize();
         var w = size.width;
         var h = size.height;

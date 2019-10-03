@@ -41,7 +41,7 @@ cc.Class({
         
         //初始化网络事件监听器
         var self = this;
-        this.node.on('game_end',function(data){self.onGameEnd(data);});
+        this.node.on("event_match_finish",function(data){self.onGameEnd(data);});
     },
     
     showResult:function(seat,info,isZuiJiaPaoShou){
@@ -85,7 +85,7 @@ cc.Class({
     },
     
     onBtnCloseClicked:function(){
-        cc.vv.wc.show('正在返回游戏大厅');
+        cc.vv.wc.show("正在返回游戏大厅");
         cc.director.loadScene("hall");
     },
     

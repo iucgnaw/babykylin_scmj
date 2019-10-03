@@ -1,7 +1,7 @@
-var http = require('http');
-var https = require('https');
-var qs = require('querystring');
-var fibers = require('fibers');
+var http = require("http");
+var https = require("https");
+var qs = require("querystring");
+var fibers = require("fibers");
 
 String.prototype.format = function (args) {
 	var result = this;
@@ -32,22 +32,22 @@ exports.post = function (host, port, path, data, callback) {
 	var options = {
 		hostname: host,
 		port: port,
-		path: path + '?' + content,
-		method: 'GET'
+		path: path + "?" + content,
+		method: "GET"
 	};
 
 	var req = http.request(options, function (res) {
-		console.log('STATUS: ' + res.statusCode);
-		console.log('HEADERS: ' + JSON.stringify(res.headers));
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			//console.log('BODY: ' + chunk);
+		console.log("STATUS: " + res.statusCode);
+		console.log("HEADERS: " + JSON.stringify(res.headers));
+		res.setEncoding("utf8");
+		res.on("data", function (chunk) {
+			//console.log("BODY: " + chunk);
 			callback(chunk);
 		});
 	});
 
-	req.on('error', function (e) {
-		console.log('problem with request: ' + e.message);
+	req.on("error", function (e) {
+		console.log("problem with request: " + e.message);
 	});
 
 	req.end();
@@ -55,24 +55,24 @@ exports.post = function (host, port, path, data, callback) {
 
 exports.get2 = function (url, data, callback, safe) {
 	var content = qs.stringify(data);
-	var url = url + '?' + content;
+	var url = url + "?" + content;
 	var proto = http;
 	if (safe) {
 		proto = https;
 	}
 	var req = proto.get(url, function (res) {
-		//console.log('STATUS: ' + res.statusCode);  
-		//console.log('HEADERS: ' + JSON.stringify(res.headers));  
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			//console.log('BODY: ' + chunk);
+		//console.log("STATUS: " + res.statusCode);  
+		//console.log("HEADERS: " + JSON.stringify(res.headers));  
+		res.setEncoding("utf8");
+		res.on("data", function (chunk) {
+			//console.log("BODY: " + chunk);
 			var json = JSON.parse(chunk);
 			callback(true, json);
 		});
 	});
 
-	req.on('error', function (e) {
-		console.log('problem with request: ' + e.message);
+	req.on("error", function (e) {
+		console.log("problem with request: " + e.message);
 		callback(false, e);
 	});
 
@@ -83,8 +83,8 @@ exports.get = function (host, port, path, data, callback, safe) {
 	var content = qs.stringify(data);
 	var options = {
 		hostname: host,
-		path: path + '?' + content,
-		method: 'GET'
+		path: path + "?" + content,
+		method: "GET"
 	};
 	if (port) {
 		options.port = port;
@@ -94,18 +94,18 @@ exports.get = function (host, port, path, data, callback, safe) {
 		proto = https;
 	}
 	var req = proto.request(options, function (res) {
-		//console.log('STATUS: ' + res.statusCode);  
-		//console.log('HEADERS: ' + JSON.stringify(res.headers));  
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			//console.log('BODY: ' + chunk);
+		//console.log("STATUS: " + res.statusCode);  
+		//console.log("HEADERS: " + JSON.stringify(res.headers));  
+		res.setEncoding("utf8");
+		res.on("data", function (chunk) {
+			//console.log("BODY: " + chunk);
 			var json = JSON.parse(chunk);
 			callback(true, json);
 		});
 	});
 
-	req.on('error', function (e) {
-		console.log('problem with request: ' + e.message);
+	req.on("error", function (e) {
+		console.log("problem with request: " + e.message);
 		callback(false, e);
 	});
 
@@ -114,14 +114,14 @@ exports.get = function (host, port, path, data, callback, safe) {
 
 exports.getSync = function (url, data, safe, encoding) {
 	var content = qs.stringify(data);
-	var url = url + '?' + content;
+	var url = url + "?" + content;
 	var proto = http;
 	if (safe) {
 		proto = https;
 	}
 
 	if (!encoding) {
-		encoding = 'utf8';
+		encoding = "utf8";
 	}
 	var ret = {
 		err: null,
@@ -131,25 +131,25 @@ exports.getSync = function (url, data, safe, encoding) {
 	var f = fibers.current;
 
 	var req = proto.get(url, function (res) {
-		//console.log('STATUS: ' + res.statusCode);  
-		//console.log('HEADERS: ' + JSON.stringify(res.headers));  
+		//console.log("STATUS: " + res.statusCode);  
+		//console.log("HEADERS: " + JSON.stringify(res.headers));  
 		res.setEncoding(encoding);
-		var body = '';
+		var body = "";
 
 		ret.type = res.headers["content-type"];
-		res.on('data', function (chunk) {
+		res.on("data", function (chunk) {
 			body += chunk;
 
 		});
 
-		res.on('end', function () {
-			if (encoding != 'binary') {
+		res.on("end", function () {
+			if (encoding != "binary") {
 				try {
 
 					ret.data = JSON.parse(body);
 					f.run();
 				} catch (e) {
-					console.log('JSON parse error: ' + e + ', url: ' + url);
+					console.log("JSON parse error: " + e + ", url: " + url);
 				}
 			} else {
 				ret.data = body;
@@ -158,8 +158,8 @@ exports.getSync = function (url, data, safe, encoding) {
 		});
 	});
 
-	req.on('error', function (e) {
-		console.log('problem with request: ' + e.message);
+	req.on("error", function (e) {
+		console.log("problem with request: " + e.message);
 		ret.err = e;
 		f.run();
 	});

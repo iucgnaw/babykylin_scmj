@@ -91,54 +91,54 @@ cc.Class({
     
     initEventHandlers:function(){
         var self = this;
-        this.node.on('new_user',function(data){
+        this.node.on("event_player_join",function(data){
             self.initSingleSeat(data);
         });
         
-        this.node.on('user_state_changed',function(data){
+        this.node.on("event_seat_update",function(data){
             self.initSingleSeat(data);
         });
         
-        this.node.on('game_begin',function(data){
+        this.node.on("event_game_begin",function(data){
             self.refreshBtns();
             self.initSeats();
         });
         
-        this.node.on('game_num',function(data){
+        this.node.on("event_remaining_hands",function(data){
             self.refreshBtns();
         });
 
-        this.node.on('game_huanpai',function(data){
+        this.node.on("event_game_huanpai",function(data){
             for(var i in self._seats2){
                 self._seats2[i].refreshXuanPaiState();    
             }
         });
                 
-        this.node.on('huanpai_notify',function(data){
+        this.node.on("event_huanpai",function(data){
             var idx = data.seatindex;
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             self._seats2[localIdx].refreshXuanPaiState();
         });
         
-        this.node.on('game_huanpai_over',function(data){
+        this.node.on("event_huanpai_finish",function(data){
             for(var i in self._seats2){
                 self._seats2[i].refreshXuanPaiState();    
             }
         });
         
-        this.node.on('voice_msg',function(data){
+        this.node.on("event_voice_message",function(data){
             self._voiceMsgQueue.push(data);
             self.playVoice();
         });
         
-        this.node.on('chat_push',function(data){
+        this.node.on("event_chat",function(data){
             var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             self._seats[localIdx].chat(data.content);
             self._seats2[localIdx].chat(data.content);
         });
         
-        this.node.on('quick_chat_push',function(data){
+        this.node.on("event_quick_chat",function(data){
             var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             
@@ -150,7 +150,7 @@ cc.Class({
             cc.vv.audioMgr.playSFX(info.sound);
         });
         
-        this.node.on('emoji_push',function(data){
+        this.node.on("event_emoji",function(data){
             var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             console.log(data);
@@ -193,7 +193,7 @@ cc.Class({
 
     onBtnBackClicked:function(){
         cc.vv.alert.show("返回大厅","返回大厅房间仍会保留，快去邀请大伙来玩吧！",function(){
-            cc.vv.wc.show('正在返回游戏大厅');
+            cc.vv.wc.show("正在返回游戏大厅");
             cc.director.loadScene("hall");    
         },true);
     },
@@ -209,12 +209,12 @@ cc.Class({
     
     onBtnDissolveClicked:function(){
         cc.vv.alert.show("解散房间","解散房间不扣房卡，是否确定解散？",function(){
-            cc.vv.net.send("dispress");    
+            cc.vv.net.send("req_dismiss_room");    
         },true);
     },
     
     onBtnExit:function(){
-        cc.vv.net.send("exit");
+        cc.vv.net.send("req_exit");
     },
     
     playVoice:function(){

@@ -18,7 +18,7 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-        this._gamelist = this.node.getChildByName('game_list');
+        this._gamelist = this.node.getChildByName("game_list");
     },
 
     onBtnBack: function () {
@@ -85,17 +85,17 @@ cc.Class({
 
     constructSCMJConf: function () {
 
-        var wanfaxuanze = this._currentGame.getChildByName('wanfaxuanze'); //玩法
-        var huansanzhang = wanfaxuanze.children[0].getComponent('CheckBox').checked; //玩法：换三张
-        var jiangdui = wanfaxuanze.children[1].getComponent('CheckBox').checked; //玩法：将对
-        var menqing = wanfaxuanze.children[2].getComponent('CheckBox').checked; //玩法：门清
-        var tiandihu = wanfaxuanze.children[3].getComponent('CheckBox').checked; //玩法：天地胡
+        var wanfaxuanze = this._currentGame.getChildByName("wanfaxuanze"); //玩法
+        var huansanzhang = wanfaxuanze.children[0].getComponent("CheckBox").checked; //玩法：换三张
+        var jiangdui = wanfaxuanze.children[1].getComponent("CheckBox").checked; //玩法：将对
+        var menqing = wanfaxuanze.children[2].getComponent("CheckBox").checked; //玩法：门清
+        var tiandihu = wanfaxuanze.children[3].getComponent("CheckBox").checked; //玩法：天地胡
 
-        var difen = this.getSelectedOfRadioGroup('difenxuanze'); //？
-        var zimo = this.getSelectedOfRadioGroup('zimojiacheng'); //自摸
-        var zuidafanshu = this.getSelectedOfRadioGroup('zuidafanshu');//封顶
-        var jushuxuanze = this.getSelectedOfRadioGroup('xuanzejushu');//局数
-        var dianganghua = this.getSelectedOfRadioGroup('dianganghua');//点杠花
+        var difen = this.getSelectedOfRadioGroup("difenxuanze"); //？
+        var zimo = this.getSelectedOfRadioGroup("zimojiacheng"); //自摸
+        var zuidafanshu = this.getSelectedOfRadioGroup("zuidafanshu");//封顶
+        var jushuxuanze = this.getSelectedOfRadioGroup("xuanzejushu");//局数
+        var dianganghua = this.getSelectedOfRadioGroup("dianganghua");//点杠花
         
         var conf = {
             difen:difen,

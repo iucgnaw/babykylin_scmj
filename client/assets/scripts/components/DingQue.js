@@ -54,18 +54,18 @@ cc.Class({
     
     initEventHandlers:function(){
         var self = this;
-        this.node.on('game_dingque',function(data){
+        this.node.on("event_game_dingque",function(data){
             self.showDingQueChoice();
         });
         
-        this.node.on('game_dingque_notify',function(data){
+        this.node.on("event_game_dingque",function(data){
             var seatIndex = cc.vv.gameNetMgr.getSeatIndexByID(data);
             var localIndex = cc.vv.gameNetMgr.getLocalIndex(seatIndex);
-            console.log("game_dingque_notify:" + localIndex);
+            console.log("event_game_dingque:" + localIndex);
             self.tips[localIndex].node.active = true;
         });
         
-        this.node.on('game_dingque_finish',function(){
+        this.node.on("event_game_dingque_finish",function(){
             //通知每一个玩家定缺的花色
             self.queYiMen.active = false;
             cc.vv.gameNetMgr.isDingQueing = false;
@@ -79,7 +79,7 @@ cc.Class({
         var typeCounts = [0,0,0];
         for(var i = 0; i < sd.holds.length; ++i){
             var pai = sd.holds[i];
-            var type = cc.vv.mahjongmgr.getMahjongType(pai);
+            var type = cc.vv.mahjongmgr.getTileType(pai);
             typeCounts[type]++;
         }
         
@@ -101,7 +101,7 @@ cc.Class({
             else{
                 node.getComponent(cc.Animation).stop();
             }
-            //this.queYiMen.getChildByName(arr[i]).getChildByName('jian').active = minIndex == i;    
+            //this.queYiMen.getChildByName(arr[i]).getChildByName("jian").active = minIndex == i;    
         }
         
         this.reset();
@@ -169,7 +169,7 @@ cc.Class({
         }  
         this.selected[type].active = true;
         cc.vv.gameNetMgr.dingque = type;
-        cc.vv.net.send("dingque",type);
+        cc.vv.net.send("req_dingque",type);
         
         //this.setInteractable(false);
     },

@@ -71,31 +71,31 @@ cc.Class({
         }
         var nextActionDelay = 1.0;
         if(action.type == ACTION_CHUPAI){
-            //console.log("chupai");
+            //console.log("ACTION_CHUPAI");
             cc.vv.gameNetMgr.doChupai(action.si,action.pai);
             return 1.0;
         }
         else if(action.type == ACTION_MOPAI){
-            //console.log("mopai");
+            //console.log("ACTION_MOPAI");
             cc.vv.gameNetMgr.doMopai(action.si,action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 0.5;
         }
         else if(action.type == ACTION_PENG){
-            //console.log("peng");
+            //console.log("ACTION_PENG");
             cc.vv.gameNetMgr.doPeng(action.si,action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 1.0;
         }
         else if(action.type == ACTION_GANG){
-            //console.log("gang");
-            cc.vv.gameNetMgr.dispatchEvent('hangang_notify',action.si);
+            //console.log("ACTION_GANG");
+            cc.vv.gameNetMgr.dispatchEvent("event_call_kong",action.si);
             cc.vv.gameNetMgr.doGang(action.si,action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 1.0;
         }
         else if(action.type == ACTION_HU){
-            //console.log("hu");
+            //console.log("ACTION_HU");
             cc.vv.gameNetMgr.doHu({seatindex:action.si,hupai:action.pai,iszimo:false});
             return 1.5;
         }

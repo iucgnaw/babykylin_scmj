@@ -42,11 +42,11 @@ cc.Class({
         this.addBtnHandler("dissolve_notice/btn_ok");
         
         var self = this;
-        this.node.on("dissolve_notice",function(data){
+        this.node.on("event_propose_dismiss_room",function(data){
             self.showDissolveNotice(data);
         });
         
-        this.node.on("dissolve_cancel",function(event){
+        this.node.on("event_reject_dismiss_room",function(event){
             self.closeAll();
         });
     },
@@ -76,13 +76,13 @@ cc.Class({
         this.closeAll();
         var btnName = event.target.name;
         if(btnName == "btn_agree"){
-            cc.vv.net.send("dissolve_agree");
+            cc.vv.net.send("req_accept_dismiss_room");
         }
         else if(btnName == "btn_reject"){
-            cc.vv.net.send("dissolve_reject");
+            cc.vv.net.send("req_reject_dismiss_room");
         }
         else if(btnName == "btn_sqjsfj"){
-            cc.vv.net.send("dissolve_request"); 
+            cc.vv.net.send("req_propose_dismiss_room"); 
         }
     },
     

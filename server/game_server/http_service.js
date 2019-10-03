@@ -1,7 +1,7 @@
-var crypto = require('../utils/crypto');
-var express = require('express');
-var db = require('../utils/db');
-var http = require('../utils/http');
+var crypto = require("../utils/crypto");
+var express = require("express");
+var db = require("../utils/db");
+var http = require("../utils/http");
 var roomMgr = require("./roommgr");
 var userMgr = require("./usermgr");
 var tokenMgr = require("./tokenmgr");
@@ -12,16 +12,16 @@ var config = null;
 var serverIp = "";
 
 //测试
-app.all('*', function (req, res, next) {
+app.all("*", function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-	res.header("X-Powered-By", ' 3.2.1');
+	res.header("X-Powered-By", " 3.2.1");
 	res.header("Content-Type", "application/json;charset=utf-8");
 	next();
 });
 
-app.get('/get_server_info', function (req, res) {
+app.get("/get_server_info", function (req, res) {
 	var serverId = req.query.serverid;
 	var sign = req.query.sign;
 	console.log(serverId);
@@ -49,7 +49,7 @@ app.get('/get_server_info', function (req, res) {
 	});
 });
 
-app.get('/create_room', function (req, res) {
+app.get("/create_room", function (req, res) {
 	var userId = parseInt(req.query.userid);
 	var sign = req.query.sign;
 	var gems = req.query.gems;
@@ -79,7 +79,7 @@ app.get('/create_room', function (req, res) {
 	});
 });
 
-app.get('/enter_room', function (req, res) {
+app.get("/enter_room", function (req, res) {
 	var userId = parseInt(req.query.userid);
 	var name = req.query.name;
 	var roomId = req.query.roomid;
@@ -103,7 +103,7 @@ app.get('/enter_room', function (req, res) {
 			if (ret == 1) {
 				http.send(res, 4, "room is full.");
 			} else if (ret == 2) {
-				http.send(res, 3, "can't find room.");
+				http.send(res, 3, "cannot find room.");
 			}
 			return;
 		}
@@ -115,7 +115,7 @@ app.get('/enter_room', function (req, res) {
 	});
 });
 
-app.get('/is_room_runing', function (req, res) {
+app.get("/is_room_runing", function (req, res) {
 	var roomId = req.query.roomid;
 	var sign = req.query.sign;
 	if (roomId == null || sign == null) {
@@ -160,9 +160,9 @@ function update() {
 
 		var mem = process.memoryUsage();
 		var format = function (bytes) {
-			return (bytes / 1024 / 1024).toFixed(2) + 'MB';
+			return (bytes / 1024 / 1024).toFixed(2) + "MB";
 		};
-		//console.log('Process: heapTotal '+format(mem.heapTotal) + ' heapUsed ' + format(mem.heapUsed) + ' rss ' + format(mem.rss));
+		//console.log("Process: heapTotal "+format(mem.heapTotal) + " heapUsed " + format(mem.heapUsed) + " rss " + format(mem.rss));
 	}
 }
 

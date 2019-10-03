@@ -76,7 +76,7 @@ cc.Class({
             for(var i = 0; i < data.length; ++i){
                 for(var j = 0; j < 4; ++j){
                     var s = data[i].seats[j];
-                    s.name = new Buffer(s.name,'base64').toString();
+                    s.name = new Buffer(s.name,"base64").toString();
                 }
             }
             self.initRoomHistoryList(data);

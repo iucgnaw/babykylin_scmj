@@ -34,7 +34,7 @@ function sendRequest(path, data, handler, extraUrl) {
 
     //解析请求路由以及格式化请求参数
     var sendpath = path;
-    var sendtext = '?';
+    var sendtext = "?";
     for (var k in data) {
         if (sendtext != "?") {
             sendtext += "&";
@@ -56,7 +56,7 @@ function sendRequest(path, data, handler, extraUrl) {
     var timer = setTimeout(function() {
         xhr.hasRetried = true;
         xhr.abort();
-        console.log('http timeout');
+        console.log("http timeout");
         retryFunc();
     }, 5000);
 
@@ -94,13 +94,13 @@ function sendRequest(path, data, handler, extraUrl) {
                 return;
             }
 
-            console.log('other readystate == 4' + ', status:' + xhr.status);
+            console.log("other readystate == 4" + ", status:" + xhr.status);
             setTimeout(function() {
                 retryFunc();
             }, 5000);
         }
         else {
-            console.log('other readystate:' + xhr.readyState + ', status:' + xhr.status);
+            console.log("other readystate:" + xhr.readyState + ", status:" + xhr.status);
         }
     };
 

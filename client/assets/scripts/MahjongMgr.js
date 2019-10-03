@@ -98,7 +98,7 @@ cc.Class({
         return g_mahjongSprites[a_tile];
     },
 
-    getMahjongType: function (a_tile) {
+    getTileType: function (a_tile) {
         if (a_tile >= 0 && a_tile < 9) {
             //筒 0 - 8
             return 0;
@@ -156,7 +156,7 @@ cc.Class({
         }
     },
 
-    getSpriteFrameByMJID: function (a_pre, a_tile) {
+    getSpriteFrameByTile: function (a_pre, a_tile) {
         var spriteFrameName = this.getMahjongSpriteByID(a_tile);
         spriteFrameName = a_pre + spriteFrameName;
         if (a_pre == "M_") {
@@ -254,20 +254,20 @@ cc.Class({
         }
     },
 
-    sortMJ: function (a_tiles, a_dingqueType) {
+    sortTiles: function (a_tiles, a_dingqueType) {
         var self = this;
         a_tiles.sort(function (a_tile1, a_tile2) {
-            if (a_dingqueType >= 0) {
-                var type1 = self.getMahjongType(a_tile1);
-                var type2 = self.getMahjongType(a_tile2);
-                if (type1 != type2) {
-                    if (a_dingqueType == type1) {
-                        return 1;
-                    } else if (a_dingqueType == type2) {
-                        return -1;
-                    }
-                }
-            }
+            // if (a_dingqueType >= 0) {
+            //     var type1 = self.getTileType(a_tile1);
+            //     var type2 = self.getTileType(a_tile2);
+            //     if (type1 != type2) {
+            //         if (a_dingqueType == type1) {
+            //             return 1;
+            //         } else if (a_dingqueType == type2) {
+            //             return -1;
+            //         }
+            //     }
+            // }
             return a_tile1 - a_tile2;
         });
     },

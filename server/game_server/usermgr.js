@@ -1,4 +1,4 @@
-var roomMgr = require('./roommgr');
+var roomMgr = require("./roommgr");
 var userList = {};
 var userOnline = 0;
 exports.bind = function (userId, socket) {

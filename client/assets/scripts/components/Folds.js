@@ -11,112 +11,112 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        _folds:null,
+        _folds: null,
     },
 
     // use this for initialization
     onLoad: function () {
-        if(cc.vv == null){
+        if (cc.vv == null) {
             return;
         }
-        
+
         this.initView();
         this.initEventHandler();
-        
-        this.initAllFolds();
+
+        this.drawAllFolds();
     },
-    
-    initView:function(){
+
+    initView: function () {
         this._folds = {};
         var game = this.node.getChildByName("game");
-        var sides = ["myself","right","up","left"];
-        for(var i = 0; i < sides.length; ++i){
+        var sides = ["myself", "right", "up", "left"];
+        for (var i = 0; i < sides.length; ++i) {
             var sideName = sides[i];
-            var sideRoot = game.getChildByName(sideName);
+            var nodeSide = game.getChildByName(sideName);
             var folds = [];
-            var foldRoot = sideRoot.getChildByName("folds");
-            for(var j = 0; j < foldRoot.children.length; ++j){
-                var n = foldRoot.children[j];
-                n.active = false;
-                var sprite = n.getComponent(cc.Sprite); 
+            var foldRoot = nodeSide.getChildByName("folds");
+            for (var j = 0; j < foldRoot.children.length; ++j) {
+                var node = foldRoot.children[j];
+                node.active = false;
+                var sprite = node.getComponent(cc.Sprite);
                 sprite.spriteFrame = null;
-                folds.push(sprite);            
+                folds.push(sprite);
             }
-            this._folds[sideName] = folds; 
+            this._folds[sideName] = folds;
         }
-        
+
         this.hideAllFolds();
     },
-    
-    hideAllFolds:function(){
-        for(var k in this._folds){
+
+    hideAllFolds: function () {
+        for (var k in this._folds) {
             var f = this._folds[i];
-            for(var i in f){
+            for (var i in f) {
                 f[i].node.active = false;
             }
         }
     },
-    
-    initEventHandler:function(){
+
+    initEventHandler: function () {
         var self = this;
-        this.node.on('game_begin',function(data){
-            self.initAllFolds();
-        });  
-        
-        this.node.on('game_sync',function(data){
-            self.initAllFolds();
+        this.node.on("event_game_begin", function (data) {
+            self.drawAllFolds();
         });
-        
-        this.node.on('game_chupai_notify',function(data){
-            self.initFolds(data);
+
+        this.node.on("event_game_sync", function (data) {
+            self.drawAllFolds();
         });
-        
-        this.node.on('guo_notify',function(data){
-            self.initFolds(data);
+
+        this.node.on("event_game_discard_tile", function (data) {
+            self.drawFolds(data);
+        });
+
+        this.node.on("event_player_pass", function (data) {
+            self.drawFolds(data);
         });
     },
-    
-    initAllFolds:function(){
+
+    drawAllFolds: function () {
         var seats = cc.vv.gameNetMgr.seats;
-        for(var i in seats){
-            this.initFolds(seats[i]);
+        for (var i in seats) {
+            this.drawFolds(seats[i]);
         }
     },
-    
-    initFolds:function(seatData){
-        var folds = seatData.folds;
-        if(folds == null){
+
+    drawFolds: function (a_seatData) {
+        var folds = a_seatData.folds;
+        if (folds == null) {
             return;
         }
-        var localIndex = cc.vv.gameNetMgr.getLocalIndex(seatData.seatindex);
-        var pre = cc.vv.mahjongmgr.getFoldPre(localIndex);
+        var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatindex);
+        var prefab = cc.vv.mahjongmgr.getFoldPre(localIndex);
         var side = cc.vv.mahjongmgr.getSide(localIndex);
-        
+
         var foldsSprites = this._folds[side];
-        for(var i = 0; i < foldsSprites.length; ++i){
+        for (var i = 0; i < foldsSprites.length; ++i) {
             var index = i;
-            if(side == "right" || side == "up"){
+            if (side == "right" || side == "up") {
                 index = foldsSprites.length - i - 1;
             }
             var sprite = foldsSprites[index];
             sprite.node.active = true;
-            this.setSpriteFrameByMJID(pre,sprite,folds[i]);
+            this.setSpriteFrameByTile(prefab, sprite, folds[i]);
         }
-        for(var i = folds.length; i < foldsSprites.length; ++i){
+        for (var i = folds.length; i < foldsSprites.length; ++i) {
             var index = i;
-            if(side == "right" || side == "up"){
+            if (side == "right" || side == "up") {
                 index = foldsSprites.length - i - 1;
             }
             var sprite = foldsSprites[index];
-            
+
             sprite.spriteFrame = null;
             sprite.node.active = false;
-        }  
+        }
     },
-    
-    setSpriteFrameByMJID:function(pre,sprite,mjid){
-        sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID(pre,mjid);
-        sprite.node.active = true;
+
+    setSpriteFrameByTile: function (a_prefab, a_sprite, a_tile) {
+        a_sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
+        a_sprite.node.active = true;
     },
 
     // called every frame, uncomment this function to activate update callback

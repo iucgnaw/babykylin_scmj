@@ -17,7 +17,7 @@ cc.Class({
 
     // use this for initialization
     start: function () {
-        this._status = cc.find('Canvas/status');
+        this._status = cc.find("Canvas/status");
 
         this.red = new cc.Color(205,0,0);
         this.green = new cc.Color(0,205,0);
@@ -26,9 +26,9 @@ cc.Class({
 
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
-        var delay = this._status.getChildByName('delay');
+        var delay = this._status.getChildByName("delay");
         if(cc.vv.net.delayMS != null){
-            delay.getComponent(cc.Label).string = cc.vv.net.delayMS + 'ms';
+            delay.getComponent(cc.Label).string = cc.vv.net.delayMS + "ms";
             if(cc.vv.net.delayMS > 800){
                 delay.color = this.red;
             }
@@ -40,11 +40,11 @@ cc.Class({
             }
         }
         else{
-            delay.getComponent(cc.Label).string = 'N/A';
+            delay.getComponent(cc.Label).string = "N/A";
             delay.color = this.red;
         }
         
-        var power = this._status.getChildByName('power');
+        var power = this._status.getChildByName("power");
         power.scaleX = cc.vv.anysdkMgr.getBatteryPercent();
     },
 });

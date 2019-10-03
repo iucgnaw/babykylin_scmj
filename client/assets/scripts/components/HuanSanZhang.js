@@ -32,22 +32,22 @@ cc.Class({
         }
         
         var self = this;
-        this.node.on('game_begin',function(data){
+        this.node.on("event_game_begin",function(data){
             self.initHuaipaiInfo();
         });
         
-        this.node.on('game_huanpai',function(data){
+        this.node.on("event_game_huanpai",function(data){
            self._huanpaitip.active = true;
            self.showHuanpai(true);
         });
         
-        this.node.on('huanpai_notify',function(data){
+        this.node.on("event_huanpai",function(data){
             if(data.seatindex == cc.vv.gameNetMgr.seatIndex){
                 self.initHuaipaiInfo();   
             }
         });
         
-        this.node.on('game_huanpai_over',function(data){
+        this.node.on("event_huanpai_finish",function(data){
             self._huanpaitip.active = false;
             for(var i = 0; i < self._huanpaiArr.length; ++i){
                 self._huanpaiArr[i].y = 0;
@@ -56,7 +56,7 @@ cc.Class({
             self.initHuaipaiInfo();
         });
         
-        this.node.on('game_huanpai_result',function(data){
+        this.node.on("game_huanpai_result",function(data){
             cc.vv.gameNetMgr.isHuanSanZhang = false;
             self._huanpaitip.active = false;
             for(var i = 0; i < self._huanpaiArr.length; ++i){
@@ -65,7 +65,7 @@ cc.Class({
             self._huanpaiArr = [];
         });
         
-        this.node.on('mj_clicked',function(data){
+        this.node.on("event_select_tile",function(data){
             var target = data;
             //如果已经点起来，则取消
             var idx = self._huanpaiArr.indexOf(target); 
@@ -98,7 +98,7 @@ cc.Class({
         }
         huaipaiinfo.active = true;
         for(var i = 0; i < seat.huanpais.length; ++i){
-            huaipaiinfo.getChildByName("hp" + (i + 1)).getComponent(cc.Sprite).spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByMJID("M_",seat.huanpais[i]);
+            huaipaiinfo.getChildByName("hp" + (i + 1)).getComponent(cc.Sprite).spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("M_",seat.huanpais[i]);
         }
         
         var hpm = huaipaiinfo.getChildByName("hpm");
@@ -124,8 +124,8 @@ cc.Class({
         
         var type = null;
         for(var i = 0; i < this._huanpaiArr.length; ++i){
-            var pai = this._huanpaiArr[i].mjId;
-            var nt = cc.vv.mahjongmgr.getMahjongType(pai); 
+            var pai = this._huanpaiArr[i].tile;
+            var nt = cc.vv.mahjongmgr.getTileType(pai); 
             if(type == null){
                 type = nt;
             }
@@ -137,16 +137,16 @@ cc.Class({
         }
         
         var data = {
-            p1:this._huanpaiArr[0].mjId,
-            p2:this._huanpaiArr[1].mjId,
-            p3:this._huanpaiArr[2].mjId,
+            p1:this._huanpaiArr[0].tile,
+            p2:this._huanpaiArr[1].tile,
+            p3:this._huanpaiArr[2].tile,
         }
         
         this._huanpaitip.getChildByName("info").getComponent(cc.Label).string = "等待其他玩家选牌...";
         this._huanpaitip.getChildByName("btn_ok").getComponent(cc.Button).interactable = false;
         this._huanpaitip.getChildByName("mask").active = true;
         
-        cc.vv.net.send("huanpai",data);
+        cc.vv.net.send("req_huanpai",data);
     },
 
     // called every frame, uncomment this function to activate update callback

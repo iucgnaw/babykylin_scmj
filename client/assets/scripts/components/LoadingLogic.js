@@ -3,7 +3,7 @@ cc.Class({
 
     properties: {
         tipLabel:cc.Label,
-        _stateStr:'',
+        _stateStr:"",
         _progress:0.0,
         _splash:null,
         _isLoading:false,
@@ -45,14 +45,14 @@ cc.Class({
         if(this._stateStr.length == 0){
             return;
         }
-        this.tipLabel.string = this._stateStr + ' ';
+        this.tipLabel.string = this._stateStr + " ";
         if(this._isLoading){
             this.tipLabel.string += Math.floor(this._progress * 100) + "%";   
         }
         else{
             var t = Math.floor(Date.now() / 1000) % 4;
             for(var i = 0; i < t; ++ i){
-                this.tipLabel.string += '.';
+                this.tipLabel.string += ".";
             }            
         }
     }

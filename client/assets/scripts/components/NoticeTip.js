@@ -25,7 +25,7 @@ cc.Class({
         this._info = cc.find("Canvas/tip_notice/info").getComponent(cc.Label);
         
         var self = this;
-        this.node.on('push_notice',function(data){
+        this.node.on("event_faan",function(data){
             self._guohu.active = true;
             self._guohuTime = data.time;
             self._info.string = data.info;

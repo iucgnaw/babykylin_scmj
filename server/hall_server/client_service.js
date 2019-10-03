@@ -1,7 +1,7 @@
-var crypto = require('../utils/crypto');
-var express = require('express');
-var db = require('../utils/db');
-var http = require('../utils/http');
+var crypto = require("../utils/crypto");
+var express = require("express");
+var db = require("../utils/db");
+var http = require("../utils/http");
 var room_service = require("./room_service");
 
 var app = express();
@@ -25,16 +25,16 @@ function check_account(req, res) {
 }
 
 //设置跨域访问
-app.all('*', function (req, res, next) {
+app.all("*", function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-	res.header("X-Powered-By", ' 3.2.1');
+	res.header("X-Powered-By", " 3.2.1");
 	res.header("Content-Type", "application/json;charset=utf-8");
 	next();
 });
 
-app.get('/login', function (req, res) {
+app.get("/login", function (req, res) {
 	if (!check_account(req, res)) {
 		return;
 	}
@@ -83,7 +83,7 @@ app.get('/login', function (req, res) {
 	});
 });
 
-app.get('/create_user', function (req, res) {
+app.get("/create_user", function (req, res) {
 	if (!check_account(req, res)) {
 		return;
 	}
@@ -108,7 +108,7 @@ app.get('/create_user', function (req, res) {
 	});
 });
 
-app.get('/create_private_room', function (req, res) {
+app.get("/create_private_room", function (req, res) {
 	//验证参数合法性
 	var data = req.query;
 	//验证玩家身份
@@ -149,7 +149,7 @@ app.get('/create_private_room', function (req, res) {
 							ret.sign = crypto.md5(ret.roomid + ret.token + ret.time + config.ROOM_PRI_KEY);
 							http.send(res, 0, "ok", ret);
 						} else {
-							http.send(res, errcode, "room doesn't exist.");
+							http.send(res, errcode, "room does not exist.");
 						}
 					});
 				} else {
@@ -160,11 +160,11 @@ app.get('/create_private_room', function (req, res) {
 	});
 });
 
-app.get('/enter_private_room', function (req, res) {
+app.get("/enter_private_room", function (req, res) {
 	var data = req.query;
 	var roomId = data.roomid;
 	if (roomId == null) {
-		http.send(res, -1, "parameters don't match api requirements.");
+		http.send(res, -1, "parameters don not match api requirements.");
 		return;
 	}
 	if (!check_account(req, res)) {
@@ -202,7 +202,7 @@ app.get('/enter_private_room', function (req, res) {
 	});
 });
 
-app.get('/get_history_list', function (req, res) {
+app.get("/get_history_list", function (req, res) {
 	var data = req.query;
 	if (!check_account(req, res)) {
 		return;
@@ -222,11 +222,11 @@ app.get('/get_history_list', function (req, res) {
 	});
 });
 
-app.get('/get_games_of_room', function (req, res) {
+app.get("/get_games_of_room", function (req, res) {
 	var data = req.query;
 	var uuid = data.uuid;
 	if (uuid == null) {
-		http.send(res, -1, "parameters don't match api requirements.");
+		http.send(res, -1, "parameters don not match api requirements.");
 		return;
 	}
 	if (!check_account(req, res)) {
@@ -240,12 +240,12 @@ app.get('/get_games_of_room', function (req, res) {
 	});
 });
 
-app.get('/get_detail_of_game', function (req, res) {
+app.get("/get_detail_of_game", function (req, res) {
 	var data = req.query;
 	var uuid = data.uuid;
 	var index = data.index;
 	if (uuid == null || index == null) {
-		http.send(res, -1, "parameters don't match api requirements.");
+		http.send(res, -1, "parameters don not match api requirements.");
 		return;
 	}
 	if (!check_account(req, res)) {
@@ -258,7 +258,7 @@ app.get('/get_detail_of_game', function (req, res) {
 	});
 });
 
-app.get('/get_user_status', function (req, res) {
+app.get("/get_user_status", function (req, res) {
 	if (!check_account(req, res)) {
 		return;
 	}
@@ -274,14 +274,14 @@ app.get('/get_user_status', function (req, res) {
 	});
 });
 
-app.get('/get_message', function (req, res) {
+app.get("/get_message", function (req, res) {
 	if (!check_account(req, res)) {
 		return;
 	}
 	var type = req.query.type;
 
 	if (type == null) {
-		http.send(res, -1, "parameters don't match api requirements.");
+		http.send(res, -1, "parameters don not match api requirements.");
 		return;
 	}
 
