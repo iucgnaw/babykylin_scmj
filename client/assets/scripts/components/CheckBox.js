@@ -11,33 +11,32 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        target:cc.Node,
-        sprite:cc.SpriteFrame,
-        checkedSprite:cc.SpriteFrame,
-        checked:false,
+        target: cc.Node,
+        sprite: cc.SpriteFrame,
+        checkedSprite: cc.SpriteFrame,
+        checked: false,
     },
 
     // use this for initialization
     onLoad: function () {
         this.refresh();
     },
-    
-    onClicked:function(){
+
+    onClicked: function () {
         this.checked = !this.checked;
         this.refresh();
     },
-    
-    refresh:function(){
+
+    refresh: function () {
         var targetSprite = this.target.getComponent(cc.Sprite);
-        if(this.checked){
+        if (this.checked) {
             targetSprite.spriteFrame = this.checkedSprite;
-        }
-        else{
+        } else {
             targetSprite.spriteFrame = this.sprite;
         }
     }
-    
-    
+
+
 
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

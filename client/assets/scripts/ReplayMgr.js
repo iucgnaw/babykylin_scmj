@@ -18,85 +18,89 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        _lastAction:null,
-        _actionRecords:null,
-        _currentIndex:0,
+        _lastAction: null,
+        _actionRecords: null,
+        _currentIndex: 0,
     },
 
     // use this for initialization
     onLoad: function () {
 
     },
-    
-    clear:function(){
+
+    clear: function () {
         this._lastAction = null;
         this._actionRecords = null;
         this._currentIndex = 0;
     },
-    
-    init:function(data){
+
+    init: function (data) {
         this._actionRecords = data.action_records;
-        if(this._actionRecords == null){
+        if (this._actionRecords == null) {
             this._actionRecords = {};
         }
         this._currentIndex = 0;
         this._lastAction = null;
     },
-    
-    isReplay:function(){
-        return this._actionRecords != null;    
+
+    isReplay: function () {
+        return this._actionRecords != null;
     },
-    
-    getNextAction:function(){
-        if(this._currentIndex >= this._actionRecords.length){
+
+    getNextAction: function () {
+        if (this._currentIndex >= this._actionRecords.length) {
             return null;
         }
-        
+
         var si = this._actionRecords[this._currentIndex++];
         var action = this._actionRecords[this._currentIndex++];
         var pai = this._actionRecords[this._currentIndex++];
-        return {si:si,type:action,pai:pai};
+        return {
+            si: si,
+            type: action,
+            pai: pai
+        };
     },
-    
-    takeAction:function(){
+
+    takeAction: function () {
         var action = this.getNextAction();
-        if(this._lastAction != null && this._lastAction.type == ACTION_CHUPAI){
-            if(action != null && action.type != ACTION_PENG && action.type != ACTION_GANG && action.type != ACTION_HU){
-                cc.vv.gameNetMgr.doGuo(this._lastAction.si,this._lastAction.pai);
+        if (this._lastAction != null && this._lastAction.type == ACTION_CHUPAI) {
+            if (action != null && action.type != ACTION_PENG && action.type != ACTION_GANG && action.type != ACTION_HU) {
+                cc.vv.gameNetMgr.doGuo(this._lastAction.si, this._lastAction.pai);
             }
         }
         this._lastAction = action;
-        if(action == null){
+        if (action == null) {
             return -1;
         }
         var nextActionDelay = 1.0;
-        if(action.type == ACTION_CHUPAI){
+        if (action.type == ACTION_CHUPAI) {
             //console.log("ACTION_CHUPAI");
-            cc.vv.gameNetMgr.doChupai(action.si,action.pai);
+            cc.vv.gameNetMgr.doChupai(action.si, action.pai);
             return 1.0;
-        }
-        else if(action.type == ACTION_MOPAI){
+        } else if (action.type == ACTION_MOPAI) {
             //console.log("ACTION_MOPAI");
-            cc.vv.gameNetMgr.doMopai(action.si,action.pai);
+            cc.vv.gameNetMgr.doMopai(action.si, action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 0.5;
-        }
-        else if(action.type == ACTION_PENG){
+        } else if (action.type == ACTION_PENG) {
             //console.log("ACTION_PENG");
-            cc.vv.gameNetMgr.doPeng(action.si,action.pai);
+            cc.vv.gameNetMgr.doPeng(action.si, action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 1.0;
-        }
-        else if(action.type == ACTION_GANG){
+        } else if (action.type == ACTION_GANG) {
             //console.log("ACTION_GANG");
-            cc.vv.gameNetMgr.dispatchEvent("event_call_kong",action.si);
-            cc.vv.gameNetMgr.doGang(action.si,action.pai);
+            cc.vv.gameNetMgr.dispatchEvent("event_call_kong", action.si);
+            cc.vv.gameNetMgr.doGang(action.si, action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 1.0;
-        }
-        else if(action.type == ACTION_HU){
+        } else if (action.type == ACTION_HU) {
             //console.log("ACTION_HU");
-            cc.vv.gameNetMgr.doHu({seatindex:action.si,hupai:action.pai,iszimo:false});
+            cc.vv.gameNetMgr.doHu({
+                seatindex: action.si,
+                hupai: action.pai,
+                iszimo: false
+            });
             return 1.5;
         }
     }

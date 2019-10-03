@@ -1,4 +1,3 @@
-
 var URL = "http://game.iucgnaw.com:9000";
 
 exports.master_url = null;
@@ -53,14 +52,14 @@ function sendRequest(path, data, handler, extraUrl) {
         xhr.setRequestHeader("Accept-Encoding", "gzip,deflate", "text/html;charset=UTF-8");
     }
 
-    var timer = setTimeout(function() {
+    var timer = setTimeout(function () {
         xhr.hasRetried = true;
         xhr.abort();
         console.log("http timeout");
         retryFunc();
     }, 5000);
 
-    var retryFunc = function() {
+    var retryFunc = function () {
         sendRequest(path, data, handler, extraUrl);
     };
 
@@ -88,26 +87,23 @@ function sendRequest(path, data, handler, extraUrl) {
             }
 
             handler = null;
-        }
-        else if (xhr.readyState === 4) {
-            if(xhr.hasRetried){
+        } else if (xhr.readyState === 4) {
+            if (xhr.hasRetried) {
                 return;
             }
 
             console.log("other readystate == 4" + ", status:" + xhr.status);
-            setTimeout(function() {
+            setTimeout(function () {
                 retryFunc();
             }, 5000);
-        }
-        else {
+        } else {
             console.log("other readystate:" + xhr.readyState + ", status:" + xhr.status);
         }
     };
 
     try {
         xhr.send();
-    }
-    catch (e) {
+    } catch (e) {
         //setTimeout(retryFunc, 200);
         retryFunc();
     }

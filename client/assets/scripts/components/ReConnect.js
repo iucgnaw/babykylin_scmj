@@ -35,8 +35,7 @@ cc.Class({
                             }
                         });
                     }
-                }
-                else {
+                } else {
                     setTimeout(fnTestServerOn, 3000);
                 }
             });
@@ -55,6 +54,5 @@ cc.Class({
         this.node.on("disconnect", fn);
     },
     // called every frame, uncomment this function to activate update callback
-    update: function (dt) {
-    },
+    update: function (dt) {},
 });

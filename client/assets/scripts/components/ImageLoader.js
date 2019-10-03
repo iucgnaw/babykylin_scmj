@@ -1,4 +1,4 @@
-function loadImage(url,code,callback){
+function loadImage(url, code, callback) {
     /*
     if(cc.vv.images == null){
         cc.vv.images = {};
@@ -29,36 +29,37 @@ function loadImage(url,code,callback){
     else{
         imageInfo.queue.push({code:code,callback:callback});
     }*/
-    cc.loader.load(url,function (err,tex) {
+    cc.loader.load(url, function (err, tex) {
         var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0, 0, tex.width, tex.height));
-        callback(code,spriteFrame);
+        callback(code, spriteFrame);
     });
 };
 
-function getBaseInfo(userid,callback){
-    if(cc.vv.baseInfoMap == null){
+function getBaseInfo(userid, callback) {
+    if (cc.vv.baseInfoMap == null) {
         cc.vv.baseInfoMap = {};
     }
-    
-    if(cc.vv.baseInfoMap[userid] != null){
-        callback(userid,cc.vv.baseInfoMap[userid]);
-    }
-    else{
-        cc.vv.http.sendRequest("/base_info",{userid:userid},function(ret){
+
+    if (cc.vv.baseInfoMap[userid] != null) {
+        callback(userid, cc.vv.baseInfoMap[userid]);
+    } else {
+        cc.vv.http.sendRequest("/base_info", {
+            userid: userid
+        }, function (ret) {
             var url = null;
-            if(ret.headimgurl){
-               url = cc.vv.http.master_url + "/image?url=" + encodeURIComponent(ret.headimgurl) + ".jpg";
+            if (ret.headimgurl) {
+                url = cc.vv.http.master_url + "/image?url=" + encodeURIComponent(ret.headimgurl) + ".jpg";
             }
             var info = {
-                name:ret.name,
-                sex:ret.sex,
-                url:url,
+                name: ret.name,
+                sex: ret.sex,
+                url: url,
             }
             cc.vv.baseInfoMap[userid] = info;
-            callback(userid,info);
-            
-        },cc.vv.http.master_url);   
-    }  
+            callback(userid, info);
+
+        }, cc.vv.http.master_url);
+    }
 };
 
 cc.Class({
@@ -80,31 +81,31 @@ cc.Class({
     onLoad: function () {
         this.setupSpriteFrame();
     },
-    
-    setUserID:function(userid){
-        if(!userid){
+
+    setUserID: function (userid) {
+        if (!userid) {
             return;
         }
-        if(cc.vv.images == null){
+        if (cc.vv.images == null) {
             cc.vv.images = {};
         }
-        
+
         var self = this;
-        getBaseInfo(userid,function(code,info){
-           if(info && info.url){
-                loadImage(info.url,userid,function (err,spriteFrame) {
+        getBaseInfo(userid, function (code, info) {
+            if (info && info.url) {
+                loadImage(info.url, userid, function (err, spriteFrame) {
                     self._spriteFrame = spriteFrame;
                     self.setupSpriteFrame();
-                });   
-            } 
+                });
+            }
         });
     },
-    
-    setupSpriteFrame:function(){
-        if(this._spriteFrame){
+
+    setupSpriteFrame: function () {
+        if (this._spriteFrame) {
             var spr = this.getComponent(cc.Sprite);
-            if(spr){
-                spr.spriteFrame = this._spriteFrame;    
+            if (spr) {
+                spr.spriteFrame = this._spriteFrame;
             }
         }
     }

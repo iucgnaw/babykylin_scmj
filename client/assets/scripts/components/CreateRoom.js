@@ -59,12 +59,10 @@ cc.Class({
                 //console.log(ret.errmsg);
                 if (ret.errcode == 2222) {
                     cc.vv.alert.show("提示", "钻石不足，创建房间失败!");
-                }
-                else {
+                } else {
                     cc.vv.alert.show("提示", "创建房间失败,错误码:" + ret.errcode);
                 }
-            }
-            else {
+            } else {
                 cc.vv.gameNetMgr.connectGameServer(ret);
             }
         };
@@ -93,20 +91,20 @@ cc.Class({
 
         var difen = this.getSelectedOfRadioGroup("difenxuanze"); //？
         var zimo = this.getSelectedOfRadioGroup("zimojiacheng"); //自摸
-        var zuidafanshu = this.getSelectedOfRadioGroup("zuidafanshu");//封顶
-        var jushuxuanze = this.getSelectedOfRadioGroup("xuanzejushu");//局数
-        var dianganghua = this.getSelectedOfRadioGroup("dianganghua");//点杠花
-        
+        var zuidafanshu = this.getSelectedOfRadioGroup("zuidafanshu"); //封顶
+        var jushuxuanze = this.getSelectedOfRadioGroup("xuanzejushu"); //局数
+        var dianganghua = this.getSelectedOfRadioGroup("dianganghua"); //点杠花
+
         var conf = {
-            difen:difen,
-            zimo:zimo,
-            jiangdui:jiangdui,
-            huansanzhang:huansanzhang,
-            zuidafanshu:zuidafanshu,
-            jushuxuanze:jushuxuanze,
-            dianganghua:dianganghua,
-            menqing:menqing,
-            tiandihu:tiandihu,   
+            difen: difen,
+            zimo: zimo,
+            jiangdui: jiangdui,
+            huansanzhang: huansanzhang,
+            zuidafanshu: zuidafanshu,
+            jushuxuanze: jushuxuanze,
+            dianganghua: dianganghua,
+            menqing: menqing,
+            tiandihu: tiandihu,
         };
         return conf;
     },

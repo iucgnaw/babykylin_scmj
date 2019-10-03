@@ -11,45 +11,44 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        target:cc.Node,
-        sprite:cc.SpriteFrame,
-        checkedSprite:cc.SpriteFrame,
-        checked:false,
-        groupId:-1,
+        target: cc.Node,
+        sprite: cc.SpriteFrame,
+        checkedSprite: cc.SpriteFrame,
+        checked: false,
+        groupId: -1,
     },
 
     // use this for initialization
     onLoad: function () {
-        if(cc.vv == null){
+        if (cc.vv == null) {
             return;
         }
-        if(cc.vv.radiogroupmgr == null){
+        if (cc.vv.radiogroupmgr == null) {
             var RadioGroupMgr = require("RadioGroupMgr");
             cc.vv.radiogroupmgr = new RadioGroupMgr();
             cc.vv.radiogroupmgr.init();
         }
-        console.log(typeof(cc.vv.radiogroupmgr.add));
+        console.log(typeof (cc.vv.radiogroupmgr.add));
         cc.vv.radiogroupmgr.add(this);
 
         this.refresh();
     },
-    
-    refresh:function(){
+
+    refresh: function () {
         var targetSprite = this.target.getComponent(cc.Sprite);
-        if(this.checked){
+        if (this.checked) {
             targetSprite.spriteFrame = this.checkedSprite;
-        }
-        else{
+        } else {
             targetSprite.spriteFrame = this.sprite;
         }
     },
-    
-    check:function(value){
+
+    check: function (value) {
         this.checked = value;
         this.refresh();
     },
-    
-    onClicked:function(){
+
+    onClicked: function () {
         cc.vv.radiogroupmgr.check(this);
     },
 
@@ -57,10 +56,10 @@ cc.Class({
     // update: function (dt) {
 
     // },
-    
-    onDestroy:function(){
-        if(cc.vv && cc.vv.radiogroupmgr){
-            cc.vv.radiogroupmgr.del(this);            
+
+    onDestroy: function () {
+        if (cc.vv && cc.vv.radiogroupmgr) {
+            cc.vv.radiogroupmgr.del(this);
         }
     }
 });

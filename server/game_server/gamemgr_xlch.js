@@ -247,11 +247,11 @@ function checkCanAnGang(a_game, a_seat) {
     for (var key in a_seat.countMap) {
         var tile = parseInt(key);
         //if (getTileType(pai) != seatData.que) {
-            var count = a_seat.countMap[key];
-            if (count != null && count == 4) {
-                a_seat.canGang = true;
-                a_seat.gangPai.push(tile);
-            }
+        var count = a_seat.countMap[key];
+        if (count != null && count == 4) {
+            a_seat.canGang = true;
+            a_seat.gangPai.push(tile);
+        }
         //}
     }
 }
@@ -393,17 +393,17 @@ function checkCanTingPai(a_game, a_seat) {
     //console.log(seatData.countMap);
     //console.log("singleCount:" + singleCount + ",colCount:" + colCount + ",pairCount:" + pairCount);
     //检查是不是平胡
-//    if (seatData.que != 0) {
-        g_mjutils.checkTingPai(a_seat, 0, 9);
-//    }
+    //    if (seatData.que != 0) {
+    g_mjutils.checkTingPai(a_seat, 0, 9);
+    //    }
 
-//    if (seatData.que != 1) {
-        g_mjutils.checkTingPai(a_seat, 9, 18);
-//    }
+    //    if (seatData.que != 1) {
+    g_mjutils.checkTingPai(a_seat, 9, 18);
+    //    }
 
-//    if (seatData.que != 2) {
-        g_mjutils.checkTingPai(a_seat, 18, 27);
-//    }
+    //    if (seatData.que != 2) {
+    g_mjutils.checkTingPai(a_seat, 18, 27);
+    //    }
 }
 
 function getSeatIndex(a_userId) {
@@ -1275,43 +1275,43 @@ function doDingque(a_userId, a_type) {
     //检查玩家可以做的动作
     //如果4个人都定缺了，通知庄家出牌
     //if (game.numOfQue == 4) {
-        construct_game_base_info(game);
+    construct_game_base_info(game);
 
-        var queArr = [1, 1, 1, 1];
-        for (var i = 0; i < game.gameSeats.length; ++i) {
-            queArr[i] = game.gameSeats[i].que;
+    var queArr = [1, 1, 1, 1];
+    for (var i = 0; i < game.gameSeats.length; ++i) {
+        queArr[i] = game.gameSeats[i].que;
+    }
+    //userMgr.broacastInRoom("push_game_dingque_finish", arr, seatData.userId, true);
+    g_userMgr.broacastInRoom("push_game_playing", null, seatData.userId, true);
+
+    //进行听牌检查
+    for (var i = 0; i < game.gameSeats.length; ++i) {
+        var dealerTile = -1;
+        var gameSeat = game.gameSeats[i];
+        if (gameSeat.holds.length == 14) {
+            dealerTile = gameSeat.holds.pop();
+            gameSeat.countMap[dealerTile] -= 1;
         }
-        //userMgr.broacastInRoom("push_game_dingque_finish", arr, seatData.userId, true);
-        g_userMgr.broacastInRoom("push_game_playing", null, seatData.userId, true);
-
-        //进行听牌检查
-        for (var i = 0; i < game.gameSeats.length; ++i) {
-            var dealerTile = -1;
-            var gameSeat = game.gameSeats[i];
-            if (gameSeat.holds.length == 14) {
-                dealerTile = gameSeat.holds.pop();
-                gameSeat.countMap[dealerTile] -= 1;
-            }
-            checkCanTingPai(game, gameSeat);
-            if (dealerTile >= 0) {
-                gameSeat.holds.push(dealerTile);
-                gameSeat.countMap[dealerTile]++;
-            }
+        checkCanTingPai(game, gameSeat);
+        if (dealerTile >= 0) {
+            gameSeat.holds.push(dealerTile);
+            gameSeat.countMap[dealerTile]++;
         }
+    }
 
-        var turnSeat = game.gameSeats[game.turn];
-        game.state = "playing";
-        //通知玩家出牌方
-        //console.log("--dingQue");
-        turnSeat.canChuPai = true;
-        g_userMgr.broacastInRoom("push_game_turn", turnSeat.userId, turnSeat.userId, true);
-        //检查是否可以暗杠或者胡
-        //直杠
-        checkCanAnGang(game, turnSeat);
-        //检查胡 用最后一张来检查
-        checkCanHu(game, turnSeat, turnSeat.holds[turnSeat.holds.length - 1]);
-        //通知前端
-        sendOperations(game, turnSeat, game.chuPai);
+    var turnSeat = game.gameSeats[game.turn];
+    game.state = "playing";
+    //通知玩家出牌方
+    //console.log("--dingQue");
+    turnSeat.canChuPai = true;
+    g_userMgr.broacastInRoom("push_game_turn", turnSeat.userId, turnSeat.userId, true);
+    //检查是否可以暗杠或者胡
+    //直杠
+    checkCanAnGang(game, turnSeat);
+    //检查胡 用最后一张来检查
+    checkCanHu(game, turnSeat, turnSeat.holds[turnSeat.holds.length - 1]);
+    //通知前端
+    sendOperations(game, turnSeat, game.chuPai);
     //} else {
     //    userMgr.broacastInRoom("push_game_dingque", seatData.userId, seatData.userId, true);
     //}
@@ -1450,7 +1450,7 @@ exports.begin = function (a_roomId) {
             game.state = "huanpai";
             //通知准备换牌
             g_userMgr.sendMsg(seat.userId, "push_game_huanpai");
-        }// else {
+        } // else {
         //    game.state = "dingque";
         //    //通知准备定缺
         //    userMgr.sendMsg(s.userId, "push_game_dingque");
@@ -1585,7 +1585,7 @@ exports.huanSanZhang = function (a_fn_userId, a_tile1, a_tile2, a_tile3) {
 
         g_userMgr.sendMsg(a_fn_userId, "push_hands", seat[i].holds);
         //通知准备定缺
-    //    userMgr.sendMsg(userId, "push_game_dingque");
+        //    userMgr.sendMsg(userId, "push_game_dingque");
     }
 };
 
@@ -1901,7 +1901,7 @@ function doGang(a_game, a_turnSeat, a_seat, a_gangType, a_tileCount, a_tile) {
 }
 
 exports.gang = function (a_userId, a_tile) {
-    console.log("enter exports.gang(), a_userId: " + a_userId +", a_tile: " + a_tile);
+    console.log("enter exports.gang(), a_userId: " + a_userId + ", a_tile: " + a_tile);
 
     var seatData = g_gameSeatsOfUsers[a_userId];
     if (seatData == null) {
@@ -2175,18 +2175,18 @@ exports.hu = function (a_userId) {
     }
 
     //如果还有人可以胡牌，则等待
-//    for (var i = 0; i < game.gameSeats.length; ++i) {
-//        var seat = game.gameSeats[i];
-//        if (seat.canHu) {
-//            return;
-//        }
-//    }
+    //    for (var i = 0; i < game.gameSeats.length; ++i) {
+    //        var seat = game.gameSeats[i];
+    //        if (seat.canHu) {
+    //            return;
+    //        }
+    //    }
 
     //和牌的下家继续打
-//    clearAllOptions(game);
-//    game.turn = game.lastHuPaiSeat;
-//    moveToNextUser(game);
-//    doUserMoPai(game);
+    //    clearAllOptions(game);
+    //    game.turn = game.lastHuPaiSeat;
+    //    moveToNextUser(game);
+    //    doUserMoPai(game);
 
     doGameOver(game, turnSeat.userId);
 };

@@ -2,7 +2,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        inputName:cc.EditBox,
+        inputName: cc.EditBox,
         // foo: {
         //    default: null,
         //    url: cc.Texture2D,  // optional, default is typeof default
@@ -13,8 +13,8 @@ cc.Class({
         // },
         // ...
     },
-    
-    onRandomBtnClicked:function(){
+
+    onRandomBtnClicked: function () {
         var names = [
             "王璀",
             "李神",
@@ -28,7 +28,7 @@ cc.Class({
             "吴皓",
             "陈擘",
         ];
-        
+
         var idx = Math.floor(Math.random() * (names.length - 1));
         this.inputName.string = names[idx];
     },
@@ -39,9 +39,9 @@ cc.Class({
         this.onRandomBtnClicked();
     },
 
-    onBtnConfirmClicked:function(){
+    onBtnConfirmClicked: function () {
         var name = this.inputName.string;
-        if(name == ""){
+        if (name == "") {
             console.log("invalid name.");
             return;
         }

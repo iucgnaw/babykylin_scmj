@@ -2,11 +2,11 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        tipLabel:cc.Label,
-        _stateStr:"",
-        _progress:0.0,
-        _splash:null,
-        _isLoading:false,
+        tipLabel: cc.Label,
+        _stateStr: "",
+        _progress: 0.0,
+        _splash: null,
+        _isLoading: false,
     },
 
     // use this for initialization
@@ -15,26 +15,26 @@ cc.Class({
         this.tipLabel.string = this._stateStr;
         this.startPreloading();
     },
-    
-    startPreloading:function(){
+
+    startPreloading: function () {
         this._stateStr = "正在加载资源，请稍候"
         this._isLoading = true;
         var self = this;
-        
-        var onProgress = function ( completedCount, totalCount,  item ){
+
+        var onProgress = function (completedCount, totalCount, item) {
             //console.log("completedCount:" + completedCount + ",totalCount:" + totalCount );
-            if(self._isLoading){
-                self._progress = completedCount/totalCount;
+            if (self._isLoading) {
+                self._progress = completedCount / totalCount;
             }
         };
-        
+
         //cc.loader.loadResDir("textures",cc.Texture2D, onProgress,function (err, assets) {
         //    self.onLoadComplete();
         //});
-        self.onLoadComplete();      
+        self.onLoadComplete();
     },
-    
-    onLoadComplete:function(){
+
+    onLoadComplete: function () {
         this._isLoading = false;
         this._stateStr = "准备登录";
         cc.director.loadScene("login");
@@ -42,18 +42,17 @@ cc.Class({
 
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
-        if(this._stateStr.length == 0){
+        if (this._stateStr.length == 0) {
             return;
         }
         this.tipLabel.string = this._stateStr + " ";
-        if(this._isLoading){
-            this.tipLabel.string += Math.floor(this._progress * 100) + "%";   
-        }
-        else{
+        if (this._isLoading) {
+            this.tipLabel.string += Math.floor(this._progress * 100) + "%";
+        } else {
             var t = Math.floor(Date.now() / 1000) % 4;
-            for(var i = 0; i < t; ++ i){
+            for (var i = 0; i < t; ++i) {
                 this.tipLabel.string += ".";
-            }            
+            }
         }
     }
 });
