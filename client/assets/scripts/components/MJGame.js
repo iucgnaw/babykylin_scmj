@@ -865,7 +865,7 @@ cc.Class({
                 }
             }
             if (tile == -1) {
-                alert("Must select tile before Kong.");
+                alert("Client Message:\r\nMust select tiles for Kong.");
                 return;
             }
             // var meld[] = {
@@ -890,7 +890,7 @@ cc.Class({
                 }
             }
             if (tile == -1) {
-                alert("Must select tile before Discard.");
+                alert("Client Message:\r\nMust select tile for Discard.");
                 return;
             }
             this.discardTile(tile);
