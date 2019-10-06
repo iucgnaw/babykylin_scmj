@@ -82,7 +82,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "gang",
+    "_name": "nodeMeld4thTile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -186,7 +186,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "L_autumn",
+    "_name": "nodeMeld1stTile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -290,7 +290,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "L_autumn",
+    "_name": "nodeMeld2ndTile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -394,7 +394,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "L_autumn",
+    "_name": "nodeMeld3rdTile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1

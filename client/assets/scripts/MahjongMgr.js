@@ -44,18 +44,18 @@ cc.Class({
             type: [cc.SpriteFrame]
         },
 
-        _sides: null,
-        _pres: null,
-        _foldPres: null,
+        _sidesString: null,
+        _presString: null,
+        _foldPresString: null,
     },
 
     onLoad: function () {
         if (cc.vv == null) {
             return;
         }
-        this._sides = ["myself", "right", "up", "left"];
-        this._pres = ["M_", "R_", "B_", "L_"];
-        this._foldPres = ["B_", "R_", "B_", "L_"];
+        this._sidesString = ["myself", "right", "up", "left"];
+        this._presString = ["M_", "R_", "B_", "L_"];
+        this._foldPresString = ["B_", "R_", "B_", "L_"];
         cc.vv.mahjongmgr = this;
         //筒 0 - 8
         for (var i = 1; i < 10; ++i) {
@@ -94,7 +94,7 @@ cc.Class({
         g_mahjongSprites.push("chrysanthemum");
     },
 
-    getMahjongSpriteByID: function (a_tile) {
+    getMahjongSpriteByTile: function (a_tile) {
         return g_mahjongSprites[a_tile];
     },
 
@@ -157,7 +157,7 @@ cc.Class({
     },
 
     getSpriteFrameByTile: function (a_pre, a_tile) {
-        var spriteFrameName = this.getMahjongSpriteByID(a_tile);
+        var spriteFrameName = this.getMahjongSpriteByTile(a_tile);
         spriteFrameName = a_pre + spriteFrameName;
         if (a_pre == "M_") {
             return this.bottomAtlas.getSpriteFrame(spriteFrameName);
@@ -170,7 +170,7 @@ cc.Class({
         }
     },
 
-    getAudioURLByMJID: function (a_tile) {
+    getAudioUrlByTile: function (a_tile) {
         var audioName = 0;
         if (a_tile >= 0 && a_tile < 9) {
             //筒 0 - 8
@@ -273,14 +273,14 @@ cc.Class({
     },
 
     getSide: function (a_localIndex) {
-        return this._sides[a_localIndex];
+        return this._sidesString[a_localIndex];
     },
 
     getPre: function (a_localIndex) {
-        return this._pres[a_localIndex];
+        return this._presString[a_localIndex];
     },
 
     getFoldPre: function (a_localIndex) {
-        return this._foldPres[a_localIndex];
+        return this._foldPresString[a_localIndex];
     }
 });

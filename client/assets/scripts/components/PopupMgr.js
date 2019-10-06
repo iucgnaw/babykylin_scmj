@@ -101,11 +101,11 @@ cc.Class({
         this._popuproot.active = true;
     },
 
-    showDissolveNotice: function (data) {
-        this._endTime = Date.now() / 1000 + data.time;
+    showDissolveNotice: function (a_data) {
+        this._endTime = Date.now() / 1000 + a_data.time;
         this._extraInfo = "";
-        for (var i = 0; i < data.states.length; ++i) {
-            var b = data.states[i];
+        for (var i = 0; i < a_data.states.length; ++i) {
+            var b = a_data.states[i];
             var name = cc.vv.gameNetMgr.seats[i].name;
             if (b) {
                 this._extraInfo += "\n[已同意] " + name;
@@ -126,15 +126,15 @@ cc.Class({
                 this._endTime = -1;
             }
 
-            var m = Math.floor(lastTime / 60);
-            var s = Math.ceil(lastTime - m * 60);
+            var minutes = Math.floor(lastTime / 60);
+            var second = Math.ceil(lastTime - minutes * 60);
 
             var str = "";
-            if (m > 0) {
-                str += m + "分";
+            if (minutes > 0) {
+                str += minutes + "分";
             }
 
-            this._noticeLabel.string = str + s + "秒后房间将自动解散" + this._extraInfo;
+            this._noticeLabel.string = str + second + "秒后房间将自动解散" + this._extraInfo;
         }
     },
 });

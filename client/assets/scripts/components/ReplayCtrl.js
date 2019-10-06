@@ -23,7 +23,7 @@ cc.Class({
         }
 
         this._replay = cc.find("Canvas/replay");
-        this._replay.active = cc.vv.replayMgr.isReplay();
+        this._replay.active = cc.vv.replayMgr.isReplaying();
     },
 
     onBtnPauseClicked: function () {
@@ -45,7 +45,7 @@ cc.Class({
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
         if (cc.vv) {
-            if (this._isPlaying && cc.vv.replayMgr.isReplay() == true && this._nextPlayTime > 0) {
+            if (this._isPlaying && cc.vv.replayMgr.isReplaying() == true && this._nextPlayTime > 0) {
                 this._nextPlayTime -= dt;
                 if (this._nextPlayTime < 0) {
                     this._nextPlayTime = cc.vv.replayMgr.takeAction();

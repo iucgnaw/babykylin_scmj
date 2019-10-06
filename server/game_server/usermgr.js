@@ -1,22 +1,22 @@
-var roomMgr = require("./roommgr");
-var userList = {};
-var userOnline = 0;
-exports.bind = function (userId, socket) {
-    userList[userId] = socket;
-    userOnline++;
+var g_roomMgr = require("./roommgr");
+var g_userSockets = {};
+var g_userOnline = 0;
+exports.bind = function (a_userId, a_socket) {
+    g_userSockets[a_userId] = a_socket;
+    g_userOnline++;
 };
 
-exports.del = function (userId, socket) {
-    delete userList[userId];
-    userOnline--;
+exports.del = function (a_userId, socket) {
+    delete g_userSockets[a_userId];
+    g_userOnline--;
 };
 
-exports.get = function (userId) {
-    return userList[userId];
+exports.get = function (a_userId) {
+    return g_userSockets[a_userId];
 };
 
-exports.isOnline = function (userId) {
-    var data = userList[userId];
+exports.isOnline = function (a_userId) {
+    var data = g_userSockets[a_userId];
     if (data != null) {
         return true;
     }
@@ -24,12 +24,12 @@ exports.isOnline = function (userId) {
 };
 
 exports.getOnlineCount = function () {
-    return userOnline;
+    return g_userOnline;
 }
 
-exports.sendMsg = function (userId, event, msgdata) {
-    console.log(event);
-    var userInfo = userList[userId];
+exports.sendMsg = function (a_userId, a_event, a_data) {
+    console.log("socket.emit(), a_event: " + a_event + ", a_data: " + a_data);
+    var userInfo = g_userSockets[a_userId];
     if (userInfo == null) {
         return;
     }
@@ -38,14 +38,14 @@ exports.sendMsg = function (userId, event, msgdata) {
         return;
     }
 
-    socket.emit(event, msgdata);
+    socket.emit(a_event, a_data);
 };
 
-exports.kickAllInRoom = function (roomId) {
-    if (roomId == null) {
+exports.kickAllInRoom = function (a_roomId) {
+    if (a_roomId == null) {
         return;
     }
-    var roomInfo = roomMgr.getRoom(roomId);
+    var roomInfo = g_roomMgr.getRoom(a_roomId);
     if (roomInfo == null) {
         return;
     }
@@ -55,7 +55,7 @@ exports.kickAllInRoom = function (roomId) {
 
         //如果不需要发给发送方，则跳过
         if (rs.userId > 0) {
-            var socket = userList[rs.userId];
+            var socket = g_userSockets[rs.userId];
             if (socket != null) {
                 exports.del(rs.userId);
                 socket.disconnect();
@@ -64,26 +64,26 @@ exports.kickAllInRoom = function (roomId) {
     }
 };
 
-exports.broacastInRoom = function (event, data, sender, includingSender) {
-    var roomId = roomMgr.getUserRoom(sender);
+exports.broadcastInRoom = function (a_event, a_data, a_senderUserId, a_includeSender) {
+    var roomId = g_roomMgr.getRoomIdByUserId(a_senderUserId);
     if (roomId == null) {
         return;
     }
-    var roomInfo = roomMgr.getRoom(roomId);
+    var roomInfo = g_roomMgr.getRoom(roomId);
     if (roomInfo == null) {
         return;
     }
 
     for (var i = 0; i < roomInfo.seats.length; ++i) {
-        var rs = roomInfo.seats[i];
+        var seat = roomInfo.seats[i];
 
         //如果不需要发给发送方，则跳过
-        if (rs.userId == sender && includingSender != true) {
+        if (seat.userId == a_senderUserId && a_includeSender != true) {
             continue;
         }
-        var socket = userList[rs.userId];
+        var socket = g_userSockets[seat.userId];
         if (socket != null) {
-            socket.emit(event, data);
+            socket.emit(a_event, a_data);
         }
     }
 };

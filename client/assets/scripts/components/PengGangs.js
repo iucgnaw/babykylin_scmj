@@ -25,8 +25,6 @@ cc.Class({
         var canvas = cc.find("Canvas");
         var canvasWidth = canvas.width;
         var scale = canvasWidth / 1280;
-        // nodePongKong.scaleX *= scale;
-        // nodePongKong.scaleY *= scale;
 
         var self = this;
         this.node.on("event_pong", function (a_data) {
@@ -67,64 +65,44 @@ cc.Class({
         }
     },
 
-    onPengGangChanged: function (a_seatData) {
-
-        if (a_seatData.angangs == null && a_seatData.diangangs == null && a_seatData.wangangs == null && a_seatData.pengs == null) {
+    onPengGangChanged: function (a_seatData) { // Mainly draw melds
+        if (a_seatData.melds == null) {
             return;
         }
         var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatindex);
-        var side = cc.vv.mahjongmgr.getSide(localIndex);
+        var sideString = cc.vv.mahjongmgr.getSide(localIndex);
         var prefabFold = cc.vv.mahjongmgr.getFoldPre(localIndex);
 
         console.log("onPengGangChanged, localIndex: " + localIndex);
 
         var nodeGame = this.node.getChildByName("game");
-        var nodeSide = nodeGame.getChildByName(side);
-        var nodePongKong = nodeSide.getChildByName("penggangs");
+        var nodeSide = nodeGame.getChildByName(sideString);
+        var nodeMelds = nodeSide.getChildByName("penggangs");
 
-        for (var i = 0; i < nodePongKong.childrenCount; ++i) {
-            nodePongKong.children[i].active = false;
+        for (var i = 0; i < nodeMelds.childrenCount; ++i) {
+            nodeMelds.children[i].active = false;
         }
         //初始化杠牌
-        var meldNum = 0;
-
-        var concealedKongs = a_seatData.angangs
-        if (concealedKongs) {
-            for (var i = 0; i < concealedKongs.length; ++i) {
-                var tile = concealedKongs[i];
-                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "angang");
-                meldNum++;
-            }
-        }
-        var exposedKongs = a_seatData.diangangs
-        if (exposedKongs) {
-            for (var i = 0; i < exposedKongs.length; ++i) {
-                var tile = exposedKongs[i];
-                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "diangang");
-                meldNum++;
-            }
-        }
-        var drewKongs = a_seatData.wangangs
-        if (drewKongs) {
-            for (var i = 0; i < drewKongs.length; ++i) {
-                var tile = drewKongs[i];
-                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "wangang");
-                meldNum++;
+        var melds = a_seatData.melds;
+        if (melds) {
+            for (var i = 0; i < melds.length; ++i) {
+                var meld = melds[i];
+                this.drawMeld(nodeMelds, sideString, prefabFold, i, meld);
             }
         }
 
         //初始化碰牌
-        var pongs = a_seatData.pengs
-        if (pongs) {
-            for (var i = 0; i < pongs.length; ++i) {
-                var tile = pongs[i];
-                this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "peng");
-                meldNum++;
-            }
-        }
+        // var pongs = a_seatData.pengs
+        // if (pongs) {
+        //     for (var i = 0; i < pongs.length; ++i) {
+        //         var tile = pongs[i];
+        //         this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "peng");
+        //         meldNum++;
+        //     }
+        // }
     },
 
-    drawMeld: function (a_nodePongKong, a_side, a_prefab, a_meldNum, a_tile, a_pongKongType) {
+    drawMeld: function (a_nodePongKong, a_side, a_prefab, a_meldNum, a_meld) {
         var prefab = null;
         if (a_nodePongKong.childrenCount <= a_meldNum) {
             if (a_side == "left" || a_side == "right") {
@@ -144,53 +122,66 @@ cc.Class({
             prefab.y = -(a_meldNum * 25 * 3);
         } else if (a_side == "right") {
             prefab.y = (a_meldNum * 25 * 3);
-
-            // Show lower meld at higher Z Order.
-            prefab.zIndex = -a_meldNum;
+            prefab.zIndex = -a_meldNum; // Show lower meld at higher Z Order.
         } else if (a_side == "myself") {
             prefab.x = a_meldNum * 55 * 3 + a_meldNum * 10;
         } else { // "up"
             prefab.x = -(a_meldNum * 55 * 3);
         }
 
+        // Draw the meld
         var sprites = prefab.getComponentsInChildren(cc.Sprite);
-        for (var s = 0; s < sprites.length; ++s) {
-            var sprite = sprites[s];
-            if (sprite.node.name == "gang") { // Kong, handle the top 4th tile
-                var isGang = a_pongKongType != "peng";
-                sprite.node.active = isGang; // Show or hide the 4th tile if not Pong
-                // sprite.node.scaleX = 1.0;
-                // sprite.node.scaleY = 1.0;
-                if (a_pongKongType == "angang") { // Concealed Kong
-                    if (a_side == "myself") { // Show 4th tile
-                        sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
-                        sprite.node.opacity = 128;
-                    } else { // Other sides, then fold tile
-                        sprite.spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(a_side);
-                        sprite.node.opacity = 255;
-                    }
-                } else { // Exposed Kong
-                    // Show the tile
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
-                    sprite.node.opacity = 255;
+        var spritesOccupied = [];
+        // Because sprites children is not sorted as meld tiles, so must draw bottom 3 tiles and top tile separately
+        // Draw first 3 meld tiles
+        console.assert(a_meld.tiles.length >= 3);
+        for (var tileIndex = 0; tileIndex < 3; ++tileIndex) {
+            for (var spriteIndex = 0; spriteIndex < sprites.length; ++spriteIndex) {
+                if (sprites[spriteIndex].node.name == "nodeMeld4thTile") {
+                    continue;
                 }
-            } else { // Not Kong, handle the bottom 3 tiles
-                if (a_pongKongType == "angang") { // Concealed Kong
+                if (spritesOccupied[spriteIndex] == true) {
+                    continue;
+                }
+
+                if (a_meld.type == "meld_concealed_kong") {
                     if (a_side == "myself") { // Show bottm 3 tiles
-                        sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
-                        sprite.node.opacity = 128;
+                        sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_meld.tiles[tileIndex]);
+                        sprites[spriteIndex].node.opacity = 128;
                     } else { // Other sides, then fold bottom 3 tiles
-                        sprite.spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(a_side);
-                        sprite.node.opacity = 255;
-                        // if (a_side == "up") { // Enlarge sprite
-                        //     sprite.node.scaleX = 1.4;
-                        //     sprite.node.scaleY = 1.4;
-                        // }
+                        sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(a_side);
+                        sprites[spriteIndex].node.opacity = 255;
                     }
-                } else { // Exposed Kong
-                    sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
-                    sprite.node.opacity = 255;
+                } else {
+                    sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_meld.tiles[tileIndex]);
+                    sprites[spriteIndex].node.opacity = 255;
                 }
+
+                spritesOccupied[spriteIndex] = true;
+                break;
+            }
+        }
+        // If has 4th tile, draw it
+        if (a_meld.tiles.length < 4) {
+            return;
+        }
+        for (var spriteIndex = 0; spriteIndex < sprites.length; ++spriteIndex) {
+            if (sprites[spriteIndex].node.name != "nodeMeld4thTile") {
+                continue;
+            }
+
+            sprites[spriteIndex].node.active = a_meld.type.includes("kong"); // Show the 4th tile if is kind of Kong
+            if (a_meld.type == "meld_concealed_kong") { // Concealed Kong
+                if (a_side == "myself") { // Show 4th tile
+                    sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_meld.tiles[3]);
+                    sprites[spriteIndex].node.opacity = 128;
+                } else { // Other sides, then fold tile
+                    sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(a_side);
+                    sprites[spriteIndex].node.opacity = 255;
+                }
+            } else { // Exposed Kong
+                sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_meld.tiles[3]);
+                sprites[spriteIndex].node.opacity = 255;
             }
         }
     },

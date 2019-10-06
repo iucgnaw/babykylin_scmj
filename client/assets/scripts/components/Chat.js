@@ -29,7 +29,7 @@ cc.Class({
         cc.vv.chat = this;
 
         this._btnChat = this.node.getChildByName("btn_chat");
-        this._btnChat.active = cc.vv.replayMgr.isReplay() == false;
+        this._btnChat.active = cc.vv.replayMgr.isReplaying() == false;
 
         this._chatRoot = this.node.getChildByName("chat");
         this._chatRoot.active = false;

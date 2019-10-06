@@ -18,8 +18,8 @@ var Global = cc.Class({
 
             var handler = function (data) {
                 //console.log(event + "(" + typeof(data) + "):" + (data? data.toString():"null"));
-                if (event != "disconnect" && typeof (data) == "string") {
-                    data = JSON.parse(data);
+                if (event != "disconnect" && event != "push_server_message" && typeof (data) == "string") {
+                    data = JSON.parse(data); // TODO: should parse in each handler, not here!
                 }
                 fn(data);
             };
@@ -76,10 +76,9 @@ var Global = cc.Class({
 
         startHearbeat: function () {
             this.sio.on("heartbeat_pong", function () {
-                console.log("heartbeat_pong");
                 self.lastRecieveTime = Date.now();
                 self.delayMS = self.lastRecieveTime - self.lastSendTime;
-                console.log(self.delayMS);
+                console.log("Received heartbeat_pong, RTT: " + self.delayMS + "ms");
             });
             this.lastRecieveTime = Date.now();
             var self = this;

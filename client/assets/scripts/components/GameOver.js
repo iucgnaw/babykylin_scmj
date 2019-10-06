@@ -231,16 +231,8 @@ cc.Class({
 
             seatView.hu.active = hued;
 
-            if (userData.angangs.length) {
-                actionArr.push("暗杠x" + userData.angangs.length);
-            }
-
-            if (userData.diangangs.length) {
-                actionArr.push("明杠x" + userData.diangangs.length);
-            }
-
-            if (userData.wangangs.length) {
-                actionArr.push("巴杠x" + userData.wangangs.length);
+            if (userData.melds.length) {
+                actionArr.push("刻x" + userData.melds.length);
             }
 
             seatView.username.string = cc.vv.gameNetMgr.seats[i].name;
@@ -262,7 +254,7 @@ cc.Class({
 
             cc.vv.mahjongmgr.sortTiles(userData.holds, userData.dingque);
 
-            var numOfGangs = userData.angangs.length + userData.wangangs.length + userData.diangangs.length;
+            var numOfGangs = userData.melds.length;
 
             var lackingNum = (userData.pengs.length + numOfGangs) * 3;
             //显示相关的牌
@@ -281,72 +273,94 @@ cc.Class({
 
             //初始化杠牌
             var index = 0;
-            var gangs = userData.angangs;
-            for (var k = 0; k < gangs.length; ++k) {
-                var mjid = gangs[k];
-                this.drawMeld(seatView, index, mjid, "angang");
+            var melds = userData.melds;
+            for (var k = 0; k < melds.length; ++k) {
+                this.drawMeld(seatView, index, melds[k]);
                 index++;
             }
 
-            var gangs = userData.diangangs;
-            for (var k = 0; k < gangs.length; ++k) {
-                var mjid = gangs[k];
-                this.drawMeld(seatView, index, mjid, "diangang");
-                index++;
-            }
+            // var melds = userData.diangangs;
+            // for (var k = 0; k < melds.length; ++k) {
+            //     var tile = melds[k];
+            //     this.drawMeld(seatView, index, tile, "meld_exposed_kong");
+            //     index++;
+            // }
 
-            var gangs = userData.wangangs;
-            for (var k = 0; k < gangs.length; ++k) {
-                var mjid = gangs[k];
-                this.drawMeld(seatView, index, mjid, "wangang");
-                index++;
-            }
+            // var melds = userData.wangangs;
+            // for (var k = 0; k < melds.length; ++k) {
+            //     var tile = melds[k];
+            //     this.drawMeld(seatView, index, tile, "meld_pong_to_kong");
+            //     index++;
+            // }
 
             //初始化碰牌
-            var pengs = userData.pengs
-            if (pengs) {
-                for (var k = 0; k < pengs.length; ++k) {
-                    var mjid = pengs[k];
-                    this.drawMeld(seatView, index, mjid, "peng");
-                    index++;
-                }
-            }
+            // var pengs = userData.pengs
+            // if (pengs) {
+            //     for (var k = 0; k < pengs.length; ++k) {
+            //         var tile = pengs[k];
+            //         this.drawMeld(seatView, index, tile, "peng");
+            //         index++;
+            //     }
+            // }
         }
     },
 
-    drawMeld: function (a_seatView, a_index, a_tile, a_flag) {
-        var nodeMeld = null;
+    drawMeld: function (a_seatView, a_index, a_meld) {
+        var prefab = null;
         if (a_seatView._pengandgang.length <= a_index) {
-            nodeMeld = cc.instantiate(cc.vv.mahjongmgr.pengPrefabSelf);
-            a_seatView._pengandgang.push(nodeMeld);
-            a_seatView.mahjongs.addChild(nodeMeld);
+            prefab = cc.instantiate(cc.vv.mahjongmgr.pengPrefabSelf);
+            a_seatView._pengandgang.push(prefab);
+            a_seatView.mahjongs.addChild(prefab);
         } else {
-            nodeMeld = a_seatView._pengandgang[a_index];
-            nodeMeld.active = true;
+            prefab = a_seatView._pengandgang[a_index];
+            prefab.active = true;
         }
 
-        var spritesMeld = nodeMeld.getComponentsInChildren(cc.Sprite);
-        for (var i = 0; i < spritesMeld.length; ++i) {
-            var spriteTile = spritesMeld[i];
-            if (spriteTile.node.name == "gang") {
-                var isGang = a_flag != "peng";
-                spriteTile.node.active = isGang;
-                spriteTile.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", a_tile);
-                if (a_flag == "angang") {
-                    spriteTile.node.opacity = 128;
-                } else {
-                    spriteTile.node.opacity = 255;
+        // Draw the meld
+        var sprites = prefab.getComponentsInChildren(cc.Sprite);
+        var spritesOccupied = [];
+        // Because sprites children is not sorted as meld tiles, so must draw bottom 3 tiles and top tile separately
+        // Draw first 3 meld tiles
+        console.assert(a_meld.tiles.length >= 3);
+        for (var tileIndex = 0; tileIndex < 3; ++tileIndex) {
+            for (var spriteIndex = 0; spriteIndex < sprites.length; ++spriteIndex) {
+                if (sprites[spriteIndex].node.name == "nodeMeld4thTile") {
+                    continue;
                 }
-            } else {
-                spriteTile.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", a_tile);
-                if (a_flag == "angang") {
-                    spriteTile.node.opacity = 128;
-                } else {
-                    spriteTile.node.opacity = 255;
+                if (spritesOccupied[spriteIndex] == true) {
+                    continue;
                 }
+
+                sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", a_meld.tiles[tileIndex]);
+                if (a_meld.type == "meld_concealed_kong") {
+                    sprites[spriteIndex].node.opacity = 128;
+                } else {
+                    sprites[spriteIndex].node.opacity = 255;
+                }
+
+                spritesOccupied[spriteIndex] = true;
+                break;
             }
         }
-        nodeMeld.x = a_index * 55 * 3 + a_index * 10;
+        // If has 4th tile, draw it
+        if (a_meld.tiles.length < 4) {
+            return;
+        }
+        for (var spriteIndex = 0; spriteIndex < sprites.length; ++spriteIndex) {
+            if (sprites[spriteIndex].node.name != "nodeMeld4thTile") {
+                continue;
+            }
+
+            sprites[spriteIndex].node.active = a_meld.type.includes("kong"); // Show the 4th tile if is kind of Kong
+            sprites[spriteIndex].spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", a_meld.tiles[3]);
+            if (a_meld.type == "meld_concealed_kong") {
+                sprites[spriteIndex].node.opacity = 128;
+            } else {
+                sprites[spriteIndex].node.opacity = 255;
+            }
+        }
+
+        prefab.x = a_index * 55 * 3 + a_index * 10;
     },
 
     onBtnReadyClicked: function () {

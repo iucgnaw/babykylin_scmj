@@ -41948,7 +41948,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {
@@ -42106,7 +42106,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {
@@ -42264,7 +42264,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {
@@ -42422,7 +42422,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {
@@ -42580,7 +42580,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {
@@ -42738,7 +42738,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {
@@ -42896,7 +42896,7 @@
       "__id__": 2
     },
     "component": "MJGame",
-    "handler": "onClickedAction",
+    "handler": "onClickAction",
     "customEventData": ""
   },
   {

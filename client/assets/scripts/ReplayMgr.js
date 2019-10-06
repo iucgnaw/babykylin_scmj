@@ -3,7 +3,7 @@ var ACTION_MOPAI = 2;
 var ACTION_PENG = 3;
 var ACTION_GANG = 4;
 var ACTION_HU = 5;
-
+var ACTION_ZIMO = 6;
 
 cc.Class({
     extends: cc.Component,
@@ -20,7 +20,7 @@ cc.Class({
         // ...
         _lastAction: null,
         _actionRecords: null,
-        _currentIndex: 0,
+        _actionRecordsIndex: 0,
     },
 
     // use this for initialization
@@ -31,7 +31,7 @@ cc.Class({
     clear: function () {
         this._lastAction = null;
         this._actionRecords = null;
-        this._currentIndex = 0;
+        this._actionRecordsIndex = 0;
     },
 
     init: function (data) {
@@ -39,22 +39,22 @@ cc.Class({
         if (this._actionRecords == null) {
             this._actionRecords = {};
         }
-        this._currentIndex = 0;
+        this._actionRecordsIndex = 0;
         this._lastAction = null;
     },
 
-    isReplay: function () {
+    isReplaying: function () {
         return this._actionRecords != null;
     },
 
     getNextAction: function () {
-        if (this._currentIndex >= this._actionRecords.length) {
+        if (this._actionRecordsIndex >= this._actionRecords.length) {
             return null;
         }
 
-        var si = this._actionRecords[this._currentIndex++];
-        var action = this._actionRecords[this._currentIndex++];
-        var pai = this._actionRecords[this._currentIndex++];
+        var si = this._actionRecords[this._actionRecordsIndex++];
+        var action = this._actionRecords[this._actionRecordsIndex++];
+        var pai = this._actionRecords[this._actionRecordsIndex++];
         return {
             si: si,
             type: action,
@@ -76,11 +76,11 @@ cc.Class({
         var nextActionDelay = 1.0;
         if (action.type == ACTION_CHUPAI) {
             //console.log("ACTION_CHUPAI");
-            cc.vv.gameNetMgr.doChupai(action.si, action.pai);
+            cc.vv.gameNetMgr.doDiscardTile(action.si, action.pai);
             return 1.0;
         } else if (action.type == ACTION_MOPAI) {
             //console.log("ACTION_MOPAI");
-            cc.vv.gameNetMgr.doMopai(action.si, action.pai);
+            cc.vv.gameNetMgr.doDrawTile(action.si, action.pai);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 0.5;
         } else if (action.type == ACTION_PENG) {

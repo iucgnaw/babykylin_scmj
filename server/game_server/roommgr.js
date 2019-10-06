@@ -217,7 +217,7 @@ exports.isCreator = function (roomId, userId) {
 
 exports.enterRoom = function (roomId, userId, userName, callback) {
 	var fnTakeSeat = function (room) {
-		if (exports.getUserRoom(userId) == roomId) {
+		if (exports.getRoomIdByUserId(userId) == roomId) {
 			//已存在
 			return 0;
 		}
@@ -261,7 +261,7 @@ exports.enterRoom = function (roomId, userId, userName, callback) {
 };
 
 exports.setReady = function (userId, value) {
-	var roomId = exports.getUserRoom(userId);
+	var roomId = exports.getRoomIdByUserId(userId);
 	if (roomId == null) {
 		return;
 	}
@@ -281,7 +281,7 @@ exports.setReady = function (userId, value) {
 }
 
 exports.isReady = function (userId) {
-	var roomId = exports.getUserRoom(userId);
+	var roomId = exports.getRoomIdByUserId(userId);
 	if (roomId == null) {
 		return;
 	}
@@ -301,7 +301,7 @@ exports.isReady = function (userId) {
 }
 
 
-exports.getUserRoom = function (userId) {
+exports.getRoomIdByUserId = function (userId) {
 	var location = userLocation[userId];
 	if (location != null) {
 		return location.roomId;
