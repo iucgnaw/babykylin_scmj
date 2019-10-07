@@ -18,7 +18,7 @@ cc.Class({
         _remainingTilesCount: null,
         _remainingHandsCount: null,
         _winTilesTips: [],
-        _winTilesList: [],
+        _nodeHonorTiles: [],
         _playEfxs: [],
         _options: [],
     },
@@ -76,13 +76,21 @@ cc.Class({
             this.initDragStuffs(sprite.node);
         }
 
-        var sides = ["myself", "right", "up", "left"];
-        for (var i = 0; i < sides.length; ++i) {
-            var side = sides[i];
+        var nodeSidesNames = ["myself", "right", "up", "left"];
+        for (var i = 0; i < nodeSidesNames.length; ++i) {
+            var nodeSideName = nodeSidesNames[i];
 
-            var sideChild = gameChild.getChildByName(side);
+            var sideChild = gameChild.getChildByName(nodeSideName);
             this._winTilesTips.push(sideChild.getChildByName("HuPai"));
-            this._winTilesList.push(sideChild.getChildByName("hupailist"));
+
+            var nodeHonorTiles = sideChild.getChildByName("nodeHonorTiles");
+            if (nodeSideName == "right") {
+                for (var j = 0; j < nodeHonorTiles.children.length; j++) { // This side need to revert zIndex to show tiles properly
+                    nodeHonorTiles.children[j].zIndex = -j;
+                }
+            }
+            this._nodeHonorTiles.push(nodeHonorTiles);
+
             this._playEfxs.push(sideChild.getChildByName("play_efx").getComponent(cc.Animation));
             this._discardingTileSprites.push(sideChild.getChildByName("ChuPai").children[0].getComponent(cc.Sprite));
 
@@ -261,7 +269,7 @@ cc.Class({
                 var sprite = self._handsSprites[tileSpritePos];
                 sprite.node.tile = tile;
                 sprite.node.y = 15;
-                self.setSpriteFrameByTile("M_", sprite, tile /*, tilePosition*/ );
+                self.setSpriteFrameByTile("M_", sprite, tile);
             } else if (cc.vv.replayMgr.isReplaying()) {
                 self.drawTile(a_data.seatIndex, tile);
             } else {
@@ -496,11 +504,11 @@ cc.Class({
 
     initHupai: function (a_localIndex, a_pai) {
         if (cc.vv.gameNetMgr.conf.type == "xlch") {
-            var nodeWinTilesList = this._winTilesList[a_localIndex];
+            var nodeWinTilesList = this._nodeHonorTiles[a_localIndex];
             for (var i = 0; i < nodeWinTilesList.children.length; ++i) {
                 var nodeWinTile = nodeWinTilesList.children[i];
                 if (nodeWinTile.active == false) {
-                    var pre = cc.vv.mahjongmgr.getFoldPre(a_localIndex);
+                    var pre = cc.vv.mahjongmgr.getFoldPrefixString(a_localIndex);
                     nodeWinTile.getComponent(cc.Sprite).spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(pre, a_pai);
                     nodeWinTile.active = true;
                     break;
@@ -519,9 +527,9 @@ cc.Class({
             this._playEfxs[i].node.active = false;
         }
 
-        for (var i = 0; i < this._winTilesList.length; ++i) {
-            for (var j = 0; j < this._winTilesList[i].childrenCount; ++j) {
-                this._winTilesList[i].children[j].active = false;
+        for (var i = 0; i < this._nodeHonorTiles.length; ++i) {
+            for (var j = 0; j < this._nodeHonorTiles[i].childrenCount; ++j) {
+                this._nodeHonorTiles[i].children[j].active = false;
             }
         }
 
@@ -630,8 +638,8 @@ cc.Class({
 
     drawTile: function (a_seatIndex, a_tile) {
         var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatIndex);
-        var side = cc.vv.mahjongmgr.getSide(localIndex);
-        var prefab = cc.vv.mahjongmgr.getFoldPre(localIndex);
+        var side = cc.vv.mahjongmgr.getSideString(localIndex);
+        var prefab = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
 
         var nodeGame = this.node.getChildByName("game");
         var nodeSide = nodeGame.getChildByName(side);
@@ -655,8 +663,8 @@ cc.Class({
 
     initEmptySprites: function (a_seatIndex) {
         var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatIndex);
-        var side = cc.vv.mahjongmgr.getSide(localIndex);
-        var pre = cc.vv.mahjongmgr.getFoldPre(localIndex);
+        var side = cc.vv.mahjongmgr.getSideString(localIndex);
+        var pre = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
 
         var gameChild = this.node.getChildByName("game");
         var sideChild = gameChild.getChildByName(side);
@@ -675,7 +683,7 @@ cc.Class({
         if (localIndex == 0) {
             return;
         }
-        var side = cc.vv.mahjongmgr.getSide(localIndex);
+        var side = cc.vv.mahjongmgr.getSideString(localIndex);
         var game = this.node.getChildByName("game");
         var sideRoot = game.getChildByName(side);
         var sideHolds = sideRoot.getChildByName("holds");
@@ -686,7 +694,7 @@ cc.Class({
             sideHolds.children[idx].active = false; // Hide these tiles
         }
 
-        var pre = cc.vv.mahjongmgr.getFoldPre(localIndex);
+        var pre = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
         var holds = this.sortHands(a_seatData);
         if (holds != null && holds.length > 0) {
             for (var i = 0; i < holds.length; ++i) {
@@ -762,8 +770,8 @@ cc.Class({
         }
     },
 
-    setSpriteFrameByTile: function (a_prefab, a_sprite, a_tile) {
-        a_sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
+    setSpriteFrameByTile: function (a_prefixString, a_sprite, a_tile) {
+        a_sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefixString, a_tile);
         a_sprite.node.active = true;
     },
 

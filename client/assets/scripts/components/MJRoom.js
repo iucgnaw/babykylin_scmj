@@ -44,7 +44,7 @@ cc.Class({
 
         this.refreshBtns();
 
-        this.lblRoomNo = cc.find("Canvas/infobar/Z_room_txt/New Label").getComponent(cc.Label);
+        this.lblRoomNo = cc.find("Canvas/infobar/nodeRoom/nodeRoomNum").getComponent(cc.Label);
         this._timeLabel = cc.find("Canvas/infobar/time").getComponent(cc.Label);
         this.lblRoomNo.string = cc.vv.gameNetMgr.roomId;
         var gameChild = this.node.getChildByName("game");
@@ -61,19 +61,19 @@ cc.Class({
         }
 
 
-        var titles = cc.find("Canvas/typeTitle");
-        for (var i = 0; i < titles.children.length; ++i) {
-            titles.children[i].active = false;
-        }
+        // var titles = cc.find("Canvas/typeTitle");
+        // for (var i = 0; i < titles.children.length; ++i) {
+        //     titles.children[i].active = false;
+        // }
 
-        if (cc.vv.gameNetMgr.conf) {
-            var type = cc.vv.gameNetMgr.conf.type;
-            if (type == null || type == "") {
-                type = "xlch";
-            }
+        // if (cc.vv.gameNetMgr.conf) {
+        //     var type = cc.vv.gameNetMgr.conf.type;
+        //     if (type == null || type == "") {
+        //         type = "xlch";
+        //     }
 
-            titles.getChildByName(type).active = true;
-        }
+        //     titles.getChildByName(type).active = true;
+        // }
     },
 
     refreshBtns: function () {

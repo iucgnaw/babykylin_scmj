@@ -11,7 +11,7 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        _folds: null,
+        _foldsSprites: null,
     },
 
     // use this for initialization
@@ -27,32 +27,35 @@ cc.Class({
     },
 
     initView: function () {
-        this._folds = {};
-        var game = this.node.getChildByName("game");
-        var sides = ["myself", "right", "up", "left"];
-        for (var i = 0; i < sides.length; ++i) {
-            var sideName = sides[i];
-            var nodeSide = game.getChildByName(sideName);
-            var folds = [];
-            var foldRoot = nodeSide.getChildByName("folds");
-            for (var j = 0; j < foldRoot.children.length; ++j) {
-                var node = foldRoot.children[j];
+        this._foldsSprites = {};
+        var nodeGame = this.node.getChildByName("game");
+        var nodeSidesNames = ["myself", "right", "up", "left"];
+        for (var i = 0; i < nodeSidesNames.length; ++i) {
+            var nodeSideName = nodeSidesNames[i];
+            var nodeSide = nodeGame.getChildByName(nodeSideName);
+            var foldsSprites = [];
+            var nodeDiscardTiles = nodeSide.getChildByName("folds");
+            for (var j = 0; j < nodeDiscardTiles.children.length; ++j) {
+                var node = nodeDiscardTiles.children[j];
+                if ((nodeSideName == "myself") || (nodeSideName == "right")) { // This two sides need to revert zIndex to show tiles properly
+                    node.zIndex = -j;
+                }
                 node.active = false;
                 var sprite = node.getComponent(cc.Sprite);
                 sprite.spriteFrame = null;
-                folds.push(sprite);
+                foldsSprites.push(sprite);
             }
-            this._folds[sideName] = folds;
+            this._foldsSprites[nodeSideName] = foldsSprites;
         }
 
         this.hideAllFolds();
     },
 
     hideAllFolds: function () {
-        for (var k in this._folds) {
-            var f = this._folds[i];
-            for (var i in f) {
-                f[i].node.active = false;
+        for (var k in this._foldsSprites) {
+            var foldSprites = this._foldsSprites[i];
+            for (var i in foldSprites) {
+                foldSprites[i].node.active = false;
             }
         }
     },
@@ -84,29 +87,29 @@ cc.Class({
     },
 
     drawFolds: function (a_seatData) {
-        var folds = a_seatData.folds;
-        if (folds == null) {
+        var foldsTiles = a_seatData.folds;
+        if (foldsTiles == null) {
             return;
         }
         var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatindex);
-        var prefab = cc.vv.mahjongmgr.getFoldPre(localIndex);
-        var side = cc.vv.mahjongmgr.getSide(localIndex);
+        var prefixString = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
+        var sideString = cc.vv.mahjongmgr.getSideString(localIndex);
 
-        var foldsSprites = this._folds[side];
+        var foldsSprites = this._foldsSprites[sideString];
         for (var i = 0; i < foldsSprites.length; ++i) {
             var index = i;
-            if (side == "right" || side == "up") {
-                index = foldsSprites.length - i - 1;
-            }
+            // if (sideString == "right" || sideString == "up") {
+            //     index = foldsSprites.length - i - 1;
+            // }
             var sprite = foldsSprites[index];
             sprite.node.active = true;
-            this.setSpriteFrameByTile(prefab, sprite, folds[i]);
+            this.setSpriteFrameByTile(prefixString, sprite, foldsTiles[i]);
         }
-        for (var i = folds.length; i < foldsSprites.length; ++i) {
+        for (var i = foldsTiles.length; i < foldsSprites.length; ++i) {
             var index = i;
-            if (side == "right" || side == "up") {
-                index = foldsSprites.length - i - 1;
-            }
+            // if (sideString == "right" || sideString == "up") {
+            //     index = foldsSprites.length - i - 1;
+            // }
             var sprite = foldsSprites[index];
 
             sprite.spriteFrame = null;
@@ -114,8 +117,8 @@ cc.Class({
         }
     },
 
-    setSpriteFrameByTile: function (a_prefab, a_sprite, a_tile) {
-        a_sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefab, a_tile);
+    setSpriteFrameByTile: function (a_prefixString, a_sprite, a_tile) {
+        a_sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(a_prefixString, a_tile);
         a_sprite.node.active = true;
     },
 

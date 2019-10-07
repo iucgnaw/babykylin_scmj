@@ -1,4 +1,4 @@
-var g_mahjongSprites = [];
+var g_tilesSpritesStrings = [];
 
 cc.Class({
     extends: cc.Component,
@@ -44,58 +44,58 @@ cc.Class({
             type: [cc.SpriteFrame]
         },
 
-        _sidesString: null,
-        _presString: null,
-        _foldPresString: null,
+        _sidesStrings: null,
+        _prefixesStrings: null,
+        _foldPrefixesStrings: null,
     },
 
     onLoad: function () {
         if (cc.vv == null) {
             return;
         }
-        this._sidesString = ["myself", "right", "up", "left"];
-        this._presString = ["M_", "R_", "B_", "L_"];
-        this._foldPresString = ["B_", "R_", "B_", "L_"];
+        this._sidesStrings = ["myself", "right", "up", "left"];
+        this._prefixesStrings = ["M_", "R_", "B_", "L_"];
+        this._foldPrefixesStrings = ["B_", "R_", "B_", "L_"];
         cc.vv.mahjongmgr = this;
         //筒 0 - 8
         for (var i = 1; i < 10; ++i) {
-            g_mahjongSprites.push("dot_" + i);
+            g_tilesSpritesStrings.push("dot_" + i);
         }
 
         //条 9 - 17
         for (var i = 1; i < 10; ++i) {
-            g_mahjongSprites.push("bamboo_" + i);
+            g_tilesSpritesStrings.push("bamboo_" + i);
         }
 
         //万 18 - 26
         for (var i = 1; i < 10; ++i) {
-            g_mahjongSprites.push("character_" + i);
+            g_tilesSpritesStrings.push("character_" + i);
         }
 
         //中、发、白 27 - 29
-        g_mahjongSprites.push("red");
-        g_mahjongSprites.push("green");
-        g_mahjongSprites.push("white");
+        g_tilesSpritesStrings.push("red");
+        g_tilesSpritesStrings.push("green");
+        g_tilesSpritesStrings.push("white");
 
         //东西南北风 30 - 33
-        g_mahjongSprites.push("wind_east");
-        g_mahjongSprites.push("wind_west");
-        g_mahjongSprites.push("wind_south");
-        g_mahjongSprites.push("wind_north");
+        g_tilesSpritesStrings.push("wind_east");
+        g_tilesSpritesStrings.push("wind_west");
+        g_tilesSpritesStrings.push("wind_south");
+        g_tilesSpritesStrings.push("wind_north");
 
         //春夏秋冬梅兰竹菊 34 -41
-        g_mahjongSprites.push("spring");
-        g_mahjongSprites.push("summer");
-        g_mahjongSprites.push("autumn");
-        g_mahjongSprites.push("winter");
-        g_mahjongSprites.push("plum");
-        g_mahjongSprites.push("orchid");
-        g_mahjongSprites.push("bamboo");
-        g_mahjongSprites.push("chrysanthemum");
+        g_tilesSpritesStrings.push("spring");
+        g_tilesSpritesStrings.push("summer");
+        g_tilesSpritesStrings.push("autumn");
+        g_tilesSpritesStrings.push("winter");
+        g_tilesSpritesStrings.push("plum");
+        g_tilesSpritesStrings.push("orchid");
+        g_tilesSpritesStrings.push("bamboo");
+        g_tilesSpritesStrings.push("chrysanthemum");
     },
 
     getMahjongSpriteByTile: function (a_tile) {
-        return g_mahjongSprites[a_tile];
+        return g_tilesSpritesStrings[a_tile];
     },
 
     getTileType: function (a_tile) {
@@ -156,16 +156,16 @@ cc.Class({
         }
     },
 
-    getSpriteFrameByTile: function (a_pre, a_tile) {
+    getSpriteFrameByTile: function (a_prefixString, a_tile) {
         var spriteFrameName = this.getMahjongSpriteByTile(a_tile);
-        spriteFrameName = a_pre + spriteFrameName;
-        if (a_pre == "M_") {
+        spriteFrameName = a_prefixString + spriteFrameName;
+        if (a_prefixString == "M_") { // Bottom hands tile
             return this.bottomAtlas.getSpriteFrame(spriteFrameName);
-        } else if (a_pre == "B_") {
+        } else if (a_prefixString == "B_") { // Bottom/Top discard tile
             return this.bottomFoldAtlas.getSpriteFrame(spriteFrameName);
-        } else if (a_pre == "L_") {
+        } else if (a_prefixString == "L_") { // Left discard tile
             return this.leftAtlas.getSpriteFrame(spriteFrameName);
-        } else if (a_pre == "R_") {
+        } else if (a_prefixString == "R_") { // Right discard tile
             return this.rightAtlas.getSpriteFrame(spriteFrameName);
         }
     },
@@ -246,7 +246,7 @@ cc.Class({
         if (a_side == "up") {
             return this.emptyAtlas.getSpriteFrame("e_mj_up");
         } else if (a_side == "myself") {
-            return null;
+            return this.emptyAtlas.getSpriteFrame("e_mj_up");
         } else if (a_side == "left") {
             return this.emptyAtlas.getSpriteFrame("e_mj_left");
         } else if (a_side == "right") {
@@ -257,30 +257,19 @@ cc.Class({
     sortTiles: function (a_tiles, a_dingqueType) {
         var self = this;
         a_tiles.sort(function (a_tile1, a_tile2) {
-            // if (a_dingqueType >= 0) {
-            //     var type1 = self.getTileType(a_tile1);
-            //     var type2 = self.getTileType(a_tile2);
-            //     if (type1 != type2) {
-            //         if (a_dingqueType == type1) {
-            //             return 1;
-            //         } else if (a_dingqueType == type2) {
-            //             return -1;
-            //         }
-            //     }
-            // }
             return a_tile1 - a_tile2;
         });
     },
 
-    getSide: function (a_localIndex) {
-        return this._sidesString[a_localIndex];
+    getSideString: function (a_localIndex) {
+        return this._sidesStrings[a_localIndex];
     },
 
-    getPre: function (a_localIndex) {
-        return this._presString[a_localIndex];
+    getPrefixString: function (a_localIndex) {
+        return this._prefixesStrings[a_localIndex];
     },
 
-    getFoldPre: function (a_localIndex) {
-        return this._foldPresString[a_localIndex];
+    getFoldPrefixString: function (a_localIndex) {
+        return this._foldPrefixesStrings[a_localIndex];
     }
 });
