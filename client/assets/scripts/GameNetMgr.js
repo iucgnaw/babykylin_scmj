@@ -10,7 +10,7 @@ cc.Class({
         seatIndex: -1,
         seats: null,
         turn: -1,
-        button: -1,
+        dealer: -1,
         dingque: -1,
         _discardingTile: -1,
         isDingQueing: false,
@@ -33,7 +33,7 @@ cc.Class({
         this.turn = -1;
         this._discardingTile = -1;
         this.dingque = -1;
-        this.button = -1;
+        this.dealer = -1;
         this.gamestate = "";
         this.dingque = -1;
         this.isDingQueing = false;
@@ -100,18 +100,17 @@ cc.Class({
     prepareReplay: function (roomInfo, detailOfGame) {
         this.roomId = roomInfo.id;
         this.seats = roomInfo.seats;
-        this.turn = detailOfGame.base_info.button;
+        this.turn = detailOfGame.base_info.dealer;
         var baseInfo = detailOfGame.base_info;
         for (var i = 0; i < this.seats.length; ++i) {
-            var s = this.seats[i];
-            s.seatindex = i;
-            s.score = null;
-            s.holds = baseInfo.game_seats[i];
-            s.pengs = [];
-            s.melds = [];
-            s.folds = [];
-            console.log(s);
-            if (cc.vv.userMgr.userId == s.userid) {
+            var seat = this.seats[i];
+            seat.seatindex = i;
+            seat.score = null;
+            seat.holds = baseInfo.game_seats[i];
+            seat.pengs = [];
+            seat.melds = [];
+            seat.folds = [];
+            if (cc.vv.userMgr.userId == seat.userid) {
                 this.seatIndex = i;
             }
         }
@@ -159,7 +158,6 @@ cc.Class({
     initHandlers: function () {
         var self = this;
         cc.vv.net.addHandler("res_login_result", function (data) {
-            console.log(data);
             if (data.errcode === 0) {
                 var data = data.data;
                 self.roomId = data.roomid;
@@ -170,13 +168,12 @@ cc.Class({
                 self.seatIndex = self.getSeatIndexByID(cc.vv.userMgr.userId);
                 self.isOver = false;
             } else {
-                console.log(data.errmsg);
+                console.error(data.errmsg);
             }
             self.dispatchEvent("event_login_result");
         });
 
         cc.vv.net.addHandler("push_login_finished", function (data) {
-            console.log("push_login_finished");
             cc.director.loadScene("mjgame", function () {
                 cc.vv.net.ping();
                 cc.vv.wc.hide();
@@ -225,7 +222,6 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_player_join", function (data) {
-            //console.log(data);
             var seatIndex = data.seatindex;
             var needCheckIp = false;
             if (self.seats[seatIndex].userid > 0) {
@@ -247,7 +243,6 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_player_status_change", function (data) {
-            //console.log(data);
             var userId = data.userid;
             var seat = self.getSeatByID(userId);
             seat.online = data.online;
@@ -255,7 +250,6 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_player_ready", function (data) {
-            //console.log(data);
             var userId = data.userid;
             var seat = self.getSeatByID(userId);
             seat.ready = data.ready;
@@ -264,7 +258,6 @@ cc.Class({
 
         cc.vv.net.addHandler("push_hands", function (data) {
             var seat = self.seats[self.seatIndex];
-            console.log(data);
             seat.holds = data;
 
             for (var i = 0; i < self.seats.length; ++i) {
@@ -284,23 +277,18 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("push_game_begin", function (data) {
-            console.log("push_game_begin");
-            console.log(data);
-            self.button = data;
-            self.turn = self.button;
+            self.dealer = data;
+            self.turn = self.dealer;
             self.gamestate = "begin";
             self.dispatchEvent("event_game_begin");
         });
 
         cc.vv.net.addHandler("brc_game_playing", function (data) {
-            console.log("brc_game_playing");
             self.gamestate = "playing";
             self.dispatchEvent("event_game_playing");
         });
 
         cc.vv.net.addHandler("push_game_sync", function (data) {
-            console.log("push_game_sync");
-            console.log(data);
             self.numOfMJ = data.numofmj;
             self.gamestate = data.state;
             if (self.gamestate == "dingque") {
@@ -309,8 +297,8 @@ cc.Class({
                 self.isHuanSanZhang = true;
             }
             self.turn = data.turn;
-            self.button = data.button;
-            self._discardingTile = data.chuPai;
+            self.dealer = data.dealer;
+            self._discardingTile = data.discardingTile;
             self.huanpaimethod = data.huanpaimethod;
             for (var i = 0; i < 4; ++i) {
                 var seat = self.seats[i];
@@ -349,7 +337,6 @@ cc.Class({
 
         cc.vv.net.addHandler("push_game_actions", function (data) {
             self.curaction = data;
-            console.log(data);
             self.dispatchEvent("event_game_actions", data);
         });
 
@@ -358,20 +345,17 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_game_turn", function (data) {
-            console.log("brc_game_turn");
-            //console.log(data);
             var turnUserID = data;
             var si = self.getSeatIndexByID(turnUserID);
             self.doTurnChange(si);
         });
 
-        cc.vv.net.addHandler("push_remaining_hands", function (data) {
+        cc.vv.net.addHandler("push_number_of_hands", function (data) {
             self.numOfGames = data;
-            self.dispatchEvent("event_remaining_hands", data);
+            self.dispatchEvent("event_number_of_hands", data);
         });
 
         cc.vv.net.addHandler("brc_game_finish", function (data) {
-            console.log("brc_game_finish");
             var results = data.results;
             for (var i = 0; i < self.seats.length; ++i) {
                 self.seats[i].score = results.length == 0 ? 0 : results[i].totalscore;
@@ -388,15 +372,11 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_remaining_tiles", function (data) {
-            console.log("brc_remaining_tiles");
             self.numOfMJ = data;
-            //console.log(data);
             self.dispatchEvent("event_remaining_tiles", data);
         });
 
         cc.vv.net.addHandler("brc_win", function (data) {
-            console.log("brc_win");
-            console.log(data);
             self.doHu(data);
         });
 
@@ -408,12 +388,10 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("push_game_draw_tile", function (data) {
-            console.log("push_game_draw_tile");
             self.doDrawTile(self.seatIndex, data);
         });
 
         cc.vv.net.addHandler("brc_pass", function (data) {
-            console.log("brc_pass");
             var userId = data.userId;
             var pai = data.pai;
             var si = self.getSeatIndexByID(userId);
@@ -421,12 +399,10 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("push_pass_result", function (data) {
-            console.log("push_pass_result");
             self.dispatchEvent("event_pass_result");
         });
 
         cc.vv.net.addHandler("push_player_pass_win", function (data) {
-            console.log("push_player_pass_win");
             self.dispatchEvent("event_faan", {
                 info: "过胡",
                 time: 1.5
@@ -440,7 +416,6 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("push_huanpai_finish", function (data) {
-            console.log("push_huanpai_finish");
             var info = "";
             var method = data.method;
             if (method == 0) {
@@ -460,8 +435,6 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_pong", function (data) {
-            console.log("brc_pong");
-            console.log(data);
             var userId = data.userid;
             var pai = data.pai;
             var si = self.getSeatIndexByID(userId);
@@ -469,14 +442,12 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_kong", function (a_data) {
-            console.log("brc_kong");
-            console.log(a_data);
             var seatIndex = self.getSeatIndexByID(a_data.userId);
             self.doGang(seatIndex, a_data.meld);
         });
 
-        cc.vv.net.addHandler("brc_game_dingque", function (data) {
-            self.dispatchEvent("event_game_dingque", data);
+        cc.vv.net.addHandler("brc_game_dingque_notify", function (data) {
+            self.dispatchEvent("event_game_dingque_notify", data);
         });
 
         cc.vv.net.addHandler("brc_game_dingque_finish", function (data) {
@@ -503,8 +474,6 @@ cc.Class({
         });
 
         cc.vv.net.addHandler("brc_propose_dismiss_room", function (data) {
-            console.log("brc_propose_dismiss_room");
-            console.log(data);
             self.dissoveData = data;
             self.dispatchEvent("event_propose_dismiss_room", data);
         });
@@ -622,11 +591,9 @@ cc.Class({
     connectGameServer: function (data) {
         this.dissoveData = null;
         cc.vv.net.ip = data.ip + ":" + data.port;
-        console.log(cc.vv.net.ip);
         var self = this;
 
         var onConnectOK = function () {
-            console.log("onConnectOK");
             var sd = {
                 token: data.token,
                 roomid: data.roomid,
@@ -637,7 +604,7 @@ cc.Class({
         };
 
         var onConnectFailed = function () {
-            console.log("failed.");
+            console.error("Connect failed.");
             cc.vv.wc.hide();
         };
         cc.vv.wc.show("正在进入房间");

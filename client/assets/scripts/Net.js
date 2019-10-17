@@ -10,89 +10,94 @@ var Global = cc.Class({
         isPinging: false,
         fnDisconnect: null,
         handlers: {},
-        addHandler: function (event, fn) {
-            if (this.handlers[event]) {
-                console.log("event: " + event + " - handler has been registered.");
+
+        addHandler: function (a_event, a_fnHandler) {
+            if (this.handlers[a_event]) {
+                console.log("event: " + a_event + " - handler has been registered.");
                 return;
             }
 
-            var handler = function (data) {
-                //console.log(event + "(" + typeof(data) + "):" + (data? data.toString():"null"));
-                if (event != "disconnect" && event != "push_server_message" && typeof (data) == "string") {
-                    data = JSON.parse(data); // TODO: should parse in each handler, not here!
+            var fnHandler = function (a_data) {
+                if (a_event != "disconnect" && a_event != "push_server_message" && typeof (a_data) == "string") {
+                    a_data = JSON.parse(a_data); // TODO: should parse in each handler, not here!
                 }
-                fn(data);
+                console.log("received event: " + a_event + ", a_data(" + typeof (a_data) + "): ");
+                console.log(a_data);
+                a_fnHandler(a_data);
             };
 
-            this.handlers[event] = handler;
+            this.handlers[a_event] = fnHandler;
             if (this.sio) {
-                console.log("register:function " + event);
-                this.sio.on(event, handler);
+                console.log("register event handler: " + a_event);
+                this.sio.on(a_event, fnHandler);
             }
         },
 
-        connect: function (fnConnect, fnError) {
+        connect: function (a_fnConnect, a_fnError) {
             var self = this;
 
-            var opts = {
+            var sioOptions = {
                 "reconnection": false,
                 "force new connection": true,
                 "transports": ["websocket", "polling"]
             }
-            this.sio = window.io.connect(this.ip, opts);
+            this.sio = window.io.connect(this.ip, sioOptions);
             this.sio.on("reconnect", function () {
-                console.log("reconnection");
+                console.warn("received event: reconnect");
             });
 
-            this.sio.on("connect", function (data) {
+            this.sio.on("connect", function (a_data) {
                 self.sio.connected = true;
-                fnConnect(data);
+                a_fnConnect(a_data);
             });
 
-            this.sio.on("disconnect", function (data) {
-                console.log("disconnect");
+            this.sio.on("disconnect", function (a_data) {
+                // console.log("disconnect");
                 self.sio.connected = false;
                 self.close();
             });
 
             this.sio.on("connect_failed", function () {
-                console.log("connect_failed");
+                console.warn("received event: connect_failed");
             });
 
-            for (var key in this.handlers) {
-                var value = this.handlers[key];
-                if (typeof (value) == "function") {
-                    if (key == "disconnect") {
-                        this.fnDisconnect = value;
+            for (var eventName in this.handlers) {
+                var fnHandler = this.handlers[eventName];
+                if (typeof (fnHandler) == "function") {
+                    if (eventName == "disconnect") {
+                        this.fnDisconnect = fnHandler;
                     } else {
-                        console.log("register:function " + key);
-                        this.sio.on(key, value);
+                        // console.log("register:function " + key);
+                        this.sio.on(eventName, fnHandler);
                     }
                 }
             }
 
-            this.startHearbeat();
+            this.startHeartbeat();
         },
 
-        startHearbeat: function () {
+        startHeartbeat: function () {
             this.sio.on("heartbeat_pong", function () {
                 self.lastRecieveTime = Date.now();
-                self.delayMS = self.lastRecieveTime - self.lastSendTime;
-                console.log("Received heartbeat_pong, RTT: " + self.delayMS + "ms");
+                self.delayMs = self.lastRecieveTime - self.lastSendTime;
+                // console.log("Received heartbeat_pong, RTT: " + self.delayMs + "ms");
             });
             this.lastRecieveTime = Date.now();
             var self = this;
-            console.log(1);
+            // console.log(1);
             if (!self.isPinging) {
                 self.isPinging = true;
+
                 cc.game.on(cc.game.EVENT_HIDE, function () {
                     self.ping();
                 });
+
                 setInterval(function () {
                     if (self.sio) {
                         self.ping();
                     }
                 }.bind(this), 5000);
+
                 setInterval(function () {
                     if (self.sio) {
                         if (Date.now() - self.lastRecieveTime > 10000) {
@@ -102,9 +107,10 @@ var Global = cc.Class({
                 }.bind(this), 500);
             }
         },
+
         send: function (event, data) {
             if (this.sio.connected) {
-                if (data != null && (typeof (data) == "object")) {
+                if ((data != null) && (typeof (data) == "object")) {
                     data = JSON.stringify(data);
                     //console.log(data);              
                 }
@@ -123,8 +129,8 @@ var Global = cc.Class({
         },
 
         close: function () {
-            console.log("close");
-            this.delayMS = null;
+            // console.log("close");
+            this.delayMs = null;
             if (this.sio && this.sio.connected) {
                 this.sio.connected = false;
                 this.sio.disconnect();
@@ -136,11 +142,11 @@ var Global = cc.Class({
             }
         },
 
-        test: function (fnResult) {
-            var fn = function (ret) {
-                fnResult(ret.errcode == 0);
+        test: function (a_cbResult) {
+            var cbTest = function (a_ret) {
+                a_cbResult(a_ret.errcode == 0);
             }
-            cc.vv.http.sendRequest("/hi", null, fn, "http://" + this.ip);
+            cc.vv.http.sendRequest("/hi", null, cbTest, "http://" + this.ip);
         }
     },
 });

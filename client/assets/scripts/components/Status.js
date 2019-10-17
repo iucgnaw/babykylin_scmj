@@ -27,11 +27,11 @@ cc.Class({
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
         var delay = this._status.getChildByName("delay");
-        if (cc.vv.net.delayMS != null) {
-            delay.getComponent(cc.Label).string = cc.vv.net.delayMS + "ms";
-            if (cc.vv.net.delayMS > 800) {
+        if (cc.vv.net.delayMs != null) {
+            delay.getComponent(cc.Label).string = cc.vv.net.delayMs + "ms";
+            if (cc.vv.net.delayMs > 800) {
                 delay.color = this.red;
-            } else if (cc.vv.net.delayMS > 300) {
+            } else if (cc.vv.net.delayMs > 300) {
                 delay.color = this.yellow;
             } else {
                 delay.color = this.green;

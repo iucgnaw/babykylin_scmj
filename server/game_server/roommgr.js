@@ -25,7 +25,7 @@ function constructRoomFromDb(dbdata) {
 		id: dbdata.id,
 		numOfGames: dbdata.num_of_turns,
 		createTime: dbdata.create_time,
-		nextButton: dbdata.next_button,
+		nextDealer: dbdata.next_dealer,
 		seats: new Array(4),
 		conf: JSON.parse(dbdata.base_info)
 	};
@@ -121,7 +121,7 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 						id: roomId,
 						numOfGames: 0,
 						createTime: createTime,
-						nextButton: 0,
+						nextDealer: 0,
 						seats: [],
 						conf: {
 							type: roomConf.type,

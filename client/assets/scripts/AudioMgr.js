@@ -51,17 +51,23 @@ cc.Class({
 
     playBGM(url) {
         var audioUrl = this.getUrl(url);
-        console.log(audioUrl);
+        // console.log(audioUrl);
         if (this.bgmAudioID >= 0) {
             cc.audioEngine.stop(this.bgmAudioID);
         }
         this.bgmAudioID = cc.audioEngine.play(audioUrl, true, this.bgmVolume);
+        // cc.loader.loadRes(audioUrl, cc.AudioClip, function (err, clip) {
+        //     cc.audioEngine.play(clip);
+        // });
     },
 
     playSFX(url) {
         var audioUrl = this.getUrl(url);
         if (this.sfxVolume > 0) {
             var audioId = cc.audioEngine.play(audioUrl, false, this.sfxVolume);
+            // cc.loader.loadRes(audioUrl, cc.AudioClip, function (err, clip) {
+            //     cc.audioEngine.play(clip);
+            // });
         }
     },
 

@@ -98,7 +98,7 @@ cc.Class({
         var self = this;
         var onGet = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 if (ret.gems != null) {
                     this.lblGems.string = ret.gems;
@@ -115,9 +115,9 @@ cc.Class({
 
     refreshGemsTip: function () {
         var self = this;
-        var onGet = function (ret) {
+        var cbGetGemsTip = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 cc.vv.userMgr.gemstip.version = ret.version;
                 cc.vv.userMgr.gemstip.msg = ret.msg.replace("<newline>", "\n");
@@ -130,14 +130,14 @@ cc.Class({
             type: "fkgm",
             version: cc.vv.userMgr.gemstip.version
         };
-        cc.vv.http.sendRequest("/get_message", data, onGet.bind(this));
+        cc.vv.http.sendRequest("/get_message", data, cbGetGemsTip.bind(this));
     },
 
     refreshNotice: function () {
         var self = this;
-        var onGet = function (ret) {
+        var cbGetNotice = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 cc.vv.userMgr.notice.version = ret.version;
                 cc.vv.userMgr.notice.msg = ret.msg;
@@ -151,7 +151,7 @@ cc.Class({
             type: "notice",
             version: cc.vv.userMgr.notice.version
         };
-        cc.vv.http.sendRequest("/get_message", data, onGet.bind(this));
+        cc.vv.http.sendRequest("/get_message", data, cbGetNotice.bind(this));
     },
 
     initButtonHandler: function (btnPath) {
@@ -201,7 +201,7 @@ cc.Class({
             cc.vv.alert.show("提示", "房间已经创建!\n必须解散当前房间才能创建新的房间");
             return;
         }
-        console.log("onCreateRoomClicked");
+        // console.log("onCreateRoomClicked");
         this.createRoomWin.active = true;
     },
 

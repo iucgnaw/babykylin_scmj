@@ -1173,8 +1173,8 @@
       "__id__": 2
     },
     "_enabled": true,
-    "label": null,
-    "loadingProgess": {
+    "labelLog": null,
+    "labelLoadingProgess": {
       "__id__": 9
     },
     "_id": "6ah9aJBt5DYKmIEcMY/FDS"

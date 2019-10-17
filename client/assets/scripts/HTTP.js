@@ -1,115 +1,115 @@
-var URL = "http://game.iucgnaw.com:9000";
+var g_defaultUrl = "http://game.iucgnaw.com:9000";
 
-exports.master_url = null;
-exports.url = null;
+exports.g_masterUrl = null;
+exports.g_currentUrl = null;
 exports.token = null;
 
 init();
 
 function init() {
-    exports.master_url = URL;
-    exports.url = URL;
+    exports.g_masterUrl = g_defaultUrl;
+    exports.g_currentUrl = g_defaultUrl;
 }
 
-function setURL(url) {
-    URL = url;
+function setUrl(a_url) {
+    g_defaultUrl = a_url;
     init();
 };
 
-function sendRequest(path, data, handler, extraUrl) {
-    var xhr = cc.loader.getXMLHttpRequest();
-    xhr.timeout = 5000;
+function sendRequest(a_path, a_data, a_handler, a_extraUrl) {
+    var xmlHttpRequest = cc.loader.getXMLHttpRequest();
+    xmlHttpRequest.timeout = 5000;
 
-    if (data == null) {
-        data = {};
+    if (a_data == null) {
+        a_data = {};
     }
     if (exports.token) {
-        data.token = exports.token;
+        a_data.token = exports.token;
     }
-
-    if (extraUrl == null) {
-        extraUrl = exports.url;
+    if (a_extraUrl == null) {
+        a_extraUrl = exports.g_currentUrl;
     }
 
     //解析请求路由以及格式化请求参数
-    var sendpath = path;
-    var sendtext = "?";
-    for (var k in data) {
-        if (sendtext != "?") {
-            sendtext += "&";
+    var sendPath = a_path;
+    var sendText = "?";
+    for (var k in a_data) {
+        if (sendText != "?") {
+            sendText += "&";
         }
-        sendtext += (k + "=" + data[k]);
+        sendText += (k + "=" + a_data[k]);
     }
 
     //组装完整的URL
-    var requestURL = extraUrl + sendpath + encodeURI(sendtext);
+    var requestUrl = a_extraUrl + sendPath + encodeURI(sendText);
 
     //发送请求
-    console.log("RequestURL:" + requestURL);
-    xhr.open("GET", requestURL, true);
+    // console.log("xmlHttpRequest.open(Get), requestUrl: " + requestUrl);
+    xmlHttpRequest.open("GET", requestUrl, true);
 
     if (cc.sys.isNative) {
-        xhr.setRequestHeader("Accept-Encoding", "gzip,deflate", "text/html;charset=UTF-8");
+        xmlHttpRequest.setRequestHeader("Accept-Encoding", "gzip,deflate", "text/html;charset=UTF-8");
     }
 
     var timer = setTimeout(function () {
-        xhr.hasRetried = true;
-        xhr.abort();
-        console.log("http timeout");
+        xmlHttpRequest.hasRetried = true;
+        xmlHttpRequest.abort();
+        console.warn("http timeout");
         retryFunc();
     }, 5000);
 
     var retryFunc = function () {
-        sendRequest(path, data, handler, extraUrl);
+        sendRequest(a_path, a_data, a_handler, a_extraUrl); // TOFIX: very likly this cause recursive call?
     };
 
-    xhr.onreadystatechange = function () {
-        console.log("onreadystatechange");
-        clearTimeout(timer);
-        if (xhr.readyState === 4 && (xhr.status >= 200 && xhr.status < 300)) {
-            // console.log("http res(" + xhr.responseText.length + "):" + xhr.responseText);
-            cc.log("request from [" + xhr.responseURL + "] data [", ret, "]");
-            var respText = xhr.responseText;
+    xmlHttpRequest.onreadystatechange = function () {
+        // console.log("xmlHttpRequest.onreadystatechange()");
 
-            var ret = null;
+        clearTimeout(timer);
+
+        if (xmlHttpRequest.readyState === 4 && (xmlHttpRequest.status >= 200 && xmlHttpRequest.status < 300)) {
+            // console.log("http res(" + xhr.responseText.length + "):" + xhr.responseText);
+            var responseText = xmlHttpRequest.responseText;
+            var responseObject = null;
             try {
-                ret = JSON.parse(respText);
+                responseObject = JSON.parse(responseText);
             } catch (e) {
-                console.log("err:" + e);
-                ret = {
+                console.error("JSON.parse() cause exception: " + e);
+                responseObject = {
                     errcode: -10001,
                     errmsg: e
                 };
             }
+            // console.log("request from [" + xmlHttpRequest.responseURL + "] data [", responseObject, "]");
 
-            if (handler) {
-                handler(ret);
+            if (a_handler) {
+                a_handler(responseObject);
             }
 
-            handler = null;
-        } else if (xhr.readyState === 4) {
-            if (xhr.hasRetried) {
+            a_handler = null;
+        } else if (xmlHttpRequest.readyState === 4) {
+            if (xmlHttpRequest.hasRetried) {
                 return;
             }
+            // console.log("other readystate == 4" + ", status: " + xmlHttpRequest.status);
 
-            console.log("other readystate == 4" + ", status:" + xhr.status);
             setTimeout(function () {
                 retryFunc();
             }, 5000);
         } else {
-            console.log("other readystate:" + xhr.readyState + ", status:" + xhr.status);
+            // console.log("other readystate: " + xmlHttpRequest.readyState + ", status: " + xmlHttpRequest.status);
         }
     };
 
     try {
-        xhr.send();
+        xmlHttpRequest.send();
     } catch (e) {
         //setTimeout(retryFunc, 200);
         retryFunc();
     }
 
-    return xhr;
+    return xmlHttpRequest;
 }
 
 exports.sendRequest = sendRequest;
-exports.setURL = setURL;
+exports.setUrl = setUrl;

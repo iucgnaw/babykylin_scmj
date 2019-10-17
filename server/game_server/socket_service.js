@@ -199,39 +199,33 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 			var tile = a_data;
-			a_socket.gameMgr.chuPai(a_socket.userId, tile);
+			a_socket.gameMgr.doDiscardTile(a_socket.userId, tile);
 		});
 
 		//碰
 		a_socket.on("req_pong", function (a_data) {
-			if (a_socket.userId == null) {
-				return;
-			}
-			a_socket.gameMgr.peng(a_socket.userId);
-		});
-
-		//杠
-		a_socket.on("req_kong", function (a_data) {
-			if (a_socket.userId == null || a_data == null) {
-				return;
-			}
+			console.assert(a_socket.userId != null);
+			console.assert(a_data != null);
 
 			var meld;
 			if (typeof (a_data) == "string") {
 				meld = JSON.parse(a_data);
 			}
 
-			// var tile = -1;
-			// if (typeof (a_data) == "number") {
-			// 	tile = a_data;
-			// } else if (typeof (a_data) == "string") {
-			// 	tile = parseInt(a_data);
-			// } else {
-			// 	console.log("gang:invalid param");
-			// 	return;
-			// }
-			// a_socket.gameMgr.gang(a_socket.userId, tile);
-			a_socket.gameMgr.gang(a_socket.userId, meld);
+			a_socket.gameMgr.on_req_pong(a_socket.userId, meld);
+		});
+
+		//杠
+		a_socket.on("req_kong", function (a_data) {
+			console.assert(a_socket.userId != null);
+			console.assert(a_data != null);
+
+			var meld;
+			if (typeof (a_data) == "string") {
+				meld = JSON.parse(a_data);
+			}
+
+			a_socket.gameMgr.on_req_kong(a_socket.userId, meld);
 		});
 
 		//胡
@@ -247,7 +241,7 @@ exports.start = function (a_config, a_mgr) {
 			if (a_socket.userId == null) {
 				return;
 			}
-			a_socket.gameMgr.guo(a_socket.userId);
+			a_socket.gameMgr.doPass(a_socket.userId);
 		});
 
 		//聊天

@@ -58,10 +58,10 @@ cc.Class({
             self.showDingQueChoice();
         });
 
-        this.node.on("event_game_dingque", function (data) {
+        this.node.on("event_game_dingque_notify", function (data) {
             var seatIndex = cc.vv.gameNetMgr.getSeatIndexByID(data);
             var localIndex = cc.vv.gameNetMgr.getLocalIndex(seatIndex);
-            console.log("event_game_dingque:" + localIndex);
+            console.log("event_game_dingque_notify:" + localIndex);
             self.tips[localIndex].node.active = true;
         });
 

@@ -21,7 +21,8 @@ function urlParse() {
 }
 
 function initMgr() {
-    cc.vv = {};
+    cc.vv = {}; // Create cc.vv namespace
+
     var UserMgr = require("UserMgr");
     cc.vv.userMgr = new UserMgr();
 
@@ -73,19 +74,19 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        label: {
+        labelLog: {
             default: null,
             type: cc.Label
         },
 
-        loadingProgess: cc.Label,
+        labelLoadingProgess: cc.Label,
     },
 
     // use this for initialization
     onLoad: function () {
         initMgr();
         cc.vv.utils.setFitSreenMode();
-        console.log("haha");
+        // console.log("haha");
         this._mainScene = "loading";
         this.showSplash(function () {
             this.getServerInfo();
@@ -93,55 +94,55 @@ cc.Class({
     },
 
     onBtnDownloadClicked: function () {
-        cc.sys.openURL(cc.vv.SI.appweb);
+        cc.sys.openURL(cc.vv.serverInfo.appweb);
     },
 
-    showSplash: function (callback) {
+    showSplash: function (a_fnAfterSplash) {
         var self = this;
-        var SHOW_TIME = 3000;
-        var FADE_TIME = 500;
+        var SHOW_TIME = 1000;
+        var FADE_TIME = 200;
         this._splash = cc.find("Canvas/splash");
         if (true || cc.sys.os != cc.sys.OS_IOS || !cc.sys.isNative) {
             this._splash.active = true;
             if (this._splash.getComponent(cc.Sprite).spriteFrame == null) {
-                callback();
+                a_fnAfterSplash();
                 return;
             }
-            var t = Date.now();
-            var fn = function () {
-                var dt = Date.now() - t;
-                if (dt < SHOW_TIME) {
-                    setTimeout(fn, 33);
+            var time = Date.now();
+            var fnTimeout = function () {
+                var timeDiff = Date.now() - time;
+                if (timeDiff < SHOW_TIME) {
+                    setTimeout(fnTimeout, 33);
                 } else {
-                    var op = (1 - ((dt - SHOW_TIME) / FADE_TIME)) * 255;
-                    if (op < 0) {
+                    var opacity = (1 - ((timeDiff - SHOW_TIME) / FADE_TIME)) * 255;
+                    if (opacity < 0) {
                         self._splash.opacity = 0;
-                        callback();
+                        a_fnAfterSplash();
                     } else {
-                        self._splash.opacity = op;
-                        setTimeout(fn, 33);
+                        self._splash.opacity = opacity;
+                        setTimeout(fnTimeout, 33);
                     }
                 }
             };
-            setTimeout(fn, 33);
+            setTimeout(fnTimeout, 33);
         } else {
             this._splash.active = false;
-            callback();
+            a_fnAfterSplash();
         }
     },
 
     getServerInfo: function () {
         var self = this;
-        var onGetVersion = function (ret) {
-            cc.vv.SI = ret;
+        var fnGetVersion = function (a_serverInfo) {
+            cc.vv.serverInfo = a_serverInfo;
             if (cc.sys.isNative) {
                 var url = cc.url.raw("resources/ver/cv.txt");
                 cc.loader.load(url, function (err, data) {
                     cc.VERSION = data;
-                    if (ret.version == null) {
-                        console.log("error.");
+                    if (a_serverInfo.version == null) {
+                        console.error("a_serverInfo.version == null");
                     } else {
-                        if (cc.vv.SI.version != cc.VERSION) {
+                        if (cc.vv.serverInfo.version != cc.VERSION) {
                             cc.find("Canvas/alert").active = true;
                         } else {
                             cc.director.loadScene(self._mainScene);
@@ -153,34 +154,36 @@ cc.Class({
             }
         };
 
-        var xhr = null;
+        var xmlHttpRequest = null;
         var complete = false;
-        var fnRequest = function () {
-            self.loadingProgess.string = "正在连接服务器";
-            xhr = cc.vv.http.sendRequest("/get_serverinfo", null, function (ret) {
-                xhr = null;
+        var fnGetServerInfo = function () {
+            self.labelLoadingProgess.string = "正在连接服务器...";
+            xmlHttpRequest = cc.vv.http.sendRequest("/get_serverinfo", null, function (a_serverInfo) {
+                xmlHttpRequest = null;
                 complete = true;
-                onGetVersion(ret);
+                fnGetVersion(a_serverInfo);
             });
-            setTimeout(fn, 5000);
+            setTimeout(fnConnect, 5000);
         }
 
-        var fn = function () {
+        var fnConnect = function () {
             if (!complete) {
-                if (xhr) {
-                    xhr.abort();
-                    self.loadingProgess.string = "连接失败，即将重试";
+                if (xmlHttpRequest) {
+                    xmlHttpRequest.abort();
+                    self.labelLoadingProgess.string = "连接失败，即将重试。";
                     setTimeout(function () {
-                        fnRequest();
+                        fnGetServerInfo();
                     }, 5000);
                 } else {
-                    fnRequest();
+                    fnGetServerInfo();
                 }
             }
         };
-        fn();
+
+        fnConnect();
     },
-    log: function (content) {
-        this.label.string += content + "\n";
+
+    log: function (a_content) {
+        this.labelLog.string += a_content + "\n";
     },
 });

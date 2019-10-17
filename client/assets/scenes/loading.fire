@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5328125,
-      "y": 0.5328125,
+      "x": 0.6577880859375,
+      "y": 0.6577880859375,
       "z": 1
     },
     "_quat": {
@@ -413,7 +413,7 @@
     },
     "_fillStart": 0,
     "_fillRange": 0,
-    "_isTrimmedMode": true,
+    "_isTrimmedMode": false,
     "_state": 0,
     "_atlas": null,
     "_id": "24JqXJSQhADLLIxc6KArUK"
@@ -734,7 +734,7 @@
       "__id__": 15
     },
     "_enabled": true,
-    "_srcBlendFactor": 770,
+    "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
     "_string": "版本过旧\n请下载并安装新版本",
@@ -1045,7 +1045,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1194.73,
+      "width": 159.81,
       "height": 40
     },
     "_anchorPoint": {
@@ -1091,8 +1091,8 @@
     "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "抵制不良游戏 拒绝盗版游戏 注意自我保护 谨防受骗上当 适度游戏益脑 沉迷游戏伤身 合理安排游戏时间 享受健康生活",
-    "_N$string": "抵制不良游戏 拒绝盗版游戏 注意自我保护 谨防受骗上当 适度游戏益脑 沉迷游戏伤身 合理安排游戏时间 享受健康生活",
+    "_string": "Hello, Majhong!",
+    "_N$string": "Hello, Majhong!",
     "_fontSize": 23,
     "_lineHeight": 40,
     "_enableWrapText": true,

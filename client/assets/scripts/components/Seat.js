@@ -135,7 +135,7 @@ cc.Class({
         this.refresh();
     },
 
-    setZhuang: function (value) {
+    setDealer: function (value) {
         this._isZhuang = value;
         if (this._zhuang) {
             this._zhuang.active = value;

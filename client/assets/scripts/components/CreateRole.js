@@ -45,7 +45,7 @@ cc.Class({
             console.log("invalid name.");
             return;
         }
-        console.log(name);
+        // console.log(name);
         cc.vv.userMgr.create(name);
     }
     // called every frame, uncomment this function to activate update callback

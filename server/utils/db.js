@@ -1,7 +1,7 @@
-var mysql = require("mysql");
-var crypto = require('./crypto');
+var g_mysql = require("mysql");
+var g_crypto = require('./crypto');
 
-var pool = null;
+var g_pool = null;
 
 function nop(a, b, c, d, e, f, g) {
 
@@ -19,702 +19,701 @@ function generateUserId() {
     return Id;
 }
 
-function query(sql, callback) {
-    pool.getConnection(function (err, conn) {
-        if (err) {
-            callback(err, null, null);
+function query(a_sql, a_callback) {
+    g_pool.getConnection(function (a_error, a_connection) {
+        if (a_error) {
+            a_callback(a_error, null, null);
         } else {
-            conn.query(sql, function (qerr, vals, fields) {
+            a_connection.query(a_sql, function (a_queryError, a_values, a_fields) {
                 //释放连接  
-                conn.release();
+                a_connection.release();
                 //事件驱动回调  
-                callback(qerr, vals, fields);
+                a_callback(a_queryError, a_values, a_fields);
             });
         }
     });
 };
 
-exports.init = function (config) {
-    pool = mysql.createPool({
-        host: config.HOST,
-        user: config.USER,
-        password: config.PSWD,
-        database: config.DB,
-        port: config.PORT,
+exports.init = function (a_config) {
+    g_pool = g_mysql.createPool({
+        host: a_config.HOST,
+        user: a_config.USER,
+        password: a_config.PSWD,
+        database: a_config.DB,
+        port: a_config.PORT,
     });
 };
 
-exports.is_account_exist = function (account, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null) {
-        callback(false);
+exports.is_account_exist = function (a_account, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null) {
+        a_callback(false);
         return;
     }
 
-    var sql = 'SELECT * FROM t_accounts WHERE account = "' + account + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    var sql = 'SELECT * FROM t_accounts WHERE account = "' + a_account + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            if (rows.length > 0) {
-                callback(true);
+            if (a_rows.length > 0) {
+                a_callback(true);
             } else {
-                callback(false);
+                a_callback(false);
             }
         }
     });
 };
 
-exports.create_account = function (account, password, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null || password == null) {
-        callback(false);
+exports.create_account = function (a_account, a_password, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null || a_password == null) {
+        a_callback(false);
         return;
     }
 
-    var psw = crypto.md5(password);
-    var sql = 'INSERT INTO t_accounts(account,password) VALUES("' + account + '","' + psw + '")';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            if (err.code == 'ER_DUP_ENTRY') {
-                callback(false);
+    var passwordMd5 = g_crypto.md5(a_password);
+    var sql = 'INSERT INTO t_accounts(account,password) VALUES("' + a_account + '","' + passwordMd5 + '")';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            if (a_error.code == 'ER_DUP_ENTRY') {
+                a_callback(false);
                 return;
             }
-            callback(false);
-            throw err;
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 };
 
-exports.get_account_info = function (account, password, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null) {
-        callback(null);
+exports.get_account_info = function (a_account, a_password, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT * FROM t_accounts WHERE account = "' + account + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    var sql = 'SELECT * FROM t_accounts WHERE account = "' + a_account + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
 
-        if (password != null) {
-            var psw = crypto.md5(password);
-            if (rows[0].password == psw) {
-                callback(null);
+        if (a_password != null) {
+            var psw = g_crypto.md5(a_password);
+            if (a_rows[0].password == psw) {
+                a_callback(null);
                 return;
             }
         }
 
-        callback(rows[0]);
+        a_callback(a_rows[0]);
     });
 };
 
-exports.is_user_exist = function (account, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null) {
-        callback(false);
+exports.is_user_exist = function (a_account, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null) {
+        a_callback(false);
         return;
     }
 
-    var sql = 'SELECT userid FROM t_users WHERE account = "' + account + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            throw err;
+    var sql = 'SELECT userid FROM t_users WHERE account = "' + a_account + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(false);
+        if (a_rows.length == 0) {
+            a_callback(false);
             return;
         }
 
-        callback(true);
+        a_callback(true);
     });
 }
 
 
-exports.get_user_data = function (account, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null) {
-        callback(null);
+exports.get_user_data = function (a_account, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT userid,account,name,lv,exp,coins,gems,roomid FROM t_users WHERE account = "' + account + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    var sql = 'SELECT userid,account,name,lv,exp,coins,gems,roomid FROM t_users WHERE account = "' + a_account + '"';
+    query(sql, function (a_err, a_rows, a_fields) {
+        if (a_err) {
+            a_callback(null);
+            throw a_err;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
-        rows[0].name = crypto.fromBase64(rows[0].name);
-        callback(rows[0]);
+        a_rows[0].name = g_crypto.fromBase64(a_rows[0].name);
+        a_callback(a_rows[0]);
     });
 };
 
-exports.get_user_data_by_userid = function (userid, callback) {
-    callback = callback == null ? nop : callback;
-    if (userid == null) {
-        callback(null);
+exports.get_user_data_by_userid = function (a_userId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_userId == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT userid,account,name,lv,exp,coins,gems,roomid FROM t_users WHERE userid = ' + userid;
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    var sql = 'SELECT userid,account,name,lv,exp,coins,gems,roomid FROM t_users WHERE userid = ' + a_userId;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
-        rows[0].name = crypto.fromBase64(rows[0].name);
-        callback(rows[0]);
+        a_rows[0].name = g_crypto.fromBase64(a_rows[0].name);
+        a_callback(a_rows[0]);
     });
 };
 
 /**增加玩家房卡 */
-exports.add_user_gems = function (userid, gems, callback) {
-    callback = callback == null ? nop : callback;
-    if (userid == null) {
-        callback(false);
+exports.add_user_gems = function (a_userId, a_gems, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_userId == null) {
+        a_callback(false);
         return;
     }
 
-    var sql = 'UPDATE t_users SET gems = gems +' + gems + ' WHERE userid = ' + userid;
+    var sql = 'UPDATE t_users SET gems = gems +' + a_gems + ' WHERE userid = ' + a_userId;
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            console.log(err);
-            callback(false);
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            console.error(a_error);
+            a_callback(false);
             return;
         } else {
-            callback(rows.affectedRows > 0);
+            a_callback(a_rows.affectedRows > 0);
             return;
         }
     });
 };
 
-exports.get_gems = function (account, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null) {
-        callback(null);
+exports.get_gems = function (a_account, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT gems FROM t_users WHERE account = "' + account + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    var sql = 'SELECT gems FROM t_users WHERE account = "' + a_account + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
 
-        callback(rows[0]);
+        a_callback(a_rows[0]);
     });
 };
 
-exports.get_user_history = function (userId, callback) {
-    callback = callback == null ? nop : callback;
-    if (userId == null) {
-        callback(null);
+exports.get_user_history = function (a_userId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_userId == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT history FROM t_users WHERE userid = "' + userId + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    var sql = 'SELECT history FROM t_users WHERE userid = "' + a_userId + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
-        var history = rows[0].history;
+        var history = a_rows[0].history;
         if (history == null || history == "") {
-            callback(null);
+            a_callback(null);
         } else {
-            console.log(history.length);
+            // console.log("history.length: " + history.length);
             history = JSON.parse(history);
-            callback(history);
+            a_callback(history);
         }
     });
 };
 
-exports.update_user_history = function (userId, history, callback) {
-    callback = callback == null ? nop : callback;
-    if (userId == null || history == null) {
-        callback(false);
+exports.update_user_history = function (a_userId, a_history, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_userId == null || a_history == null) {
+        a_callback(false);
         return;
     }
 
-    history = JSON.stringify(history);
-    var sql = 'UPDATE t_users SET roomid = null, history = \'' + history + '\' WHERE userid = "' + userId + '"';
+    a_history = JSON.stringify(a_history);
+    var sql = 'UPDATE t_users SET roomid = null, history = \'' + a_history + '\' WHERE userid = "' + a_userId + '"';
     //console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(false);
+        if (a_rows.length == 0) {
+            a_callback(false);
             return;
         }
 
-        callback(true);
+        a_callback(true);
     });
 };
 
-exports.get_games_of_room = function (room_uuid, callback) {
-    callback = callback == null ? nop : callback;
-    if (room_uuid == null) {
-        callback(null);
+exports.get_games_of_room = function (a_roomUuid, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomUuid == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT game_index,create_time,result FROM t_games_archive WHERE room_uuid = "' + room_uuid + '"';
+    var sql = 'SELECT game_index,create_time,result FROM t_games_archive WHERE room_uuid = "' + a_roomUuid + '"';
     //console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
 
-        callback(rows);
+        a_callback(a_rows);
     });
 };
 
-exports.get_detail_of_game = function (room_uuid, index, callback) {
-    callback = callback == null ? nop : callback;
-    if (room_uuid == null || index == null) {
-        callback(null);
+exports.get_detail_of_game = function (a_roomUuid, a_index, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomUuid == null || a_index == null) {
+        a_callback(null);
         return;
     }
-    var sql = 'SELECT base_info,action_records FROM t_games_archive WHERE room_uuid = "' + room_uuid + '" AND game_index = ' + index;
+    var sql = 'SELECT base_info,action_records FROM t_games_archive WHERE room_uuid = "' + a_roomUuid + '" AND game_index = ' + a_index;
     //console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
 
-        if (rows.length == 0) {
-            callback(null);
+        if (a_rows.length == 0) {
+            a_callback(null);
             return;
         }
-        callback(rows[0]);
+        a_callback(a_rows[0]);
     });
 }
 
-exports.create_user = function (account, name, coins, gems, sex, headimg, callback) {
-    callback = callback == null ? nop : callback;
-    if (account == null || name == null || coins == null || gems == null) {
-        callback(false);
+exports.create_user = function (a_account, a_name, a_coins, a_gems, a_sex, a_headImg, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_account == null || a_name == null || a_coins == null || a_gems == null) {
+        a_callback(false);
         return;
     }
-    if (headimg) {
-        headimg = '"' + headimg + '"';
+    if (a_headImg) {
+        a_headImg = '"' + a_headImg + '"';
     } else {
-        headimg = 'null';
+        a_headImg = 'null';
     }
-    name = crypto.toBase64(name);
+    a_name = g_crypto.toBase64(a_name);
     var userId = generateUserId();
 
     var sql = 'INSERT INTO t_users(userid,account,name,coins,gems,sex,headimg) VALUES("{0}", "{1}","{2}",{3},{4},{5},{6})';
-    sql = sql.format(userId, account, name, coins, gems, sex, headimg);
+    sql = sql.format(userId, a_account, a_name, a_coins, a_gems, a_sex, a_headImg);
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            throw a_error;
         }
-        callback(true);
+        a_callback(true);
     });
 };
 
-exports.update_user_info = function (userid, name, headimg, sex, callback) {
-    callback = callback == null ? nop : callback;
-    if (userid == null) {
-        callback(null);
+exports.update_user_info = function (a_userId, a_name, a_headImg, a_sex, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_userId == null) {
+        a_callback(null);
         return;
     }
 
-    if (headimg) {
-        headimg = '"' + headimg + '"';
+    if (a_headImg) {
+        a_headImg = '"' + a_headImg + '"';
     } else {
-        headimg = 'null';
+        a_headImg = 'null';
     }
-    name = crypto.toBase64(name);
+    a_name = g_crypto.toBase64(a_name);
     var sql = 'UPDATE t_users SET name="{0}",headimg={1},sex={2} WHERE account="{3}"';
-    sql = sql.format(name, headimg, sex, userid);
+    sql = sql.format(a_name, a_headImg, a_sex, a_userId);
     console.log(sql);
     query(sql, function (err, rows, fields) {
         if (err) {
             throw err;
         }
-        callback(rows);
+        a_callback(rows);
     });
 };
 
-exports.get_user_base_info = function (userid, callback) {
-    callback = callback == null ? nop : callback;
-    if (userid == null) {
-        callback(null);
+exports.get_user_base_info = function (a_userId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_userId == null) {
+        a_callback(null);
         return;
     }
     var sql = 'SELECT name,sex,headimg FROM t_users WHERE userid={0}';
-    sql = sql.format(userid);
+    sql = sql.format(a_userId);
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            throw a_error;
         }
-        rows[0].name = crypto.fromBase64(rows[0].name);
-        callback(rows[0]);
+        a_rows[0].name = g_crypto.fromBase64(a_rows[0].name);
+        a_callback(a_rows[0]);
     });
 };
 
-exports.is_room_exist = function (roomId, callback) {
-    callback = callback == null ? nop : callback;
-    var sql = 'SELECT * FROM t_rooms WHERE id = "' + roomId + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+exports.is_room_exist = function (a_roomId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    var sql = 'SELECT * FROM t_rooms WHERE id = "' + a_roomId + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(rows.length > 0);
+            a_callback(a_rows.length > 0);
         }
     });
 };
 
-exports.cost_gems = function (userid, cost, callback) {
-    callback = callback == null ? nop : callback;
-    var sql = 'UPDATE t_users SET gems = gems -' + cost + ' WHERE userid = ' + userid;
+exports.cost_gems = function (a_userId, a_cost, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    var sql = 'UPDATE t_users SET gems = gems -' + a_cost + ' WHERE userid = ' + a_userId;
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(rows.length > 0);
+            a_callback(a_rows.length > 0);
         }
     });
 };
 
-exports.set_room_id_of_user = function (userId, roomId, callback) {
-    callback = callback == null ? nop : callback;
-    if (roomId != null) {
-        roomId = '"' + roomId + '"';
+exports.set_room_id_of_user = function (a_userId, a_roomId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomId != null) {
+        a_roomId = '"' + a_roomId + '"';
     }
-    var sql = 'UPDATE t_users SET roomid = ' + roomId + ' WHERE userid = "' + userId + '"';
+    var sql = 'UPDATE t_users SET roomid = ' + a_roomId + ' WHERE userid = "' + a_userId + '"';
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            console.log(err);
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            console.error(a_error);
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(rows.length > 0);
+            a_callback(a_rows.length > 0);
         }
     });
 };
 
-exports.get_room_id_of_user = function (userId, callback) {
-    callback = callback == null ? nop : callback;
-    var sql = 'SELECT roomid FROM t_users WHERE userid = "' + userId + '"';
+exports.get_room_id_of_user = function (a_userId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    var sql = 'SELECT roomid FROM t_users WHERE userid = "' + a_userId + '"';
     query(sql, function (err, rows, fields) {
         if (err) {
-            callback(null);
+            a_callback(null);
             throw err;
         } else {
             if (rows.length > 0) {
-                callback(rows[0].roomid);
+                a_callback(rows[0].roomid);
             } else {
-                callback(null);
+                a_callback(null);
             }
         }
     });
 };
 
-
-exports.create_room = function (roomId, conf, ip, port, create_time, callback) {
-    callback = callback == null ? nop : callback;
+exports.create_room = function (a_roomId, a_roomConfig, a_ip, a_port, a_createTime, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
     var sql = "INSERT INTO t_rooms(uuid,id,base_info,ip,port,create_time) \
                 VALUES('{0}','{1}','{2}','{3}',{4},{5})";
-    var uuid = Date.now() + roomId;
-    var baseInfo = JSON.stringify(conf);
-    sql = sql.format(uuid, roomId, baseInfo, ip, port, create_time);
+    var uuid = Date.now() + a_roomId;
+    var baseInfo = JSON.stringify(a_roomConfig);
+    sql = sql.format(uuid, a_roomId, baseInfo, a_ip, a_port, a_createTime);
     console.log(sql);
-    query(sql, function (err, row, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         } else {
-            callback(uuid);
+            a_callback(uuid);
         }
     });
 };
 
-exports.get_room_uuid = function (roomId, callback) {
-    callback = callback == null ? nop : callback;
-    var sql = 'SELECT uuid FROM t_rooms WHERE id = "' + roomId + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+exports.get_room_uuid = function (a_roomId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    var sql = 'SELECT uuid FROM t_rooms WHERE id = "' + a_roomId + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         } else {
-            callback(rows[0].uuid);
+            a_callback(a_rows[0].uuid);
         }
     });
 };
 
-exports.update_seat_info = function (roomId, seatIndex, userId, icon, name, callback) {
-    callback = callback == null ? nop : callback;
+exports.update_seat_info = function (a_roomId, a_seatIndex, a_userId, a_icon, a_name, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
     var sql = 'UPDATE t_rooms SET user_id{0} = {1},user_icon{0} = "{2}",user_name{0} = "{3}" WHERE id = "{4}"';
-    name = crypto.toBase64(name);
-    sql = sql.format(seatIndex, userId, icon, name, roomId);
+    a_name = g_crypto.toBase64(a_name);
+    sql = sql.format(a_seatIndex, a_userId, a_icon, a_name, a_roomId);
     //console.log(sql);
     query(sql, function (err, row, fields) {
         if (err) {
-            callback(false);
+            a_callback(false);
             throw err;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 }
 
-exports.update_num_of_turns = function (roomId, numOfTurns, callback) {
-    callback = callback == null ? nop : callback;
+exports.update_num_of_turns = function (a_roomId, a_numOfTurns, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
     var sql = 'UPDATE t_rooms SET num_of_turns = {0} WHERE id = "{1}"'
-    sql = sql.format(numOfTurns, roomId);
+    sql = sql.format(a_numOfTurns, a_roomId);
     //console.log(sql);
     query(sql, function (err, row, fields) {
         if (err) {
-            callback(false);
+            a_callback(false);
             throw err;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 };
 
 
-exports.update_next_button = function (roomId, nextButton, callback) {
-    callback = callback == null ? nop : callback;
-    var sql = 'UPDATE t_rooms SET next_button = {0} WHERE id = "{1}"'
-    sql = sql.format(nextButton, roomId);
+exports.update_next_dealer = function (a_roomId, a_nextDealer, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    var sql = 'UPDATE t_rooms SET next_dealer = {0} WHERE id = "{1}"'
+    sql = sql.format(a_nextDealer, a_roomId);
     //console.log(sql);
-    query(sql, function (err, row, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 };
 
-exports.get_room_addr = function (roomId, callback) {
-    callback = callback == null ? nop : callback;
-    if (roomId == null) {
-        callback(false, null, null);
+exports.get_room_addr = function (a_roomId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomId == null) {
+        a_callback(false, null, null);
         return;
     }
 
-    var sql = 'SELECT ip,port FROM t_rooms WHERE id = "' + roomId + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false, null, null);
-            throw err;
+    var sql = 'SELECT ip,port FROM t_rooms WHERE id = "' + a_roomId + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false, null, null);
+            throw a_error;
         }
-        if (rows.length > 0) {
-            callback(true, rows[0].ip, rows[0].port);
+        if (a_rows.length > 0) {
+            a_callback(true, a_rows[0].ip, a_rows[0].port);
         } else {
-            callback(false, null, null);
+            a_callback(false, null, null);
         }
     });
 };
 
-exports.get_room_data = function (roomId, callback) {
-    callback = callback == null ? nop : callback;
-    if (roomId == null) {
-        callback(null);
+exports.get_room_data = function (a_roomId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomId == null) {
+        a_callback(null);
         return;
     }
 
-    var sql = 'SELECT * FROM t_rooms WHERE id = "' + roomId + '"';
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    var sql = 'SELECT * FROM t_rooms WHERE id = "' + a_roomId + '"';
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         }
-        if (rows.length > 0) {
-            rows[0].user_name0 = crypto.fromBase64(rows[0].user_name0);
-            rows[0].user_name1 = crypto.fromBase64(rows[0].user_name1);
-            rows[0].user_name2 = crypto.fromBase64(rows[0].user_name2);
-            rows[0].user_name3 = crypto.fromBase64(rows[0].user_name3);
-            callback(rows[0]);
+        if (a_rows.length > 0) {
+            a_rows[0].user_name0 = g_crypto.fromBase64(a_rows[0].user_name0);
+            a_rows[0].user_name1 = g_crypto.fromBase64(a_rows[0].user_name1);
+            a_rows[0].user_name2 = g_crypto.fromBase64(a_rows[0].user_name2);
+            a_rows[0].user_name3 = g_crypto.fromBase64(a_rows[0].user_name3);
+            a_callback(a_rows[0]);
         } else {
-            callback(null);
+            a_callback(null);
         }
     });
 };
 
-exports.delete_room = function (roomId, callback) {
-    callback = callback == null ? nop : callback;
-    if (roomId == null) {
-        callback(false);
+exports.delete_room = function (a_roomId, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomId == null) {
+        a_callback(false);
     }
     var sql = "DELETE FROM t_rooms WHERE id = '{0}'";
-    sql = sql.format(roomId);
+    sql = sql.format(a_roomId);
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_err, a_rows, a_fields) {
+        if (a_err) {
+            a_callback(false);
+            throw a_err;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 }
 
-exports.create_game = function (room_uuid, index, base_info, callback) {
-    callback = callback == null ? nop : callback;
+exports.create_game = function (a_roomUuid, a_index, a_baseInfo, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
     var sql = "INSERT INTO t_games(room_uuid,game_index,base_info,create_time) VALUES('{0}',{1},'{2}',unix_timestamp(now()))";
-    sql = sql.format(room_uuid, index, base_info);
+    sql = sql.format(a_roomUuid, a_index, a_baseInfo);
     //console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(null);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(null);
+            throw a_error;
         } else {
-            callback(rows.insertId);
+            a_callback(a_rows.insertId);
         }
     });
 };
 
-exports.delete_games = function (room_uuid, callback) {
-    callback = callback == null ? nop : callback;
-    if (room_uuid == null) {
-        callback(false);
+exports.delete_games = function (a_roomUuid, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomUuid == null) {
+        a_callback(false);
     }
     var sql = "DELETE FROM t_games WHERE room_uuid = '{0}'";
-    sql = sql.format(room_uuid);
+    sql = sql.format(a_roomUuid);
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 }
 
-exports.archive_games = function (room_uuid, callback) {
-    callback = callback == null ? nop : callback;
-    if (room_uuid == null) {
-        callback(false);
+exports.archive_games = function (a_roomUuid, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomUuid == null) {
+        a_callback(false);
     }
     var sql = "INSERT INTO t_games_archive(SELECT * FROM t_games WHERE room_uuid = '{0}')";
-    sql = sql.format(room_uuid);
+    sql = sql.format(a_roomUuid);
     console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            exports.delete_games(room_uuid, function (ret) {
-                callback(ret);
+            exports.delete_games(a_roomUuid, function (ret) {
+                a_callback(ret);
             });
         }
     });
 }
 
-exports.update_game_action_records = function (room_uuid, index, actions, callback) {
-    callback = callback == null ? nop : callback;
-    var sql = "UPDATE t_games SET action_records = '" + actions + "' WHERE room_uuid = '" + room_uuid + "' AND game_index = " + index;
+exports.update_game_action_records = function (a_roomUuid, a_index, a_actions, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    var sql = "UPDATE t_games SET action_records = '" + a_actions + "' WHERE room_uuid = '" + a_roomUuid + "' AND game_index = " + a_index;
     //console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 };
 
-exports.update_game_result = function (room_uuid, index, result, callback) {
-    callback = callback == null ? nop : callback;
-    if (room_uuid == null || result) {
-        callback(false);
+exports.update_game_result = function (a_roomUuid, a_index, a_result, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
+    if (a_roomUuid == null || a_result) {
+        a_callback(false);
     }
 
-    result = JSON.stringify(result);
-    var sql = "UPDATE t_games SET result = '" + result + "' WHERE room_uuid = '" + room_uuid + "' AND game_index = " + index;
+    a_result = JSON.stringify(a_result);
+    var sql = "UPDATE t_games SET result = '" + a_result + "' WHERE room_uuid = '" + a_roomUuid + "' AND game_index = " + a_index;
     //console.log(sql);
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            callback(true);
+            a_callback(true);
         }
     });
 };
 
-exports.get_message = function (type, version, callback) {
-    callback = callback == null ? nop : callback;
+exports.get_message = function (a_type, a_version, a_callback) {
+    a_callback = a_callback == null ? nop : a_callback;
 
-    var sql = 'SELECT * FROM t_message WHERE type = "' + type + '"';
+    var sql = 'SELECT * FROM t_message WHERE type = "' + a_type + '"';
 
-    if (version == "null") {
-        version = null;
+    if (a_version == "null") {
+        a_version = null;
     }
 
-    if (version) {
-        version = '"' + version + '"';
-        sql += ' AND version != ' + version;
+    if (a_version) {
+        a_version = '"' + a_version + '"';
+        sql += ' AND version != ' + a_version;
     }
 
-    query(sql, function (err, rows, fields) {
-        if (err) {
-            callback(false);
-            throw err;
+    query(sql, function (a_error, a_rows, a_fields) {
+        if (a_error) {
+            a_callback(false);
+            throw a_error;
         } else {
-            if (rows.length > 0) {
-                callback(rows[0]);
+            if (a_rows.length > 0) {
+                a_callback(a_rows[0]);
             } else {
-                callback(null);
+                a_callback(null);
             }
         }
     });

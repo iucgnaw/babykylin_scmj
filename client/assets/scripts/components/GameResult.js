@@ -21,7 +21,7 @@ cc.Class({
             return;
         }
 
-        this._gameresult = this.node.getChildByName("game_result");
+        this._gameresult = this.node.getChildByName("nodeGameResult");
         //this._gameresult.active = false;
 
         var seats = this._gameresult.getChildByName("seats");
@@ -29,12 +29,12 @@ cc.Class({
             this._seats.push(seats.children[i].getComponent("Seat"));
         }
 
-        var btnClose = cc.find("Canvas/game_result/btnClose");
+        var btnClose = cc.find("Canvas/nodeGameResult/btnClose");
         if (btnClose) {
             cc.vv.utils.addClickEvent(btnClose, this.node, "GameResult", "onBtnCloseClicked");
         }
 
-        var btnShare = cc.find("Canvas/game_result/btnShare");
+        var btnShare = cc.find("Canvas/nodeGameResult/btnShare");
         if (btnShare) {
             cc.vv.utils.addClickEvent(btnShare, this.node, "GameResult", "onBtnShareClicked");
         }

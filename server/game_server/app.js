@@ -13,5 +13,3 @@ http_service.start(config);
 
 //开启外网SOCKET服务
 socket_service.start(config);
-
-//require("./gamemgr");

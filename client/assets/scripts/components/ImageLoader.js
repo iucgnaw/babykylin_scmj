@@ -48,7 +48,7 @@ function getBaseInfo(userid, callback) {
         }, function (ret) {
             var url = null;
             if (ret.headimgurl) {
-                url = cc.vv.http.master_url + "/image?url=" + encodeURIComponent(ret.headimgurl) + ".jpg";
+                url = cc.vv.http.g_masterUrl + "/image?url=" + encodeURIComponent(ret.headimgurl) + ".jpg";
             }
             var info = {
                 name: ret.name,
@@ -58,7 +58,7 @@ function getBaseInfo(userid, callback) {
             cc.vv.baseInfoMap[userid] = info;
             callback(userid, info);
 
-        }, cc.vv.http.master_url);
+        }, cc.vv.http.g_masterUrl);
     }
 };
 
@@ -91,9 +91,9 @@ cc.Class({
         }
 
         var self = this;
-        getBaseInfo(userid, function (code, info) {
-            if (info && info.url) {
-                loadImage(info.url, userid, function (err, spriteFrame) {
+        getBaseInfo(userid, function (a_code, a_info) {
+            if (a_info && a_info.url) {
+                loadImage(a_info.url, userid, function (err, spriteFrame) {
                     self._spriteFrame = spriteFrame;
                     self.setupSpriteFrame();
                 });

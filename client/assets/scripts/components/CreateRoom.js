@@ -31,7 +31,7 @@ cc.Class({
     },
 
     getSelectedOfRadioGroup(groupRoot) {
-        console.log(groupRoot);
+        // console.log(groupRoot);
         var t = this._currentGame.getChildByName(groupRoot);
 
         var arr = [];
@@ -56,7 +56,7 @@ cc.Class({
         var onCreate = function (ret) {
             if (ret.errcode !== 0) {
                 cc.vv.wc.hide();
-                //console.log(ret.errmsg);
+                //console.error(ret.errmsg);
                 if (ret.errcode == 2222) {
                     cc.vv.alert.show("提示", "钻石不足，创建房间失败!");
                 } else {
@@ -76,7 +76,7 @@ cc.Class({
             sign: cc.vv.userMgr.sign,
             conf: JSON.stringify(conf)
         };
-        console.log(data);
+        // console.log(data);
         cc.vv.wc.show("正在创建房间");
         cc.vv.http.sendRequest("/create_private_room", data, onCreate);
     },

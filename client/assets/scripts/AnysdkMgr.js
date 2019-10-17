@@ -56,9 +56,9 @@ cc.Class({
 
     share: function (title, desc) {
         if (cc.sys.os == cc.sys.OS_ANDROID) {
-            jsb.reflection.callStaticMethod(this.ANDROID_API, "Share", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", cc.vv.SI.appweb, title, desc);
+            jsb.reflection.callStaticMethod(this.ANDROID_API, "Share", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", cc.vv.serverInfo.appweb, title, desc);
         } else if (cc.sys.os == cc.sys.OS_IOS) {
-            jsb.reflection.callStaticMethod(this.IOS_API, "share:shareTitle:shareDesc:", cc.vv.SI.appweb, title, desc);
+            jsb.reflection.callStaticMethod(this.IOS_API, "share:shareTitle:shareDesc:", cc.vv.serverInfo.appweb, title, desc);
         } else {
             console.log("platform:" + cc.sys.os + " dosn't implement share.");
         }

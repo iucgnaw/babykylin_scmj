@@ -116,7 +116,7 @@ cc.Class({
             return 4;
         } else if (a_tile == 29) {
             //白
-            return 4;
+            return 5;
         } else if (a_tile == 30) {
             //东
             return 6;

@@ -28,7 +28,7 @@ cc.Class({
             cc.vv.radiogroupmgr = new RadioGroupMgr();
             cc.vv.radiogroupmgr.init();
         }
-        console.log(typeof (cc.vv.radiogroupmgr.add));
+        // console.log(typeof (cc.vv.radiogroupmgr.add));
         cc.vv.radiogroupmgr.add(this);
 
         this.refresh();

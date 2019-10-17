@@ -11,13 +11,13 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        _gameover: null,
-        _gameresult: null,
+        _nodeGameOver: null,
+        _nodeGameResult: null,
         _seats: [],
         _isGameEnd: false,
-        _pingju: null,
-        _win: null,
-        _lose: null,
+        _nodeDraw: null,
+        _nodeWin: null,
+        _nodeLose: null,
     },
 
     // use this for initialization
@@ -28,80 +28,76 @@ cc.Class({
         if (cc.vv.gameNetMgr.conf == null) {
             return;
         }
-        this._gameover = this.node.getChildByName("game_over_xlch");
+        this._nodeGameOver = this.node.getChildByName("nodeGaveOverXlch");
+        this._nodeGameOver.active = false;
 
-        this._gameover.active = false;
+        this._nodeDraw = this._nodeGameOver.getChildByName("nodeDraw");
+        this._nodeWin = this._nodeGameOver.getChildByName("nodeWin");
+        this._nodeLose = this._nodeGameOver.getChildByName("nodeLose");
 
-        this._pingju = this._gameover.getChildByName("pingju");
-        this._win = this._gameover.getChildByName("win");
-        this._lose = this._gameover.getChildByName("lose");
+        this._nodeGameResult = this.node.getChildByName("nodeGameResult");
 
-        this._gameresult = this.node.getChildByName("game_result");
-
-        var wanfa = this._gameover.getChildByName("wanfa").getComponent(cc.Label);
-        wanfa.string = cc.vv.gameNetMgr.getWanfa();
-
-        var listRoot = this._gameover.getChildByName("result_list");
+        var nodeResultList = this._nodeGameOver.getChildByName("nodeResultList");
         for (var i = 1; i <= 4; ++i) {
-            var s = "s" + i;
-            var sn = listRoot.getChildByName(s);
+            var seatXName = "nodeSeat" + i;
+            var nodeSeatX = nodeResultList.getChildByName(seatXName);
             var viewdata = {};
-            viewdata.username = sn.getChildByName("username").getComponent(cc.Label);
-            viewdata.reason = sn.getChildByName("reason").getComponent(cc.Label);
+            viewdata.username = nodeSeatX.getChildByName("username").getComponent(cc.Label);
+            viewdata.reason = nodeSeatX.getChildByName("reason").getComponent(cc.Label);
 
-            var f = sn.getChildByName("fan");
-            if (f != null) {
-                viewdata.fan = f.getComponent(cc.Label);
+            var nodeFaan = nodeSeatX.getChildByName("fan");
+            if (nodeFaan != null) {
+                viewdata.fan = nodeFaan.getComponent(cc.Label);
             }
 
-            viewdata.score = sn.getChildByName("score").getComponent(cc.Label);
-            viewdata.hu = sn.getChildByName("hu");
-            viewdata.mahjongs = sn.getChildByName("pai");
-            viewdata.zhuang = sn.getChildByName("zhuang");
-            viewdata.hupai = sn.getChildByName("hupai");
+            viewdata.score = nodeSeatX.getChildByName("score").getComponent(cc.Label);
+            viewdata.hu = nodeSeatX.getChildByName("hu");
+            viewdata.mahjongs = nodeSeatX.getChildByName("pai");
+            viewdata.zhuang = nodeSeatX.getChildByName("zhuang");
+            viewdata.hupai = nodeSeatX.getChildByName("hupai");
             viewdata._pengandgang = [];
             this._seats.push(viewdata);
         }
 
         //初始化网络事件监听器
         var self = this;
-        this.node.on("event_hand_finish", function (data) {
-            self.onGameOver(data);
+        this.node.on("event_hand_finish", function (a_data) {
+            self.onGameOver(a_data);
         });
 
-        this.node.on("event_match_finish", function (data) {
+        this.node.on("event_match_finish", function (a_data) {
             self._isGameEnd = true;
         });
     },
 
-    onGameOver(data) {
-        this.onGameOver_XLCH(data);
+    onGameOver(a_data) {
+        this.onGameOver_XLCH(a_data);
     },
 
-    onGameOver_XLCH: function (data) {
-        console.log(data);
-        if (data.length == 0) {
-            this._gameresult.active = true;
+    onGameOver_XLCH: function (a_data) {
+        // console.log(data);
+        if (a_data.length == 0) {
+            this._nodeGameResult.active = true;
             return;
         }
-        this._gameover.active = true;
-        this._pingju.active = false;
-        this._win.active = false;
-        this._lose.active = false;
+        this._nodeGameOver.active = true;
+        this._nodeDraw.active = false;
+        this._nodeWin.active = false;
+        this._nodeLose.active = false;
 
-        var myscore = data[cc.vv.gameNetMgr.seatIndex].score;
-        if (myscore > 0) {
-            this._win.active = true;
-        } else if (myscore < 0) {
-            this._lose.active = true;
+        var myScore = a_data[cc.vv.gameNetMgr.seatIndex].score;
+        if (myScore > 0) {
+            this._nodeWin.active = true;
+        } else if (myScore < 0) {
+            this._nodeLose.active = true;
         } else {
-            this._pingju.active = true;
+            this._nodeDraw.active = true;
         }
 
         //显示玩家信息
         for (var i = 0; i < 4; ++i) {
             var seatView = this._seats[i];
-            var userData = data[i];
+            var userData = a_data[i];
             var hued = false;
             var actionArr = [];
             var is7pairs = false;
@@ -125,126 +121,126 @@ cc.Class({
                     }
                 }
 
-                var str = ""
-                var sep = "";
+                // var str = ""
+                // var sep = "";
 
-                var dataseat = userData;
-                if (!info.ishupai) {
-                    if (info.action == "fangpao") {
-                        str = "放炮";
-                    } else if (info.action == "gangpao") {
-                        str = "杠上炮";
-                    } else if (info.action == "beiqianggang") {
-                        str = "被抢杠";
-                    } else {
-                        str = "被查大叫";
-                    }
+                // var dataseat = userData;
+                // if (!info.ishupai) {
+                //     if (info.action == "fangpao") {
+                //         str = "放炮";
+                //     } else if (info.action == "gangpao") {
+                //         str = "杠上炮";
+                //     } else if (info.action == "beiqianggang") {
+                //         str = "被抢杠";
+                //     } else {
+                //         str = "被查大叫";
+                //     }
 
-                    dataseat = data[info.target];
-                    info = dataseat.huinfo[info.index];
-                } else {
-                    if (info.action == "hu") {
-                        str = "接炮胡"
-                    } else if (info.action == "zimo") {
-                        str = "自摸";
-                    } else if (info.action == "ganghua") {
-                        str = "杠上花";
-                    } else if (info.action == "dianganghua") {
-                        str = "点杠花";
-                    } else if (info.action == "gangpaohu") {
-                        str = "杠炮胡";
-                    } else if (info.action == "qiangganghu") {
-                        str = "抢杠胡";
-                    } else if (info.action == "chadajiao") {
-                        str = "查大叫";
-                    }
-                }
+                //     dataseat = a_data[info.target];
+                //     info = dataseat.huinfo[info.index];
+                // } else {
+                //     if (info.action == "hu") {
+                //         str = "接炮胡"
+                //     } else if (info.action == "zimo") {
+                //         str = "自摸";
+                //     } else if (info.action == "ganghua") {
+                //         str = "杠上花";
+                //     } else if (info.action == "dianganghua") {
+                //         str = "点杠花";
+                //     } else if (info.action == "gangpaohu") {
+                //         str = "杠炮胡";
+                //     } else if (info.action == "qiangganghu") {
+                //         str = "抢杠胡";
+                //     } else if (info.action == "chadajiao") {
+                //         str = "查大叫";
+                //     }
+                // }
 
-                str += "(";
+                // str += "(";
 
-                if (info.pattern == "7pairs") {
-                    str += "七对";
-                    sep = "、"
-                } else if (info.pattern == "l7pairs") {
-                    str += "龙七对";
-                    sep = "、"
-                } else if (info.pattern == "j7pairs") {
-                    str += "将七对";
-                    sep = "、"
-                } else if (info.pattern == "duidui") {
-                    str += "碰碰胡";
-                    sep = "、"
-                } else if (info.pattern == "jiangdui") {
-                    str += "将对";
-                    sep = "、"
-                }
+                // if (info.pattern == "7pairs") {
+                //     str += "七对";
+                //     sep = "、"
+                // } else if (info.pattern == "l7pairs") {
+                //     str += "龙七对";
+                //     sep = "、"
+                // } else if (info.pattern == "j7pairs") {
+                //     str += "将七对";
+                //     sep = "、"
+                // } else if (info.pattern == "duidui") {
+                //     str += "碰碰胡";
+                //     sep = "、"
+                // } else if (info.pattern == "jiangdui") {
+                //     str += "将对";
+                //     sep = "、"
+                // }
 
-                if (info.haidihu) {
-                    str += sep + "海底胡";
-                    sep = "、";
-                }
+                // if (info.haidihu) {
+                //     str += sep + "海底胡";
+                //     sep = "、";
+                // }
 
-                if (info.tianhu) {
-                    str += sep + "天胡";
-                    sep = "、";
-                }
+                // if (info.tianhu) {
+                //     str += sep + "天胡";
+                //     sep = "、";
+                // }
 
-                if (info.dihu) {
-                    str += sep + "地胡";
-                    sep = "、";
-                }
+                // if (info.dihu) {
+                //     str += sep + "地胡";
+                //     sep = "、";
+                // }
 
-                if (dataseat.qingyise) {
-                    str += sep + "清一色";
-                    sep = "、";
-                }
+                // if (dataseat.qingyise) {
+                //     str += sep + "清一色";
+                //     sep = "、";
+                // }
 
-                if (dataseat.menqing) {
-                    str += sep + "门清";
-                    sep = "、";
-                }
+                // if (dataseat.menqing) {
+                //     str += sep + "门清";
+                //     sep = "、";
+                // }
 
-                if (dataseat.jingouhu) {
-                    str += sep + "金钩胡";
-                    sep = "、";
-                }
+                // if (dataseat.jingouhu) {
+                //     str += sep + "金钩胡";
+                //     sep = "、";
+                // }
 
-                if (dataseat.zhongzhang) {
-                    str += sep + "中张";
-                    sep = "、";
-                }
+                // if (dataseat.zhongzhang) {
+                //     str += sep + "中张";
+                //     sep = "、";
+                // }
 
-                if (info.numofgen > 0) {
-                    str += sep + "根x" + info.numofgen;
-                    sep = "、";
-                }
+                // if (info.numofgen > 0) {
+                //     str += sep + "根x" + info.numofgen;
+                //     sep = "、";
+                // }
 
-                if (sep == "") {
-                    str += "平胡";
-                }
+                // if (sep == "") {
+                //     str += "平胡";
+                // }
 
-                str += "、" + info.fan + "番";
+                // str += "、" + info.fan + "番";
 
-                str += ")";
-                actionArr.push(str);
+                // str += ")";
+                // actionArr.push(str);
             }
 
             seatView.hu.active = hued;
 
-            if (userData.melds.length) {
-                actionArr.push("刻x" + userData.melds.length);
-            }
+            // if (userData.melds.length) {
+            //     actionArr.push("刻x" + userData.melds.length);
+            // }
 
             seatView.username.string = cc.vv.gameNetMgr.seats[i].name;
-            seatView.zhuang.active = cc.vv.gameNetMgr.button == i;
-            seatView.reason.string = actionArr.join("、");
+            seatView.zhuang.active = cc.vv.gameNetMgr.dealer == i;
+            // seatView.reason.string = actionArr.join("、");
 
             //
-            if (userData.score > 0) {
-                seatView.score.string = "+" + userData.score;
-            } else {
-                seatView.score.string = userData.score;
-            }
+            // if (userData.score > 0) {
+            //     seatView.score.string = "+" + userData.score;
+            // } else {
+            //     seatView.score.string = userData.score;
+            // }
 
             //隐藏所有牌
             for (var k = 0; k < seatView.mahjongs.childrenCount; ++k) {
@@ -254,13 +250,13 @@ cc.Class({
 
             cc.vv.mahjongmgr.sortTiles(userData.holds, userData.dingque);
 
-            var numOfGangs = userData.melds.length;
+            var numOfMelds = userData.melds.length;
 
-            var lackingNum = (userData.pengs.length + numOfGangs) * 3;
+            var numOfMeldsTiles = (userData.pengs.length + numOfMelds) * 3;
             //显示相关的牌
             for (var k = 0; k < userData.holds.length; ++k) {
                 var pai = userData.holds[k];
-                var n = seatView.mahjongs.children[k + lackingNum];
+                var n = seatView.mahjongs.children[k + numOfMeldsTiles];
                 n.active = true;
                 var sprite = n.getComponent(cc.Sprite);
                 sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("M_", pai);
@@ -278,30 +274,6 @@ cc.Class({
                 this.drawMeld(seatView, index, melds[k]);
                 index++;
             }
-
-            // var melds = userData.diangangs;
-            // for (var k = 0; k < melds.length; ++k) {
-            //     var tile = melds[k];
-            //     this.drawMeld(seatView, index, tile, "meld_exposed_kong");
-            //     index++;
-            // }
-
-            // var melds = userData.wangangs;
-            // for (var k = 0; k < melds.length; ++k) {
-            //     var tile = melds[k];
-            //     this.drawMeld(seatView, index, tile, "meld_pong_to_kong");
-            //     index++;
-            // }
-
-            //初始化碰牌
-            // var pengs = userData.pengs
-            // if (pengs) {
-            //     for (var k = 0; k < pengs.length; ++k) {
-            //         var tile = pengs[k];
-            //         this.drawMeld(seatView, index, tile, "peng");
-            //         index++;
-            //     }
-            // }
         }
     },
 
@@ -366,11 +338,11 @@ cc.Class({
     onBtnReadyClicked: function () {
         console.log("onBtnReadyClicked");
         if (this._isGameEnd) {
-            this._gameresult.active = true;
+            this._nodeGameResult.active = true;
         } else {
             cc.vv.net.send("req_seat_ready");
         }
-        this._gameover.active = false;
+        this._nodeGameOver.active = false;
     },
 
     onBtnShareClicked: function () {

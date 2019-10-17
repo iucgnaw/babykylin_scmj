@@ -47,7 +47,7 @@ cc.Class({
         var btnVoice = cc.find("Canvas/btn_voice");
         if (btnVoice) {
             btnVoice.on(cc.Node.EventType.TOUCH_START, function () {
-                console.log("cc.Node.EventType.TOUCH_START");
+                // console.log("cc.Node.EventType.TOUCH_START");
                 cc.vv.voiceMgr.prepare("record.amr");
                 self._lastTouchTime = Date.now();
                 self._voice.active = true;
@@ -55,11 +55,11 @@ cc.Class({
             });
 
             btnVoice.on(cc.Node.EventType.TOUCH_MOVE, function () {
-                console.log("cc.Node.EventType.TOUCH_MOVE");
+                // console.log("cc.Node.EventType.TOUCH_MOVE");
             });
 
             btnVoice.on(cc.Node.EventType.TOUCH_END, function () {
-                console.log("cc.Node.EventType.TOUCH_END");
+                // console.log("cc.Node.EventType.TOUCH_END");
                 if (Date.now() - self._lastTouchTime < 1000) {
                     self._voice_failed.active = true;
                     cc.vv.voiceMgr.cancel();
@@ -70,7 +70,7 @@ cc.Class({
             });
 
             btnVoice.on(cc.Node.EventType.TOUCH_CANCEL, function () {
-                console.log("cc.Node.EventType.TOUCH_CANCEL");
+                // console.log("cc.Node.EventType.TOUCH_CANCEL");
                 cc.vv.voiceMgr.cancel();
                 self._lastTouchTime = null;
                 self._voice.active = false;

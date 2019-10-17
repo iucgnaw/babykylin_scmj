@@ -131,7 +131,7 @@ window.boot = function () {
                     }
                 }
                 cc.loader.onProgress = null;
-                console.log('Success to load scene: ' + launchScene);
+                // console.log('Success to load scene: ' + launchScene);
             }
         );
     };

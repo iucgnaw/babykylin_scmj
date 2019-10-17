@@ -90,16 +90,6 @@ cc.Class({
                 this.drawMeld(nodeMelds, sideString, prefabFold, i, meld);
             }
         }
-
-        //初始化碰牌
-        // var pongs = a_seatData.pengs
-        // if (pongs) {
-        //     for (var i = 0; i < pongs.length; ++i) {
-        //         var tile = pongs[i];
-        //         this.drawMeld(nodePongKong, side, prefabFold, meldNum, tile, "peng");
-        //         meldNum++;
-        //     }
-        // }
     },
 
     drawMeld: function (a_nodePongKong, a_side, a_prefab, a_meldNum, a_meld) {
@@ -161,7 +151,7 @@ cc.Class({
                 break;
             }
         }
-        // If has 4th tile, draw it
+        // If doesn't have 4th tile, return
         if (a_meld.tiles.length < 4) {
             return;
         }

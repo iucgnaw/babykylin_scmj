@@ -32,14 +32,14 @@ cc.Class({
         }, this.onAuth);
     },
 
-    onAuth: function (ret) {
+    onAuth: function (a_ret) {
         var self = cc.vv.userMgr;
-        if (ret.errcode !== 0) {
-            console.log(ret.errmsg);
+        if (a_ret.errcode !== 0) {
+            console.log(a_ret.errmsg);
         } else {
-            self.account = ret.account;
-            self.sign = ret.sign;
-            cc.vv.http.url = "http://" + cc.vv.SI.hall;
+            self.account = a_ret.account;
+            self.sign = a_ret.sign;
+            cc.vv.http.g_currentUrl = "http://" + cc.vv.serverInfo.hall;
             self.login();
         }
     },
@@ -48,13 +48,13 @@ cc.Class({
         var self = this;
         var onLogin = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 if (!ret.userid) {
                     //jump to register user info.
                     cc.director.loadScene("createrole");
                 } else {
-                    console.log(ret);
+                    // console.log(ret);
                     self.account = ret.account;
                     self.userId = ret.userid;
                     self.userName = ret.name;
@@ -80,7 +80,7 @@ cc.Class({
         var self = this;
         var onCreate = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 self.login();
             }
@@ -129,7 +129,7 @@ cc.Class({
         var self = this;
         var onGet = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 console.log(ret.history);
                 if (callback != null) {
@@ -148,7 +148,7 @@ cc.Class({
         var self = this;
         var onGet = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 console.log(ret.data);
                 callback(ret.data);
@@ -167,7 +167,7 @@ cc.Class({
         var self = this;
         var onGet = function (ret) {
             if (ret.errcode !== 0) {
-                console.log(ret.errmsg);
+                console.error(ret.errmsg);
             } else {
                 console.log(ret.data);
                 callback(ret.data);

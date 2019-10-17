@@ -42,7 +42,7 @@ cc.Class({
     // use this for initialization
     onLoad: function () {
         cc.vv.utils.setFitSreenMode();
-        cc.vv.http.url = cc.vv.http.master_url;
+        cc.vv.http.g_currentUrl = cc.vv.http.g_masterUrl;
         cc.vv.net.addHandler("push_need_create_role", function () {
             console.log("onLoad:push_need_create_role");
             cc.director.loadScene("createrole");

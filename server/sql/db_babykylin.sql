@@ -107,7 +107,7 @@ CREATE TABLE `t_rooms` (
   `base_info` varchar(256) NOT NULL DEFAULT '0',
   `create_time` int(11) NOT NULL,
   `num_of_turns` int(11) NOT NULL DEFAULT '0',
-  `next_button` int(11) NOT NULL DEFAULT '0',
+  `next_dealer` int(11) NOT NULL DEFAULT '0',
   `user_id0` int(11) NOT NULL DEFAULT '0',
   `user_icon0` varchar(128) NOT NULL DEFAULT '',
   `user_name0` varchar(32) NOT NULL DEFAULT '',
@@ -159,7 +159,7 @@ CREATE TABLE `t_users` (
 -- ----------------------------
 -- Records of t_users
 -- ----------------------------
-INSERT INTO `t_users` VALUES ('9', 'guest_123456', '5aSP5L6v6LWM5L6g', '0', null, '1', '0', '1000', '21', '526035', '');
-INSERT INTO `t_users` VALUES ('10', 'guest_asdf1', '55qH55Sr56iz6LWi', '0', null, '1', '0', '1000', '21', '526035', '');
-INSERT INTO `t_users` VALUES ('11', 'guest_asdf2', '5Lic5pa56ZuA5Zyj', '0', null, '1', '0', '1000', '21', '526035', '');
-INSERT INTO `t_users` VALUES ('12', 'guest_asdf3', '5qyn6Ziz6Ieq5pG4', '0', null, '1', '0', '1000', '21', '526035', '');
+INSERT INTO `t_users` VALUES ('9', 'guest_123456', '5aSP5L6v6LWM5L6g', '0', null, '1', '0', '1000', '1021', '526035', '');
+INSERT INTO `t_users` VALUES ('10', 'guest_asdf1', '55qH55Sr56iz6LWi', '0', null, '1', '0', '1000', '1021', '526035', '');
+INSERT INTO `t_users` VALUES ('11', 'guest_asdf2', '5Lic5pa56ZuA5Zyj', '0', null, '1', '0', '1000', '1021', '526035', '');
+INSERT INTO `t_users` VALUES ('12', 'guest_asdf3', '5qyn6Ziz6Ieq5pG4', '0', null, '1', '0', '1000', '1021', '526035', '');

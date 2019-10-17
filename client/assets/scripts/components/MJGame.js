@@ -47,7 +47,6 @@ cc.Class({
 
         this.gameRoot.active = false;
         this.prepareRoot.active = true;
-        this.initWanfaLabel();
         this.onGameBeign();
         cc.vv.audioMgr.playBGM("bgFight.mp3");
         cc.vv.utils.addEscEvent(this.node);
@@ -145,7 +144,7 @@ cc.Class({
     initDragStuffs: function (a_node) {
         // Break if it is not my turn.
         a_node.on(cc.Node.EventType.TOUCH_START, function (event) {
-            console.log("cc.Node.EventType.TOUCH_START");
+            // console.log("cc.Node.EventType.TOUCH_START");
             if (cc.vv.gameNetMgr.turn != cc.vv.gameNetMgr.seatIndex) {
                 return;
             }
@@ -161,7 +160,7 @@ cc.Class({
         }.bind(this));
 
         a_node.on(cc.Node.EventType.TOUCH_MOVE, function (event) {
-            console.log("cc.Node.EventType.TOUCH_MOVE");
+            // console.log("cc.Node.EventType.TOUCH_MOVE");
             if (cc.vv.gameNetMgr.turn != cc.vv.gameNetMgr.seatIndex) {
                 return;
             }
@@ -186,7 +185,7 @@ cc.Class({
             if (!a_node.interactable) {
                 return;
             }
-            console.log("cc.Node.EventType.TOUCH_END");
+            // console.log("cc.Node.EventType.TOUCH_END");
             this._chupaidrag.active = false;
             a_node.opacity = 255;
             if (event.getLocationY() >= 200) {
@@ -201,7 +200,7 @@ cc.Class({
             if (!a_node.interactable) {
                 return;
             }
-            console.log("cc.Node.EventType.TOUCH_CANCEL");
+            // console.log("cc.Node.EventType.TOUCH_CANCEL");
             this._chupaidrag.active = false;
             a_node.opacity = 255;
             if (event.getLocationY() >= 200) {
@@ -340,7 +339,7 @@ cc.Class({
             self._remainingTilesCount.string = "剩余" + cc.vv.gameNetMgr.numOfMJ + "张";
         });
 
-        this.node.on("event_remaining_hands", function (a_data) {
+        this.node.on("event_number_of_hands", function (a_data) {
             self._remainingHandsCount.string = "" + cc.vv.gameNetMgr.numOfGames + "/" + cc.vv.gameNetMgr.maxNumOfGames + "局";
         });
 
@@ -429,7 +428,7 @@ cc.Class({
         this.node.on("event_login_result", function () {
             self.gameRoot.active = false;
             self.prepareRoot.active = true;
-            console.log("event_login_result");
+            // console.log("event_login_result");
         });
     },
 
@@ -453,7 +452,7 @@ cc.Class({
             // var sprite = child.getChildByName("opTarget").getComponent(cc.Sprite);
             // sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("M_", a_pai);
 
-            // Enable button
+            // Enable action
             //     var btn = child.getChildByName(a_btnName);
             //     btn.active = true;
             //     btn.pai = a_pai;
@@ -495,11 +494,6 @@ cc.Class({
         //         }
         //     }
         // }
-    },
-
-    initWanfaLabel: function () {
-        var lableWanfa = cc.find("Canvas/infobar/wanfa").getComponent(cc.Label);
-        lableWanfa.string = cc.vv.gameNetMgr.getWanfa();
     },
 
     initHupai: function (a_localIndex, a_pai) {
@@ -848,9 +842,17 @@ cc.Class({
         }
 
         if (a_event.target.name == "btnActionChow") {
-            cc.vv.net.send("req_chow", tile); // TODO
+            if (meld.tiles.length != 2) {
+                alert("客户端消息：\r\n请选择2张手牌。");
+                return;
+            }
+            cc.vv.net.send("req_chow", meld);
         } else if (a_event.target.name == "btnActionPong") {
-            cc.vv.net.send("req_pong");
+            if (meld.tiles.length != 2) {
+                alert("客户端消息：\r\n请选择2张手牌。");
+                return;
+            }
+            cc.vv.net.send("req_pong", meld);
         } else if (a_event.target.name == "btnActionKong") {
             if (meld.tiles.length == 1) {
                 meld.type = "meld_pong_to_kong";
@@ -890,7 +892,7 @@ cc.Class({
     update: function (dt) {},
 
     onDestroy: function () {
-        console.log("onDestroy");
+        // console.log("onDestroy");
         if (cc.vv) {
             cc.vv.gameNetMgr.clear();
         }
