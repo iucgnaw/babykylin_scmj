@@ -1,4 +1,4 @@
-﻿var db = require("../utils/db");
+﻿var m_db = require("../utils/db");
 
 var rooms = {};
 var creatingRooms = {};
@@ -6,10 +6,10 @@ var creatingRooms = {};
 var userLocation = {};
 var totalRooms = 0;
 
-var DI_FEN = [1, 2, 5];
-var MAX_FAN = [3, 4, 5];
-var JU_SHU = [4, 8];
-var JU_SHU_COST = [2, 3];
+var g_basePoint = [1, 2, 5];
+var g_maxFaan = [3, 4, 5];
+var g_totalHands = [4, 8];
+var g_roomCost = [2, 3];
 
 function generateRoomId() {
 	var roomId = "";
@@ -36,21 +36,20 @@ function constructRoomFromDb(dbdata) {
 	var roomId = roomInfo.id;
 
 	for (var i = 0; i < 4; ++i) {
-		var s = roomInfo.seats[i] = {};
-		s.userId = dbdata["user_id" + i];
-		s.score = dbdata["user_score" + i];
-		s.name = dbdata["user_name" + i];
-		s.ready = false;
-		s.seatIndex = i;
-		s.numZiMo = 0;
-		s.numJiePao = 0;
-		s.numDianPao = 0;
-		s.numAnGang = 0;
-		s.numMingGang = 0;
-		s.numChaJiao = 0;
+		var seat = roomInfo.seats[i] = {};
+		seat.userId = dbdata["user_id" + i];
+		seat.score = dbdata["user_score" + i];
+		seat.name = dbdata["user_name" + i];
+		seat.ready = false;
+		seat.seatIndex = i;
+		seat.numZiMo = 0;
+		seat.numJiePao = 0;
+		seat.numDianPao = 0;
+		seat.numAnGang = 0;
+		seat.numMingGang = 0;
 
-		if (s.userId > 0) {
-			userLocation[s.userId] = {
+		if (seat.userId > 0) {
+			userLocation[seat.userId] = {
 				roomId: roomId,
 				seatIndex: i
 			};
@@ -77,7 +76,7 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 		return;
 	}
 
-	if (roomConf.difen < 0 || roomConf.difen > DI_FEN.length) {
+	if (roomConf.difen < 0 || roomConf.difen > g_basePoint.length) {
 		callback(1, null);
 		return;
 	}
@@ -87,17 +86,17 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 		return;
 	}
 
-	if (roomConf.zuidafanshu < 0 || roomConf.zuidafanshu > MAX_FAN.length) {
+	if (roomConf.zuidafanshu < 0 || roomConf.zuidafanshu > g_maxFaan.length) {
 		callback(1, null);
 		return;
 	}
 
-	if (roomConf.jushuxuanze < 0 || roomConf.jushuxuanze > JU_SHU.length) {
+	if (roomConf.jushuxuanze < 0 || roomConf.jushuxuanze > g_totalHands.length) {
 		callback(1, null);
 		return;
 	}
 
-	var cost = JU_SHU_COST[roomConf.jushuxuanze];
+	var cost = g_roomCost[roomConf.jushuxuanze];
 	if (cost > gems) {
 		callback(2222, null);
 		return;
@@ -109,7 +108,7 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 			fnCreate();
 		} else {
 			creatingRooms[roomId] = true;
-			db.is_room_exist(roomId, function (ret) {
+			m_db.is_room_exist(roomId, function (ret) {
 
 				if (ret) {
 					delete creatingRooms[roomId];
@@ -125,15 +124,15 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 						seats: [],
 						conf: {
 							type: roomConf.type,
-							baseScore: DI_FEN[roomConf.difen],
+							baseScore: g_basePoint[roomConf.difen],
 							zimo: roomConf.zimo,
 							jiangdui: roomConf.jiangdui,
 							hsz: roomConf.huansanzhang,
 							dianganghua: parseInt(roomConf.dianganghua),
 							menqing: roomConf.menqing,
 							tiandihu: roomConf.tiandihu,
-							maxFan: MAX_FAN[roomConf.zuidafanshu],
-							maxGames: JU_SHU[roomConf.jushuxuanze],
+							maxFan: g_maxFaan[roomConf.zuidafanshu],
+							maxGames: g_totalHands[roomConf.jushuxuanze],
 							creator: creator,
 						}
 					};
@@ -153,14 +152,13 @@ exports.createRoom = function (creator, roomConf, gems, ip, port, callback) {
 							numDianPao: 0,
 							numAnGang: 0,
 							numMingGang: 0,
-							numChaJiao: 0,
 						});
 					}
 
 
 					//写入数据库
 					var conf = roomInfo.conf;
-					db.create_room(roomInfo.id, roomInfo.conf, ip, port, createTime, function (uuid) {
+					m_db.create_room(roomInfo.id, roomInfo.conf, ip, port, createTime, function (uuid) {
 						delete creatingRooms[roomId];
 						if (uuid != null) {
 							roomInfo.uuid = uuid;
@@ -190,20 +188,20 @@ exports.destroy = function (roomId) {
 		var userId = roomInfo.seats[i].userId;
 		if (userId > 0) {
 			delete userLocation[userId];
-			db.set_room_id_of_user(userId, null);
+			m_db.set_room_id_of_user(userId, null);
 		}
 	}
 
 	delete rooms[roomId];
 	totalRooms--;
-	db.delete_room(roomId);
+	m_db.delete_room(roomId);
 }
 
 exports.getTotalRooms = function () {
 	return totalRooms;
 }
 
-exports.getRoom = function (roomId) {
+exports.getRoomByRoomId = function (roomId) {
 	return rooms[roomId];
 };
 
@@ -232,7 +230,7 @@ exports.enterRoom = function (roomId, userId, userName, callback) {
 					seatIndex: i
 				};
 				//console.log(userLocation[userId]);
-				db.update_seat_info(roomId, i, seat.userId, "", seat.name);
+				m_db.update_seat_info(roomId, i, seat.userId, "", seat.name);
 				//正常
 				return 0;
 			}
@@ -245,7 +243,7 @@ exports.enterRoom = function (roomId, userId, userName, callback) {
 		var ret = fnTakeSeat(room);
 		callback(ret);
 	} else {
-		db.get_room_data(roomId, function (dbdata) {
+		m_db.get_room_data(roomId, function (dbdata) {
 			if (dbdata == null) {
 				//找不到房间
 				callback(2);
@@ -260,24 +258,21 @@ exports.enterRoom = function (roomId, userId, userName, callback) {
 	}
 };
 
-exports.setReady = function (userId, value) {
-	var roomId = exports.getRoomIdByUserId(userId);
+exports.setReady = function (a_userId, a_ready) {
+	var roomId = exports.getRoomIdByUserId(a_userId);
 	if (roomId == null) {
 		return;
 	}
-
-	var room = exports.getRoom(roomId);
+	var room = exports.getRoomByRoomId(roomId);
 	if (room == null) {
 		return;
 	}
-
-	var seatIndex = exports.getUserSeat(userId);
+	var seatIndex = exports.getSeatIndexByUserId(a_userId);
 	if (seatIndex == null) {
 		return;
 	}
 
-	var s = room.seats[seatIndex];
-	s.ready = value;
+	room.seats[seatIndex].ready = a_ready;
 }
 
 exports.isReady = function (userId) {
@@ -285,19 +280,16 @@ exports.isReady = function (userId) {
 	if (roomId == null) {
 		return;
 	}
-
-	var room = exports.getRoom(roomId);
+	var room = exports.getRoomByRoomId(roomId);
 	if (room == null) {
 		return;
 	}
-
-	var seatIndex = exports.getUserSeat(userId);
+	var seatIndex = exports.getSeatIndexByUserId(userId);
 	if (seatIndex == null) {
 		return;
 	}
 
-	var s = room.seats[seatIndex];
-	return s.ready;
+	return room.seats[seatIndex].ready;
 }
 
 
@@ -309,7 +301,7 @@ exports.getRoomIdByUserId = function (userId) {
 	return null;
 };
 
-exports.getUserSeat = function (userId) {
+exports.getSeatIndexByUserId = function (userId) {
 	var location = userLocation[userId];
 	//console.log(userLocation[userId]);
 	if (location != null) {
@@ -346,7 +338,7 @@ exports.exitRoom = function (userId) {
 		}
 	}
 
-	db.set_room_id_of_user(userId, null);
+	m_db.set_room_id_of_user(userId, null);
 
 	if (numOfPlayers == 0) {
 		exports.destroy(roomId);

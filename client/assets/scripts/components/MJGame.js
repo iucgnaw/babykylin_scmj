@@ -57,12 +57,12 @@ cc.Class({
         var gameChild = this.node.getChildByName("game");
 
         this._remainingTilesCount = gameChild.getChildByName("mjcount").getComponent(cc.Label);
-        this._remainingTilesCount.string = "剩余" + cc.vv.gameNetMgr.numOfMJ + "张";
+        this._remainingTilesCount.string = "剩余" + cc.vv.gameNetMgr.tilesWallRemaining + "张";
         this._remainingHandsCount = gameChild.getChildByName("gamecount").getComponent(cc.Label);
         this._remainingHandsCount.string = "" + cc.vv.gameNetMgr.numOfGames + "/" + cc.vv.gameNetMgr.maxNumOfGames + "局";
 
         var myselfChild = gameChild.getChildByName("myself");
-        var myHands = myselfChild.getChildByName("holds");
+        var myHands = myselfChild.getChildByName("handTiles");
 
         this._chupaidrag = gameChild.getChildByName("chupaidrag");
         this._chupaidrag.active = false;
@@ -95,7 +95,7 @@ cc.Class({
 
             var opt = sideChild.getChildByName("opt");
             opt.active = false;
-            var sprite = opt.getChildByName("pai").getComponent(cc.Sprite);
+            var sprite = opt.getChildByName("tile").getComponent(cc.Sprite);
             var data = {
                 node: opt,
                 sprite: sprite
@@ -115,7 +115,7 @@ cc.Class({
     },
 
     checkIp: function () {
-        if (cc.vv.gameNetMgr.gamestate == "") {
+        if (cc.vv.gameNetMgr.fsmState == "") {
             return;
         }
         var selfData = cc.vv.gameNetMgr.getSelfData();
@@ -261,7 +261,7 @@ cc.Class({
         this.node.on("event_draw_tile", function (a_data) {
             self.hideDiscardingTiles();
 
-            var tile = a_data.pai;
+            var tile = a_data.tile;
             var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_data.seatIndex);
             if (localIndex == 0) {
                 var tileSpritePos = 13; // The draw tile position
@@ -286,7 +286,7 @@ cc.Class({
 
         this.node.on("event_win", function (a_data) {
             //如果不是玩家自己，则将玩家的牌都放倒
-            var seatIndex = a_data.seatindex;
+            var seatIndex = a_data.seatIndex;
             var localIndex = cc.vv.gameNetMgr.getLocalIndex(seatIndex);
             var hupai = self._winTilesTips[localIndex];
             hupai.active = true;
@@ -301,8 +301,8 @@ cc.Class({
                 hupai.getChildByName("sprZimo").active = false;
                 self.initHupai(localIndex, a_data.hupai);
                 if (a_data.iszimo) {
-                    if (seatData.seatindex == cc.vv.gameNetMgr.seatIndex) {
-                        seatData.holds.pop();
+                    if (seatData.seatIndex == cc.vv.gameNetMgr.seatIndex) {
+                        seatData.handTiles.pop();
                         self.drawMyHands();
                     } else {
                         self.drawOtherHands(seatData);
@@ -336,7 +336,7 @@ cc.Class({
         });
 
         this.node.on("event_remaining_tiles", function (a_data) {
-            self._remainingTilesCount.string = "剩余" + cc.vv.gameNetMgr.numOfMJ + "张";
+            self._remainingTilesCount.string = "剩余" + cc.vv.gameNetMgr.tilesWallRemaining + "张";
         });
 
         this.node.on("event_number_of_hands", function (a_data) {
@@ -352,13 +352,13 @@ cc.Class({
             self.hideDiscardingTiles();
             var seatData = a_data.seatData;
             //如果是自己，则刷新手牌
-            if (seatData.seatindex == cc.vv.gameNetMgr.seatIndex) {
+            if (seatData.seatIndex == cc.vv.gameNetMgr.seatIndex) {
                 self.drawMyHands();
             } else {
                 self.drawOtherHands(seatData);
             }
             self.showDiscardingTile();
-            var audioUrl = cc.vv.mahjongmgr.getAudioUrlByTile(a_data.pai);
+            var audioUrl = cc.vv.mahjongmgr.getAudioUrlByTile(a_data.tile);
             cc.vv.audioMgr.playSFX(audioUrl);
         });
 
@@ -368,7 +368,7 @@ cc.Class({
 
             var seatData = a_data;
             //如果是自己，则刷新手牌
-            if (seatData.seatindex == cc.vv.gameNetMgr.seatIndex) {
+            if (seatData.seatIndex == cc.vv.gameNetMgr.seatIndex) {
                 self.drawMyHands();
             }
             cc.vv.audioMgr.playSFX("give.mp3");
@@ -386,12 +386,12 @@ cc.Class({
             self.hideDiscardingTiles();
 
             var seatData = a_data;
-            if (seatData.seatindex == cc.vv.gameNetMgr.seatIndex) {
+            if (seatData.seatIndex == cc.vv.gameNetMgr.seatIndex) {
                 self.drawMyHands();
             } else {
                 self.drawOtherHands(seatData);
             }
-            var localIndex = self.getLocalIndex(seatData.seatindex);
+            var localIndex = self.getLocalIndex(seatData.seatIndex);
             self.playEfx(localIndex, "play_peng");
             cc.vv.audioMgr.playSFX("nv/peng.mp3");
             // self.hideActions();
@@ -402,13 +402,13 @@ cc.Class({
             var seatData = a_data.seatData;
             var meldType = a_data.meldType;
 
-            if (seatData.seatindex == cc.vv.gameNetMgr.seatIndex) { // Here only draw hands, in onPengGangChanged() draw melds
+            if (seatData.seatIndex == cc.vv.gameNetMgr.seatIndex) { // Here only draw hands, in onPengGangChanged() draw melds
                 self.drawMyHands();
             } else {
                 self.drawOtherHands(seatData);
             }
 
-            var localIndex = self.getLocalIndex(seatData.seatindex);
+            var localIndex = self.getLocalIndex(seatData.seatIndex);
             if (meldType == "meld_pong_to_kong") {
                 self.playEfx(localIndex, "play_guafeng");
                 cc.vv.audioMgr.playSFX("guafeng.mp3");
@@ -455,7 +455,7 @@ cc.Class({
             // Enable action
             //     var btn = child.getChildByName(a_btnName);
             //     btn.active = true;
-            //     btn.pai = a_pai;
+            //     btn.tile = a_pai;
             //     return;
             // }
         }
@@ -482,10 +482,10 @@ cc.Class({
         // if (a_data && (a_data.hu || a_data.gang || a_data.peng)) {
         //     this._nodeActions.active = true;
         //     if (a_data.hu) {
-        //         this.addAction("btnActionWin", a_data.pai);
+        //         this.addAction("btnActionWin", a_data.tile);
         //     }
         //     if (a_data.peng) {
-        //         this.addAction("btnActionPong", a_data.pai);
+        //         this.addAction("btnActionPong", a_data.tile);
         //     }
         //     if (a_data.gang) {
         //         for (var i = 0; i < a_data.gangpai.length; ++i) {
@@ -541,7 +541,7 @@ cc.Class({
                 for (var j = 0; j < seatData.huinfo.length; ++j) {
                     var info = seatData.huinfo[j];
                     if (info.ishupai) {
-                        this.initHupai(localIndex, info.pai);
+                        this.initHupai(localIndex, info.tile);
                     }
                 }
             }
@@ -553,16 +553,16 @@ cc.Class({
         var gameChild = this.node.getChildByName("game");
         for (var i = 0; i < sides.length; ++i) {
             var sideChild = gameChild.getChildByName(sides[i]);
-            var holds = sideChild.getChildByName("holds");
-            for (var j = 0; j < holds.childrenCount; ++j) {
-                var nodeTile = holds.children[j];
+            var handTiles = sideChild.getChildByName("handTiles");
+            for (var j = 0; j < handTiles.childrenCount; ++j) {
+                var nodeTile = handTiles.children[j];
                 nodeTile.active = true;
                 var sprite = nodeTile.getComponent(cc.Sprite);
                 sprite.spriteFrame = cc.vv.mahjongmgr.holdsEmpty[i + 1];
             }
         }
 
-        if (cc.vv.gameNetMgr.gamestate == "" && cc.vv.replayMgr.isReplaying() == false) {
+        if (cc.vv.gameNetMgr.fsmState == "" && cc.vv.replayMgr.isReplaying() == false) {
             return;
         }
 
@@ -637,7 +637,7 @@ cc.Class({
 
         var nodeGame = this.node.getChildByName("game");
         var nodeSide = nodeGame.getChildByName(side);
-        var nodeHands = nodeSide.getChildByName("holds");
+        var nodeHands = nodeSide.getChildByName("handTiles");
 
         var lastTilePosition = this.getLastTilePositionBySide(side, 13);
         var nodeTile = nodeHands.children[lastTilePosition];
@@ -662,25 +662,25 @@ cc.Class({
 
         var gameChild = this.node.getChildByName("game");
         var sideChild = gameChild.getChildByName(side);
-        var holds = sideChild.getChildByName("holds");
+        var handTiles = sideChild.getChildByName("handTiles");
         var spriteFrame = cc.vv.mahjongmgr.getFoldSpriteFrame(side);
-        for (var i = 0; i < holds.childrenCount; ++i) {
-            var nodeTile = holds.children[i];
+        for (var i = 0; i < handTiles.childrenCount; ++i) {
+            var nodeTile = handTiles.children[i];
             var sprite = nodeTile.getComponent(cc.Sprite);
             sprite.spriteFrame = spriteFrame;
         }
     },
 
     drawOtherHands: function (a_seatData) {
-        //console.log("seat:" + seatData.seatindex);
-        var localIndex = this.getLocalIndex(a_seatData.seatindex);
+        //console.log("seat:" + seatData.seatIndex);
+        var localIndex = this.getLocalIndex(a_seatData.seatIndex);
         if (localIndex == 0) {
             return;
         }
         var side = cc.vv.mahjongmgr.getSideString(localIndex);
         var game = this.node.getChildByName("game");
         var sideRoot = game.getChildByName(side);
-        var sideHolds = sideRoot.getChildByName("holds");
+        var sideHolds = sideRoot.getChildByName("handTiles");
         var meldTilesNum = a_seatData.melds.length;
         meldTilesNum *= 3; // Each set shows width of 3 tiles
         for (var i = 0; i < meldTilesNum; ++i) {
@@ -689,16 +689,16 @@ cc.Class({
         }
 
         var pre = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
-        var holds = this.sortHands(a_seatData);
-        if (holds != null && holds.length > 0) {
-            for (var i = 0; i < holds.length; ++i) {
+        var handTiles = this.sortHands(a_seatData);
+        if (handTiles != null && handTiles.length > 0) {
+            for (var i = 0; i < handTiles.length; ++i) {
                 var idx = this.getLastTilePositionBySide(side, i + meldTilesNum);
                 var sprite = sideHolds.children[idx].getComponent(cc.Sprite);
                 sprite.node.active = true; // Show this tile
-                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(pre, holds[i]);
+                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile(pre, handTiles[i]);
             }
 
-            if (holds.length + meldTilesNum == 13) {
+            if (handTiles.length + meldTilesNum == 13) {
                 var lastIdx = this.getLastTilePositionBySide(side, 13);
                 sideHolds.children[lastIdx].active = false; // Hide the last tile
             }
@@ -706,7 +706,7 @@ cc.Class({
     },
 
     sortHands: function (a_seatData) {
-        var hands = a_seatData.holds;
+        var hands = a_seatData.handTiles;
         if (hands == null) {
             return null;
         }
@@ -828,7 +828,7 @@ cc.Class({
     },
 
     onClickAction: function (a_event) {
-        // console.log(a_event.target.pai);
+        // console.log(a_event.target.tile);
 
         var tile;
         var meld = {

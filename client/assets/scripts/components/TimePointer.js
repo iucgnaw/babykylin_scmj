@@ -45,7 +45,7 @@ cc.Class({
         if (cc.vv == null) {
             return;
         }
-        this._arrow.active = cc.vv.gameNetMgr.gamestate == "playing";
+        this._arrow.active = cc.vv.gameNetMgr.fsmState == "playing";
         if (!this._arrow.active) {
             return;
         }

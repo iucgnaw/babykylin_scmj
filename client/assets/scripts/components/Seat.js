@@ -213,11 +213,11 @@ cc.Class({
 
         var seat = cc.vv.gameNetMgr.getSeatByID(this._userId);
         if (seat) {
-            if (seat.huanpais == null) {
-                this._xuanpai.getChildByName("xz").active = true;
-            } else {
-                this._xuanpai.getChildByName("xd").active = true;
-            }
+            // if (seat.huanpais == null) {
+            //     this._xuanpai.getChildByName("xz").active = true;
+            // } else {
+            //     this._xuanpai.getChildByName("xd").active = true;
+            // }
         }
     },
 

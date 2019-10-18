@@ -52,7 +52,7 @@ cc.Class({
 
             viewdata.score = nodeSeatX.getChildByName("score").getComponent(cc.Label);
             viewdata.hu = nodeSeatX.getChildByName("hu");
-            viewdata.mahjongs = nodeSeatX.getChildByName("pai");
+            viewdata.mahjongs = nodeSeatX.getChildByName("tile");
             viewdata.zhuang = nodeSeatX.getChildByName("zhuang");
             viewdata.hupai = nodeSeatX.getChildByName("hupai");
             viewdata._pengandgang = [];
@@ -116,7 +116,7 @@ cc.Class({
                     if (hi < hupaiRoot.children.length) {
                         var hupaiView = hupaiRoot.children[hi];
                         hupaiView.active = true;
-                        hupaiView.getComponent(cc.Sprite).spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", info.pai);
+                        hupaiView.getComponent(cc.Sprite).spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("B_", info.tile);
                         hi++;
                     }
                 }
@@ -195,11 +195,6 @@ cc.Class({
                 //     sep = "、";
                 // }
 
-                // if (dataseat.menqing) {
-                //     str += sep + "门清";
-                //     sep = "、";
-                // }
-
                 // if (dataseat.jingouhu) {
                 //     str += sep + "金钩胡";
                 //     sep = "、";
@@ -248,18 +243,18 @@ cc.Class({
                 n.active = false;
             }
 
-            cc.vv.mahjongmgr.sortTiles(userData.holds, userData.dingque);
+            cc.vv.mahjongmgr.sortTiles(userData.handTiles, userData.dingque);
 
             var numOfMelds = userData.melds.length;
 
-            var numOfMeldsTiles = (userData.pengs.length + numOfMelds) * 3;
+            var numOfMeldsTiles = numOfMelds * 3;
             //显示相关的牌
-            for (var k = 0; k < userData.holds.length; ++k) {
-                var pai = userData.holds[k];
+            for (var k = 0; k < userData.handTiles.length; ++k) {
+                var tile = userData.handTiles[k];
                 var n = seatView.mahjongs.children[k + numOfMeldsTiles];
                 n.active = true;
                 var sprite = n.getComponent(cc.Sprite);
-                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("M_", pai);
+                sprite.spriteFrame = cc.vv.mahjongmgr.getSpriteFrameByTile("M_", tile);
             }
 
 

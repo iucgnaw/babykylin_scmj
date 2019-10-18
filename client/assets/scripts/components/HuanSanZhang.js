@@ -42,7 +42,7 @@ cc.Class({
         });
 
         this.node.on("event_huanpai", function (data) {
-            if (data.seatindex == cc.vv.gameNetMgr.seatIndex) {
+            if (data.seatIndex == cc.vv.gameNetMgr.seatIndex) {
                 self.initHuaipaiInfo();
             }
         });
@@ -120,8 +120,8 @@ cc.Class({
 
         var type = null;
         for (var i = 0; i < this._huanpaiArr.length; ++i) {
-            var pai = this._huanpaiArr[i].tile;
-            var nt = cc.vv.mahjongmgr.getTileType(pai);
+            var tile = this._huanpaiArr[i].tile;
+            var nt = cc.vv.mahjongmgr.getTileType(tile);
             if (type == null) {
                 type = nt;
             } else {

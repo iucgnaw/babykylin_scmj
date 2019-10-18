@@ -1,4 +1,4 @@
-var g_roomMgr = require("./roommgr");
+var m_roomMgr = require("./roommgr");
 var g_userSockets = {};
 var g_userOnline = 0;
 exports.bind = function (a_userId, a_socket) {
@@ -45,7 +45,7 @@ exports.kickAllInRoom = function (a_roomId) {
     if (a_roomId == null) {
         return;
     }
-    var roomInfo = g_roomMgr.getRoom(a_roomId);
+    var roomInfo = m_roomMgr.getRoomByRoomId(a_roomId);
     if (roomInfo == null) {
         return;
     }
@@ -65,11 +65,11 @@ exports.kickAllInRoom = function (a_roomId) {
 };
 
 exports.broadcastInRoom = function (a_event, a_data, a_senderUserId, a_includeSender) {
-    var roomId = g_roomMgr.getRoomIdByUserId(a_senderUserId);
+    var roomId = m_roomMgr.getRoomIdByUserId(a_senderUserId);
     if (roomId == null) {
         return;
     }
-    var roomInfo = g_roomMgr.getRoom(roomId);
+    var roomInfo = m_roomMgr.getRoomByRoomId(roomId);
     if (roomInfo == null) {
         return;
     }

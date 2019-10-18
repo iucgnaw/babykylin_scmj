@@ -1,9 +1,9 @@
-var ACTION_CHUPAI = 1;
-var ACTION_MOPAI = 2;
-var ACTION_PENG = 3;
-var ACTION_GANG = 4;
-var ACTION_HU = 5;
-var ACTION_ZIMO = 6;
+var MJ_ACTION_DISCARD_TILE = 1;
+var MJ_ACTION_DRAW_TILE = 2;
+var MJ_ACTION_PONG = 3;
+var MJ_ACTION_KONG = 4;
+var MJ_ACTION_WIN = 5;
+var MJ_ACTION_WIN_SELFDRAW = 6;
 
 cc.Class({
     extends: cc.Component,
@@ -54,19 +54,19 @@ cc.Class({
 
         var si = this._actionRecords[this._actionRecordsIndex++];
         var action = this._actionRecords[this._actionRecordsIndex++];
-        var pai = this._actionRecords[this._actionRecordsIndex++];
+        var tile = this._actionRecords[this._actionRecordsIndex++];
         return {
             si: si,
             type: action,
-            pai: pai
+            tile: tile
         };
     },
 
     takeAction: function () {
         var action = this.getNextAction();
-        if (this._lastAction != null && this._lastAction.type == ACTION_CHUPAI) {
-            if (action != null && action.type != ACTION_PENG && action.type != ACTION_GANG && action.type != ACTION_HU) {
-                cc.vv.gameNetMgr.doGuo(this._lastAction.si, this._lastAction.pai);
+        if (this._lastAction != null && this._lastAction.type == MJ_ACTION_DISCARD_TILE) {
+            if (action != null && action.type != MJ_ACTION_PONG && action.type != MJ_ACTION_KONG && action.type != MJ_ACTION_WIN) {
+                cc.vv.gameNetMgr.doGuo(this._lastAction.si, this._lastAction.tile);
             }
         }
         this._lastAction = action;
@@ -74,31 +74,31 @@ cc.Class({
             return -1;
         }
         var nextActionDelay = 1.0;
-        if (action.type == ACTION_CHUPAI) {
-            //console.log("ACTION_CHUPAI");
-            cc.vv.gameNetMgr.doDiscardTile(action.si, action.pai);
+        if (action.type == MJ_ACTION_DISCARD_TILE) {
+            //console.log("MJ_ACTION_DISCARD_TILE");
+            cc.vv.gameNetMgr.doDiscardTile(action.si, action.tile);
             return 1.0;
-        } else if (action.type == ACTION_MOPAI) {
-            //console.log("ACTION_MOPAI");
-            cc.vv.gameNetMgr.doDrawTile(action.si, action.pai);
+        } else if (action.type == MJ_ACTION_DRAW_TILE) {
+            //console.log("MJ_ACTION_DRAW_TILE");
+            cc.vv.gameNetMgr.doDrawTile(action.si, action.tile);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 0.5;
-        } else if (action.type == ACTION_PENG) {
-            //console.log("ACTION_PENG");
-            cc.vv.gameNetMgr.doPeng(action.si, action.pai);
+        } else if (action.type == MJ_ACTION_PONG) {
+            //console.log("MJ_ACTION_PONG");
+            cc.vv.gameNetMgr.doPeng(action.si, action.tile);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 1.0;
-        } else if (action.type == ACTION_GANG) {
-            //console.log("ACTION_GANG");
+        } else if (action.type == MJ_ACTION_KONG) {
+            //console.log("MJ_ACTION_KONG");
             cc.vv.gameNetMgr.dispatchEvent("event_call_kong", action.si);
-            cc.vv.gameNetMgr.doGang(action.si, action.pai);
+            cc.vv.gameNetMgr.doGang(action.si, action.tile);
             cc.vv.gameNetMgr.doTurnChange(action.si);
             return 1.0;
-        } else if (action.type == ACTION_HU) {
-            //console.log("ACTION_HU");
+        } else if (action.type == MJ_ACTION_WIN) {
+            //console.log("MJ_ACTION_WIN");
             cc.vv.gameNetMgr.doHu({
-                seatindex: action.si,
-                hupai: action.pai,
+                seatIndex: action.si,
+                hupai: action.tile,
                 iszimo: false
             });
             return 1.5;

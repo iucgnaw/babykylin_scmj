@@ -8828,7 +8828,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "holds",
+    "_name": "handTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 192
@@ -10259,7 +10259,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "folds",
+    "_name": "discardedTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 192
@@ -13059,7 +13059,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 282
@@ -16373,7 +16373,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "holds",
+    "_name": "handTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 353
@@ -18557,7 +18557,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "folds",
+    "_name": "discardedTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 353
@@ -21414,7 +21414,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 460
@@ -23975,7 +23975,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "holds",
+    "_name": "handTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 514
@@ -25349,7 +25349,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "folds",
+    "_name": "discardedTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 514
@@ -28959,7 +28959,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 621
@@ -31594,7 +31594,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "folds",
+    "_name": "discardedTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 677
@@ -34716,7 +34716,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "holds",
+    "_name": "handTiles",
     "_objFlags": 0,
     "_parent": {
       "__id__": 677
@@ -37722,7 +37722,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 827
@@ -62312,7 +62312,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1396
@@ -64168,7 +64168,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1443
@@ -66358,7 +66358,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1490
@@ -68548,7 +68548,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1537
@@ -71553,7 +71553,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1601
@@ -74485,7 +74485,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1666
@@ -77506,7 +77506,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1731
@@ -80527,7 +80527,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "pai",
+    "_name": "tile",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1796

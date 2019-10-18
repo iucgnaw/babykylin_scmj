@@ -1,5 +1,5 @@
 var g_mysql = require("mysql");
-var g_crypto = require('./crypto');
+var m_crypto = require('./crypto');
 
 var g_pool = null;
 
@@ -73,7 +73,7 @@ exports.create_account = function (a_account, a_password, a_callback) {
         return;
     }
 
-    var passwordMd5 = g_crypto.md5(a_password);
+    var passwordMd5 = m_crypto.md5(a_password);
     var sql = 'INSERT INTO t_accounts(account,password) VALUES("' + a_account + '","' + passwordMd5 + '")';
     query(sql, function (a_error, a_rows, a_fields) {
         if (a_error) {
@@ -109,7 +109,7 @@ exports.get_account_info = function (a_account, a_password, a_callback) {
         }
 
         if (a_password != null) {
-            var psw = g_crypto.md5(a_password);
+            var psw = m_crypto.md5(a_password);
             if (a_rows[0].password == psw) {
                 a_callback(null);
                 return;
@@ -161,7 +161,7 @@ exports.get_user_data = function (a_account, a_callback) {
             a_callback(null);
             return;
         }
-        a_rows[0].name = g_crypto.fromBase64(a_rows[0].name);
+        a_rows[0].name = m_crypto.fromBase64(a_rows[0].name);
         a_callback(a_rows[0]);
     });
 };
@@ -184,7 +184,7 @@ exports.get_user_data_by_userid = function (a_userId, a_callback) {
             a_callback(null);
             return;
         }
-        a_rows[0].name = g_crypto.fromBase64(a_rows[0].name);
+        a_rows[0].name = m_crypto.fromBase64(a_rows[0].name);
         a_callback(a_rows[0]);
     });
 };
@@ -345,7 +345,7 @@ exports.create_user = function (a_account, a_name, a_coins, a_gems, a_sex, a_hea
     } else {
         a_headImg = 'null';
     }
-    a_name = g_crypto.toBase64(a_name);
+    a_name = m_crypto.toBase64(a_name);
     var userId = generateUserId();
 
     var sql = 'INSERT INTO t_users(userid,account,name,coins,gems,sex,headimg) VALUES("{0}", "{1}","{2}",{3},{4},{5},{6})';
@@ -371,7 +371,7 @@ exports.update_user_info = function (a_userId, a_name, a_headImg, a_sex, a_callb
     } else {
         a_headImg = 'null';
     }
-    a_name = g_crypto.toBase64(a_name);
+    a_name = m_crypto.toBase64(a_name);
     var sql = 'UPDATE t_users SET name="{0}",headimg={1},sex={2} WHERE account="{3}"';
     sql = sql.format(a_name, a_headImg, a_sex, a_userId);
     console.log(sql);
@@ -396,7 +396,7 @@ exports.get_user_base_info = function (a_userId, a_callback) {
         if (a_error) {
             throw a_error;
         }
-        a_rows[0].name = g_crypto.fromBase64(a_rows[0].name);
+        a_rows[0].name = m_crypto.fromBase64(a_rows[0].name);
         a_callback(a_rows[0]);
     });
 };
@@ -497,7 +497,7 @@ exports.get_room_uuid = function (a_roomId, a_callback) {
 exports.update_seat_info = function (a_roomId, a_seatIndex, a_userId, a_icon, a_name, a_callback) {
     a_callback = a_callback == null ? nop : a_callback;
     var sql = 'UPDATE t_rooms SET user_id{0} = {1},user_icon{0} = "{2}",user_name{0} = "{3}" WHERE id = "{4}"';
-    a_name = g_crypto.toBase64(a_name);
+    a_name = m_crypto.toBase64(a_name);
     sql = sql.format(a_seatIndex, a_userId, a_icon, a_name, a_roomId);
     //console.log(sql);
     query(sql, function (err, row, fields) {
@@ -576,10 +576,10 @@ exports.get_room_data = function (a_roomId, a_callback) {
             throw a_error;
         }
         if (a_rows.length > 0) {
-            a_rows[0].user_name0 = g_crypto.fromBase64(a_rows[0].user_name0);
-            a_rows[0].user_name1 = g_crypto.fromBase64(a_rows[0].user_name1);
-            a_rows[0].user_name2 = g_crypto.fromBase64(a_rows[0].user_name2);
-            a_rows[0].user_name3 = g_crypto.fromBase64(a_rows[0].user_name3);
+            a_rows[0].user_name0 = m_crypto.fromBase64(a_rows[0].user_name0);
+            a_rows[0].user_name1 = m_crypto.fromBase64(a_rows[0].user_name1);
+            a_rows[0].user_name2 = m_crypto.fromBase64(a_rows[0].user_name2);
+            a_rows[0].user_name3 = m_crypto.fromBase64(a_rows[0].user_name3);
             a_callback(a_rows[0]);
         } else {
             a_callback(null);

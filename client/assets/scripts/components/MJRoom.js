@@ -115,7 +115,7 @@ cc.Class({
         });
 
         this.node.on("event_huanpai", function (data) {
-            var idx = data.seatindex;
+            var idx = data.seatIndex;
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             self._seats2[localIdx].refreshXuanPaiState();
         });
@@ -132,14 +132,14 @@ cc.Class({
         });
 
         this.node.on("event_chat", function (data) {
-            var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
+            var idx = cc.vv.gameNetMgr.getSeatIndexByUserId(data.sender);
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             self._seats[localIdx].chat(data.content);
             self._seats2[localIdx].chat(data.content);
         });
 
         this.node.on("event_quick_chat", function (data) {
-            var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
+            var idx = cc.vv.gameNetMgr.getSeatIndexByUserId(data.sender);
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
 
             var index = data.content;
@@ -151,7 +151,7 @@ cc.Class({
         });
 
         this.node.on("event_emoji", function (data) {
-            var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
+            var idx = cc.vv.gameNetMgr.getSeatIndexByUserId(data.sender);
             var localIdx = cc.vv.gameNetMgr.getLocalIndex(idx);
             console.log(data);
             self._seats[localIdx].emoji(data.content);
@@ -167,9 +167,9 @@ cc.Class({
     },
 
     initSingleSeat: function (seat) {
-        var index = cc.vv.gameNetMgr.getLocalIndex(seat.seatindex);
+        var index = cc.vv.gameNetMgr.getLocalIndex(seat.seatIndex);
         var isOffline = !seat.online;
-        var isZhuang = seat.seatindex == cc.vv.gameNetMgr.dealer;
+        var isZhuang = seat.seatIndex == cc.vv.gameNetMgr.dealer;
 
         // console.log("isOffline:" + isOffline);
 
@@ -204,7 +204,7 @@ cc.Class({
 
     onBtnWeichatClicked: function () {
         var title = "<昌花麻将>";
-        cc.vv.anysdkMgr.share("昌花麻将" + title, "房号:" + cc.vv.gameNetMgr.roomId + " 玩法:" + cc.vv.gameNetMgr.getWanfa());
+        cc.vv.anysdkMgr.share("昌花麻将" + title, "房号:" + cc.vv.gameNetMgr.roomId);
     },
 
     onBtnDissolveClicked: function () {
@@ -221,7 +221,7 @@ cc.Class({
         if (this._playingSeat == null && this._voiceMsgQueue.length) {
             console.log("playVoice2");
             var data = this._voiceMsgQueue.shift();
-            var idx = cc.vv.gameNetMgr.getSeatIndexByID(data.sender);
+            var idx = cc.vv.gameNetMgr.getSeatIndexByUserId(data.sender);
             var localIndex = cc.vv.gameNetMgr.getLocalIndex(idx);
             this._playingSeat = localIndex;
             this._seats[localIndex].voiceMsg(true);

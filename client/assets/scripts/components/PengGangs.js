@@ -69,7 +69,7 @@ cc.Class({
         if (a_seatData.melds == null) {
             return;
         }
-        var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatindex);
+        var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatIndex);
         var sideString = cc.vv.mahjongmgr.getSideString(localIndex);
         var prefabFold = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
 

@@ -129,7 +129,6 @@ app.get("/is_room_runing", function (req, res) {
 		return;
 	}
 
-	//var roomInfo = roomMgr.getRoom(roomId);
 	http.send(res, 0, "ok", {
 		runing: true
 	});

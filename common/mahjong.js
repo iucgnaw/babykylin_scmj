@@ -65,7 +65,6 @@ exports.MJ_TILE_FLOWER_CHRYSANTHEMUM = 41;
 exports.MJ_PLAYER_STATE_IDLE = "MJ_PLAYER_STATE_IDLE";
 exports.MJ_PLAYER_STATE_PLAYING = "MJ_PLAYER_STATE_PLAYING";
 
-// function getTileType(a_Tile) {
 exports.getTileType = function (a_Tile) {
 	if (a_Tile >= MJ_TILE_DOT_1 && a_Tile <= MJ_TILE_DOT_9) {
 		return MJ_TILE_TYPE_DOT;

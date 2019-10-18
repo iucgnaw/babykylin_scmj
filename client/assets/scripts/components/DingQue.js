@@ -47,7 +47,7 @@ cc.Class({
             this.tips.push(n.getComponent(cc.Label));
         }
 
-        if (cc.vv.gameNetMgr.gamestate == "dingque") {
+        if (cc.vv.gameNetMgr.fsmState == "dingque") {
             this.showDingQueChoice();
         }
     },
@@ -59,7 +59,7 @@ cc.Class({
         });
 
         this.node.on("event_game_dingque_notify", function (data) {
-            var seatIndex = cc.vv.gameNetMgr.getSeatIndexByID(data);
+            var seatIndex = cc.vv.gameNetMgr.getSeatIndexByUserId(data);
             var localIndex = cc.vv.gameNetMgr.getLocalIndex(seatIndex);
             console.log("event_game_dingque_notify:" + localIndex);
             self.tips[localIndex].node.active = true;
@@ -77,9 +77,9 @@ cc.Class({
         this.queYiMen.active = true;
         var sd = cc.vv.gameNetMgr.getSelfData();
         var typeCounts = [0, 0, 0];
-        for (var i = 0; i < sd.holds.length; ++i) {
-            var pai = sd.holds[i];
-            var type = cc.vv.mahjongmgr.getTileType(pai);
+        for (var i = 0; i < sd.handTiles.length; ++i) {
+            var tile = sd.handTiles[i];
+            var type = cc.vv.mahjongmgr.getTileType(tile);
             typeCounts[type]++;
         }
 

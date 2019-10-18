@@ -67,26 +67,25 @@ cc.Class({
             }
         };
 
-        var conf = null;
-        conf = this.constructSCMJConf();
-        conf.type = "xlch";
+        var roomConf = null;
+        roomConf = this.constructRoomConf();
+        roomConf.type = "xlch";
 
         var data = {
             account: cc.vv.userMgr.account,
             sign: cc.vv.userMgr.sign,
-            conf: JSON.stringify(conf)
+            conf: JSON.stringify(roomConf)
         };
         // console.log(data);
         cc.vv.wc.show("正在创建房间");
         cc.vv.http.sendRequest("/create_private_room", data, onCreate);
     },
 
-    constructSCMJConf: function () {
-
+    constructRoomConf: function () {
         var wanfaxuanze = this._currentGame.getChildByName("wanfaxuanze"); //玩法
         var huansanzhang = wanfaxuanze.children[0].getComponent("CheckBox").checked; //玩法：换三张
         var jiangdui = wanfaxuanze.children[1].getComponent("CheckBox").checked; //玩法：将对
-        var menqing = wanfaxuanze.children[2].getComponent("CheckBox").checked; //玩法：门清
+        var cbMenQing = wanfaxuanze.children[2].getComponent("CheckBox").checked; //玩法：门清
         var tiandihu = wanfaxuanze.children[3].getComponent("CheckBox").checked; //玩法：天地胡
 
         var difen = this.getSelectedOfRadioGroup("difenxuanze"); //？
@@ -95,7 +94,7 @@ cc.Class({
         var jushuxuanze = this.getSelectedOfRadioGroup("xuanzejushu"); //局数
         var dianganghua = this.getSelectedOfRadioGroup("dianganghua"); //点杠花
 
-        var conf = {
+        var roomConf = {
             difen: difen,
             zimo: zimo,
             jiangdui: jiangdui,
@@ -103,10 +102,10 @@ cc.Class({
             zuidafanshu: zuidafanshu,
             jushuxuanze: jushuxuanze,
             dianganghua: dianganghua,
-            menqing: menqing,
+            menqing: cbMenQing,
             tiandihu: tiandihu,
         };
-        return conf;
+        return roomConf;
     },
 
 

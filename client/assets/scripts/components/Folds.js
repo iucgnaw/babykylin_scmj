@@ -34,7 +34,7 @@ cc.Class({
             var nodeSideName = nodeSidesNames[i];
             var nodeSide = nodeGame.getChildByName(nodeSideName);
             var foldsSprites = [];
-            var nodeDiscardTiles = nodeSide.getChildByName("folds");
+            var nodeDiscardTiles = nodeSide.getChildByName("discardedTiles");
             for (var j = 0; j < nodeDiscardTiles.children.length; ++j) {
                 var node = nodeDiscardTiles.children[j];
                 if ((nodeSideName == "myself") || (nodeSideName == "right")) { // This two sides need to revert zIndex to show tiles properly
@@ -70,8 +70,8 @@ cc.Class({
             self.drawAllFolds();
         });
 
-        this.node.on("event_game_discard_tile", function (data) {
-            self.drawFolds(data);
+        this.node.on("event_game_discard_tile", function (a_data) {
+            self.drawFolds(a_data);
         });
 
         this.node.on("event_player_pass", function (data) {
@@ -87,29 +87,23 @@ cc.Class({
     },
 
     drawFolds: function (a_seatData) {
-        var foldsTiles = a_seatData.folds;
-        if (foldsTiles == null) {
+        var discardedTiles = a_seatData.discardedTiles;
+        if (discardedTiles == null) {
             return;
         }
-        var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatindex);
+        var localIndex = cc.vv.gameNetMgr.getLocalIndex(a_seatData.seatIndex);
         var prefixString = cc.vv.mahjongmgr.getFoldPrefixString(localIndex);
         var sideString = cc.vv.mahjongmgr.getSideString(localIndex);
 
         var foldsSprites = this._foldsSprites[sideString];
         for (var i = 0; i < foldsSprites.length; ++i) {
             var index = i;
-            // if (sideString == "right" || sideString == "up") {
-            //     index = foldsSprites.length - i - 1;
-            // }
             var sprite = foldsSprites[index];
             sprite.node.active = true;
-            this.setSpriteFrameByTile(prefixString, sprite, foldsTiles[i]);
+            this.setSpriteFrameByTile(prefixString, sprite, discardedTiles[i]);
         }
-        for (var i = foldsTiles.length; i < foldsSprites.length; ++i) {
+        for (var i = discardedTiles.length; i < foldsSprites.length; ++i) {
             var index = i;
-            // if (sideString == "right" || sideString == "up") {
-            //     index = foldsSprites.length - i - 1;
-            // }
             var sprite = foldsSprites[index];
 
             sprite.spriteFrame = null;
