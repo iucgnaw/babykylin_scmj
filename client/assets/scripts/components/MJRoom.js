@@ -203,8 +203,8 @@ cc.Class({
     },
 
     onBtnWeichatClicked: function () {
-        var title = "<昌花麻将>";
-        cc.vv.anysdkMgr.share("昌花麻将" + title, "房号:" + cc.vv.gameNetMgr.roomId);
+        var title = "<麻将>";
+        cc.vv.anysdkMgr.share("麻将" + title, "房号:" + cc.vv.gameNetMgr.roomId);
     },
 
     onBtnDissolveClicked: function () {
