@@ -28,7 +28,7 @@ exports.getOnlineCount = function () {
 }
 
 exports.sendMsg = function (a_userId, a_event, a_data) {
-    console.log("socket.emit(), a_event: " + a_event + ", a_data: " + a_data);
+    console.log("sendMsg(), user: " + a_userId + ", msg: " + a_event + ", data: " + a_data);
     var userInfo = g_userSockets[a_userId];
     if (userInfo == null) {
         return;
@@ -64,7 +64,7 @@ exports.kickAllInRoom = function (a_roomId) {
     }
 };
 
-exports.broadcastInRoom = function (a_event, a_data, a_senderUserId, a_includeSender) {
+exports.broadcastMsg = function (a_event, a_data, a_senderUserId, a_includeSender) {
     var roomId = m_roomMgr.getRoomIdByUserId(a_senderUserId);
     if (roomId == null) {
         return;
@@ -73,6 +73,7 @@ exports.broadcastInRoom = function (a_event, a_data, a_senderUserId, a_includeSe
     if (roomInfo == null) {
         return;
     }
+    console.log("broadcastMsg(), msg: " + a_event + ", data: " + a_data + ", sender: " + a_senderUserId + ", includeSender: " + a_includeSender);
 
     for (var i = 0; i < roomInfo.seats.length; ++i) {
         var seat = roomInfo.seats[i];

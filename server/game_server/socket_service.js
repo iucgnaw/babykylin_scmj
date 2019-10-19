@@ -129,7 +129,7 @@ exports.start = function (a_config, a_mgr) {
 			a_socket.emit("res_login_result", result);
 
 			//通知其它客户端
-			m_userMgr.broadcastInRoom("brc_player_join", userData, userId);
+			m_userMgr.broadcastMsg("brc_player_join", userData, userId);
 
 			a_socket.gameMgr = roomInfo.gameMgr;
 
@@ -155,7 +155,7 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 			a_socket.gameMgr.setReady(userId);
-			m_userMgr.broadcastInRoom("brc_player_ready", {
+			m_userMgr.broadcastMsg("brc_player_ready", {
 				userid: userId,
 				ready: true
 			}, userId, true);
@@ -204,12 +204,12 @@ exports.start = function (a_config, a_mgr) {
 			a_socket.gameMgr.hu(a_socket.userId);
 		});
 
-		//过  遇上胡，碰，杠的时候，可以选择过
+		//过
 		a_socket.on("req_pass", function (a_data) {
 			if (a_socket.userId == null) {
 				return;
 			}
-			a_socket.gameMgr.doPass(a_socket.userId);
+			a_socket.gameMgr.on_req_pass(a_socket.userId);
 		});
 
 		//聊天
@@ -218,7 +218,7 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 			var chatContent = a_data;
-			m_userMgr.broadcastInRoom("brc_chat", {
+			m_userMgr.broadcastMsg("brc_chat", {
 				sender: a_socket.userId,
 				content: chatContent
 			}, a_socket.userId, true);
@@ -230,7 +230,7 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 			var chatId = a_data;
-			m_userMgr.broadcastInRoom("brc_quick_chat", {
+			m_userMgr.broadcastMsg("brc_quick_chat", {
 				sender: a_socket.userId,
 				content: chatId
 			}, a_socket.userId, true);
@@ -242,7 +242,7 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 			console.log(a_data.length);
-			m_userMgr.broadcastInRoom("brc_voice_message", {
+			m_userMgr.broadcastMsg("brc_voice_message", {
 				sender: a_socket.userId,
 				content: a_data
 			}, a_socket.userId, true);
@@ -254,7 +254,7 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 			var phizId = a_data;
-			m_userMgr.broadcastInRoom("brc_emoji", {
+			m_userMgr.broadcastMsg("brc_emoji", {
 				sender: a_socket.userId,
 				content: phizId
 			}, a_socket.userId, true);
@@ -285,7 +285,7 @@ exports.start = function (a_config, a_mgr) {
 			}
 
 			//通知其它玩家，有人退出了房间
-			m_userMgr.broadcastInRoom("brc_player_exit", userId, userId, false);
+			m_userMgr.broadcastMsg("brc_player_exit", userId, userId, false);
 
 			m_roomMgr.exitRoom(userId);
 			m_userMgr.del(userId);
@@ -316,7 +316,7 @@ exports.start = function (a_config, a_mgr) {
 				return;
 			}
 
-			m_userMgr.broadcastInRoom("brc_dismiss_room", {}, userId, true);
+			m_userMgr.broadcastMsg("brc_dismiss_room", {}, userId, true);
 			m_userMgr.kickAllInRoom(roomId);
 			m_roomMgr.destroy(roomId);
 			a_socket.disconnect();
@@ -352,7 +352,7 @@ exports.start = function (a_config, a_mgr) {
 					states: dismissRequest.states
 				}
 				console.log(5);
-				m_userMgr.broadcastInRoom("brc_propose_dismiss_room", a_data, userId, true);
+				m_userMgr.broadcastMsg("brc_propose_dismiss_room", a_data, userId, true);
 			}
 			console.log(6);
 		});
@@ -377,7 +377,7 @@ exports.start = function (a_config, a_mgr) {
 					time: ramaingTime,
 					states: dismissRequest.states
 				}
-				m_userMgr.broadcastInRoom("brc_propose_dismiss_room", a_data, userId, true);
+				m_userMgr.broadcastMsg("brc_propose_dismiss_room", a_data, userId, true);
 
 				var doAllAgree = true;
 				for (var i = 0; i < dismissRequest.states.length; ++i) {
@@ -407,7 +407,7 @@ exports.start = function (a_config, a_mgr) {
 
 			var ret = a_socket.gameMgr.dissolveAgree(roomId, userId, false);
 			if (ret != null) {
-				m_userMgr.broadcastInRoom("brc_reject_dismiss_room", {}, userId, true);
+				m_userMgr.broadcastMsg("brc_reject_dismiss_room", {}, userId, true);
 			}
 		});
 
@@ -429,7 +429,7 @@ exports.start = function (a_config, a_mgr) {
 			};
 
 			//通知房间内其它玩家
-			m_userMgr.broadcastInRoom("brc_player_status_change", a_data, userId);
+			m_userMgr.broadcastMsg("brc_player_status_change", a_data, userId);
 
 			//清除玩家的在线信息
 			m_userMgr.del(userId);

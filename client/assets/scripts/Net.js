@@ -21,7 +21,7 @@ var Global = cc.Class({
                 if (a_event != "disconnect" && a_event != "push_server_message" && typeof (a_data) == "string") {
                     a_data = JSON.parse(a_data); // TODO: should parse in each handler, not here!
                 }
-                console.log("received event: " + a_event + ", a_data(" + typeof (a_data) + "): ");
+                console.log("received msg: " + a_event + ", a_data(" + typeof (a_data) + "): " + a_data);
                 console.log(a_data);
                 a_fnHandler(a_data);
             };

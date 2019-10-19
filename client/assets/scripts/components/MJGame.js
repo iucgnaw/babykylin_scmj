@@ -115,7 +115,7 @@ cc.Class({
     },
 
     checkIp: function () {
-        if (cc.vv.gameNetMgr.fsmState == "") {
+        if (cc.vv.gameNetMgr.fsmGameState == "") {
             return;
         }
         var selfData = cc.vv.gameNetMgr.getSelfData();
@@ -562,7 +562,7 @@ cc.Class({
             }
         }
 
-        if (cc.vv.gameNetMgr.fsmState == "" && cc.vv.replayMgr.isReplaying() == false) {
+        if (cc.vv.gameNetMgr.fsmGameState == "" && cc.vv.replayMgr.isReplaying() == false) {
             return;
         }
 

@@ -47,7 +47,7 @@ cc.Class({
             this.tips.push(n.getComponent(cc.Label));
         }
 
-        if (cc.vv.gameNetMgr.fsmState == "dingque") {
+        if (cc.vv.gameNetMgr.fsmGameState == "dingque") {
             this.showDingQueChoice();
         }
     },

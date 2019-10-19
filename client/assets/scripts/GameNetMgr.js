@@ -15,7 +15,7 @@ cc.Class({
         _discardingTile: -1,
         isDingQueing: false,
         isHuanSanZhang: false,
-        fsmState: "",
+        fsmGameState: "",
         isOver: false,
         dissoveData: null,
         // foo: {
@@ -34,7 +34,7 @@ cc.Class({
         this._discardingTile = -1;
         this.dingque = -1;
         this.dealer = -1;
-        this.fsmState = "";
+        this.fsmGameState = "";
         this.dingque = -1;
         this.isDingQueing = false;
         this.isHuanSanZhang = false;
@@ -239,21 +239,21 @@ cc.Class({
         cc.vv.net.addHandler("push_game_begin", function (data) {
             self.dealer = data;
             self.turn = self.dealer;
-            self.fsmState = "begin";
+            self.fsmGameState = "begin";
             self.dispatchEvent("event_game_begin");
         });
 
         cc.vv.net.addHandler("brc_game_playing", function (data) {
-            self.fsmState = "playing";
+            self.fsmGameState = "playing";
             self.dispatchEvent("event_game_playing");
         });
 
         cc.vv.net.addHandler("push_game_sync", function (data) {
             self.tilesWallRemaining = data.tilesWallRemaining;
-            self.fsmState = data.fsmState;
-            if (self.fsmState == "dingque") {
+            self.fsmGameState = data.fsmGameState;
+            if (self.fsmGameState == "dingque") {
                 self.isDingQueing = true;
-            } else if (self.fsmState == "huanpai") {
+            } else if (self.fsmGameState == "huanpai") {
                 self.isHuanSanZhang = true;
             }
             self.turn = data.turn;
@@ -275,7 +275,7 @@ cc.Class({
         cc.vv.net.addHandler("brc_game_dingque", function (data) {
             self.isDingQueing = true;
             self.isHuanSanZhang = false;
-            self.fsmState = "dingque";
+            self.fsmGameState = "dingque";
             self.dispatchEvent("event_game_dingque");
         });
 

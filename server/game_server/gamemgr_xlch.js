@@ -140,8 +140,7 @@ function dealTiles(a_game) {
 
 // TODO ne need
 function cleanSeatData(a_game, a_seat) {
-    var fnClear = function (a_seatData) {
-    }
+    var fnClear = function (a_seatData) {}
 
     if (a_seat) {
         fnClear(a_seat);
@@ -175,7 +174,7 @@ function doDrawTile(a_game) {
         doGameOver(a_game, turnSeat.userId);
         return;
     } else {
-        m_userMgr.broadcastInRoom("brc_tiles_wall_remaining",
+        m_userMgr.broadcastMsg("brc_tiles_wall_remaining",
             (a_game.tilesWall.length - a_game.tilesWallPtr),
             turnSeat.userId,
             true);
@@ -185,7 +184,7 @@ function doDrawTile(a_game) {
 
     m_userMgr.sendMsg(turnSeat.userId, "push_draw_tile", tile);
 
-    m_userMgr.broadcastInRoom("brc_change_turn", turnSeat.userId, turnSeat.userId, true);
+    m_userMgr.broadcastMsg("brc_change_turn", turnSeat.userId, turnSeat.userId, true);
 }
 
 function doGameOver(a_game, a_userId, a_forceEnd) {
@@ -217,7 +216,7 @@ function doGameOver(a_game, a_userId, a_forceEnd) {
             }
         }
 
-        m_userMgr.broadcastInRoom("brc_game_finish", {
+        m_userMgr.broadcastMsg("brc_game_finish", {
             results: results,
             endinfo: endInfo
         }, a_userId, true);
@@ -371,7 +370,7 @@ exports.setReady = function (a_userId, a_callback) {
         }
     } else {
         var msgData = {
-            fsmState: game.fsmState,
+            fsmGameState: game.fsmGameState,
             tilesWallRemaining: (game.tilesWall.length - game.tilesWallPtr),
             dealer: game.dealer,
             turn: game.turn,
@@ -450,24 +449,6 @@ function store_game(a_game, a_callback) {
     m_db.create_game(a_game.roomInfo.uuid, a_game.gameIndex, a_game.baseInfoJson, a_callback);
 }
 
-function doDingque(a_userId, a_type) {
-    var seatData = g_gameSeatsOfUsers[a_userId];
-    if (seatData == null) {
-        console.log("cannot find user game data.");
-        return;
-    }
-
-    var game = seatData.game;
-
-    construct_game_base_info(game);
-
-    m_userMgr.broadcastInRoom("brc_game_playing", null, seatData.userId, true);
-
-    game.fsmState = "playing";
-    //通知玩家出牌方
-    m_userMgr.broadcastInRoom("brc_change_turn", game.gameSeats[game.turn].userId, game.gameSeats[game.turn].userId, true);
-}
-
 //开始新的一局
 exports.begin = function (a_roomId) {
     var roomInfo = m_roomMgr.getRoomByRoomId(a_roomId);
@@ -488,7 +469,7 @@ exports.begin = function (a_roomId) {
 
         turn: 0,
         discardingTile: -1,
-        fsmState: "idle",
+        fsmGameState: "idle",
         actionList: [],
     };
 
@@ -541,15 +522,16 @@ exports.begin = function (a_roomId) {
         m_userMgr.sendMsg(seat.userId, "push_number_of_hands", roomInfo.numOfGames);
         m_userMgr.sendMsg(seat.userId, "push_game_begin", game.dealer);
 
-        // doDingque(seat.userId, 0);
+        seat.fsmPlayerState = m_mahjong.MJ_PLAYER_STATE_IDLE;
     }
     construct_game_base_info(game);
 
-    m_userMgr.broadcastInRoom("brc_game_playing", null, seat.userId, true);
+    m_userMgr.broadcastMsg("brc_game_playing", null, seat.userId, true);
 
-    game.fsmState = "playing";
+    game.fsmGameState = "playing";
     //通知玩家出牌方
-    m_userMgr.broadcastInRoom("brc_change_turn", game.gameSeats[game.turn].userId, game.gameSeats[game.turn].userId, true);
+    m_userMgr.broadcastMsg("brc_change_turn", game.gameSeats[game.turn].userId, game.gameSeats[game.turn].userId, true);
+    game.gameSeats[game.turn].fsmPlayerState = m_mahjong.MJ_PLAYER_STATE_FULL_HAND;
 };
 
 exports.doDiscardTile = function (a_userId, a_tile) {
@@ -565,7 +547,6 @@ exports.doDiscardTile = function (a_userId, a_tile) {
     var seatIndex = seatData.seatIndex;
     //如果不该他出，则忽略
     if (game.turn != seatData.seatIndex) {
-        // console.log("Not your turn.");
         m_userMgr.sendMsg(a_userId, "push_server_message", "Not your turn.");
         return;
     }
@@ -573,7 +554,6 @@ exports.doDiscardTile = function (a_userId, a_tile) {
     //从此人牌中扣除
     var index = seatData.handTiles.indexOf(a_tile);
     if (index == -1) {
-        // console.log("Cannot find tile: " + a_tile + " in hands: " + seatData.handTiles);
         m_userMgr.sendMsg(a_userId, "push_server_message", "Cannot find tile: " + a_tile + " in hands: " + seatData.handTiles);
         return;
     }
@@ -582,7 +562,7 @@ exports.doDiscardTile = function (a_userId, a_tile) {
     game.discardingTile = a_tile;
     recordGameAction(game, seatData.seatIndex, MJ_ACTION_DISCARD_TILE, a_tile);
 
-    m_userMgr.broadcastInRoom("brc_discard", {
+    m_userMgr.broadcastMsg("brc_discard", {
         userId: seatData.userId,
         tile: a_tile
     }, seatData.userId, true);
@@ -590,18 +570,19 @@ exports.doDiscardTile = function (a_userId, a_tile) {
     // TODO: Wait for all pass from users
 
     //如果没有人有操作，则向下一家发牌，并通知他出牌
-    // if (!actionsPendingInRoom) {
     setTimeout(function () {
-        m_userMgr.broadcastInRoom("brc_pass", {
+        m_userMgr.broadcastMsg("brc_pass", {
             userId: seatData.userId,
             tile: game.discardingTile
         }, seatData.userId, true);
+
         seatData.discardedTiles.push(game.discardingTile);
         game.discardingTile = -1;
+
         changeTurn(game);
+
         doDrawTile(game);
     }, 500);
-    // }
 };
 
 exports.on_req_pong = function (a_userId, a_meld) {
@@ -633,7 +614,7 @@ exports.on_req_pong = function (a_userId, a_meld) {
     recordGameAction(game, seatData.seatIndex, MJ_ACTION_PONG, tile);
 
     //广播通知其它玩家
-    m_userMgr.broadcastInRoom("brc_pong", {
+    m_userMgr.broadcastMsg("brc_pong", {
         userid: seatData.userId,
         tile: tile
     }, seatData.userId, true);
@@ -642,7 +623,7 @@ exports.on_req_pong = function (a_userId, a_meld) {
     changeTurn(game, seatData.seatIndex);
 
     //广播通知玩家出牌方
-    m_userMgr.broadcastInRoom("brc_change_turn", seatData.userId, seatData.userId, true);
+    m_userMgr.broadcastMsg("brc_change_turn", seatData.userId, seatData.userId, true);
 };
 
 exports.isPlaying = function (a_userId) {
@@ -653,7 +634,7 @@ exports.isPlaying = function (a_userId) {
 
     var game = seatData.game;
 
-    if (game.fsmState == "idle") {
+    if (game.fsmGameState == "idle") {
         return false;
     }
 
@@ -710,7 +691,7 @@ function doGang(a_game, a_turnSeat, a_seat, a_meld) {
     }
 
     //通知其他玩家，有人杠了牌
-    m_userMgr.broadcastInRoom("brc_kong", {
+    m_userMgr.broadcastMsg("brc_kong", {
         userId: a_seat.userId,
         meld: a_meld,
     }, a_seat.userId, true);
@@ -733,7 +714,7 @@ exports.on_req_kong = function (a_userId, a_meld) {
     game.discardingTile = -1;
     cleanSeatData(game);
 
-    m_userMgr.broadcastInRoom("brc_call_kong", seatIndex, seatData.userId, true);
+    m_userMgr.broadcastMsg("brc_call_kong", seatIndex, seatData.userId, true);
 
     //如果是弯杠，则需要检查是否可以抢杠
     var turnSeat = game.gameSeats[game.turn];
@@ -806,7 +787,7 @@ exports.hu = function (a_userId) {
     cleanSeatData(game, seatData);
 
     //通知前端，有人和牌了
-    m_userMgr.broadcastInRoom("brc_win", {
+    m_userMgr.broadcastMsg("brc_win", {
         seatIndex: seatIndex,
         iszimo: isSelfDraw,
         hupai: tile
@@ -815,47 +796,62 @@ exports.hu = function (a_userId) {
     doGameOver(game, turnSeat.userId);
 };
 
-exports.doPass = function (a_userId) {
+exports.on_req_pass = function (a_userId) {
     var seatData = g_gameSeatsOfUsers[a_userId];
     if (seatData == null) {
-        console.log("cannot find user game data.");
+        console.error("cannot find user game data.");
         return;
     }
 
     var seatIndex = seatData.seatIndex;
     var game = seatData.game;
 
-    //如果是玩家自己的轮子，不是接牌，则不需要额外操作
-    var doNothing = game.discardingTile == -1 && game.turn == seatIndex;
+    // //如果是玩家自己的轮子，不是接牌，则不需要额外操作
+    // var doNothing = game.discardingTile == -1 && game.turn == seatIndex;
 
-    m_userMgr.sendMsg(seatData.userId, "push_pass_result");
-    cleanSeatData(game, seatData);
+    // m_userMgr.sendMsg(seatData.userId, "push_pass_result");
+    // cleanSeatData(game, seatData);
 
-    if (doNothing) {
-        return;
+    // if (doNothing) {
+    //     return;
+    // }
+
+    if (seatData.fsmPlayerState == m_mahjong.MJ_PLAYER_STATE_THINKING) {
+        m_userMgr.broadcastMsg("brc_pass", {
+            userId: seatData.userId,
+            tile: game.discardingTile
+        }, seatData.userId, true);
+
+        seatData.fsmPlayerState = m_mahjong.MJ_PLAYER_STATE_IDLE;
     }
 
     //如果是已打出的牌，则需要通知。
-    if (game.discardingTile >= 0) {
-        m_userMgr.broadcastInRoom("brc_pass", {
-            userId: game.gameSeats[game.turn].userId,
-            tile: game.discardingTile
-        }, seatData.userId, true);
-        seatData.discardedTiles.push(game.discardingTile);
-        game.discardingTile = -1;
-    }
+    // if (game.discardingTile >= 0) {
+    //     m_userMgr.broadcastMsg("brc_pass", {
+    //         userId: game.gameSeats[game.turn].userId,
+    //         tile: game.discardingTile
+    //     }, seatData.userId, true);
 
-    var robGangContext = game.qiangGangContext;
+    //     seatData.discardedTiles.push(game.discardingTile);
+
+    //     game.discardingTile = -1;
+    // }
+
+    // var robGangContext = game.qiangGangContext;
     //清除所有的操作
-    cleanSeatData(game);
+    // cleanSeatData(game);
 
-    if (robGangContext != null && robGangContext.isValid) {
-        doGang(game, robGangContext.turnSeat, robGangContext.seatData, "meld_pong_to_kong", 1, robGangContext.tile);
-    } else {
-        //下家摸牌
-        changeTurn(game);
-        doDrawTile(game);
-    }
+    // if (robGangContext != null && robGangContext.isValid) {
+    //     doGang(game, robGangContext.turnSeat, robGangContext.seatData, "meld_pong_to_kong", 1, robGangContext.tile);
+    // } else {
+    //下家摸牌
+    // var allPass = false;
+    // if (allpass) {
+    //     changeTurn(game);
+
+    //     doDrawTile(game);
+    // }
+    // }
 };
 
 exports.hasBegan = function (a_roomId) {
